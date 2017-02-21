@@ -16,7 +16,7 @@ class CrearTablaActualizacionesCatalogos extends Migration
         Schema::create('catalogos', function (Blueprint $table) {
 
             $table->string('id');
-            $table->datetime('fecha_actualizacion');
+            $table->datetime('fecha_actualizacion')->nullable();
             $table->primary('id');
         });
     }

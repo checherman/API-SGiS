@@ -1,0 +1,179 @@
+<?php
+
+namespace App\Http\Controllers\V1\Sistema;
+
+use App\Http\Controllers\Controller;
+
+use Illuminate\Http\Request;
+use Illuminate\Http\Response as HttpResponse;
+
+use App\Http\Requests;
+use App\Models\Sistema\Usuario;
+use Illuminate\Support\Facades\Input;
+use \Validator,\Hash, \Response, \DB;
+
+
+
+class UsuarioController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index()
+    {
+        $parametros = Input::only('q');
+        if ($parametros['q']) {
+             $usuarios =  Usuario::where('su',false)->where(function($query) use ($parametros) {
+                 $query->where('id','LIKE',"%".$parametros['q']."%")->orWhere(DB::raw("CONCAT(nombre,' ',paterno,' ',materno)"),'LIKE',"%".$parametros['q']."%");
+             })->get();
+        } else {
+             $usuarios =  Usuario::where('su',false)->get();
+        }
+       
+        return Response::json([ 'data' => $usuarios],200);
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {
+        $mensajes = [
+            
+            'required'      => "required",
+            'email'         => "email",
+            'unique'        => "unique"
+        ];
+
+        $reglas = [
+            'id'            => 'required|email|unique:usuarios',
+            'password'      => 'required',
+            'nombre'        => 'required',
+            'paterno'       => 'required',
+            'materno'       => 'required'
+        ];
+
+        $inputs = Input::only('id','servidor_id','password','nombre', 'paterno', 'materno', 'celular', 'avatar','roles');
+
+        $v = Validator::make($inputs, $reglas, $mensajes);
+
+        if ($v->fails()) {
+            return Response::json(['error' => $v->errors()], HttpResponse::HTTP_CONFLICT);
+        }
+
+        try {
+            $inputs['servidor_id'] = env("SERVIDOR_ID");
+            $inputs['password'] = Hash::make($inputs['password']);
+            $usuario = Usuario::create($inputs);
+
+            $usuario->roles()->sync($inputs['roles']);
+
+            return Response::json([ 'data' => $usuario ],200);
+
+        } catch (\Exception $e) {
+            return Response::json(['error' => $e->getMessage()], HttpResponse::HTTP_CONFLICT);
+        } 
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        $object = Usuario::find($id);
+
+        
+        
+        if(!$object ){
+            
+            return Response::json(['error' => "No se encuentra el recurso que esta buscando."], HttpResponse::HTTP_NOT_FOUND);
+        }
+        unset($object->password);
+        $object->roles;
+
+        return Response::json([ 'data' => $object ], HttpResponse::HTTP_OK);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+        $mensajes = [
+            
+            'required'      => "required",
+            'email'         => "email",
+            'unique'        => "unique"
+        ];
+
+        $reglas = [
+            'id'            => 'required|email|unique:usuarios,id,'.$id,
+            'password'      => 'required_with:cambiarPassword',
+            'nombre'        => 'required',
+            'paterno'       => 'required',
+            'materno'       => 'required'
+        ];
+        $object = Usuario::find($id);
+
+        if(!$object){
+            return Response::json(['error' => "No se encuentra el recurso que esta buscando."], HttpResponse::HTTP_NOT_FOUND);
+        }
+
+        $inputs = Input::only('id','servidor_id', 'password', 'nombre', 'paterno', 'materno', 'celular', 'avatar', 'roles', 'cambiarPassword');
+
+        $v = Validator::make($inputs, $reglas, $mensajes);
+
+        if ($v->fails()) {
+            return Response::json(['error' => $v->errors()], HttpResponse::HTTP_CONFLICT);
+        }
+
+        try {
+            $object->nombre =  $inputs['nombre'];
+            $object->paterno =  $inputs['paterno'];
+            $object->materno =  $inputs['materno'];
+            $object->celular =  $inputs['celular'];
+            $object->avatar =  $inputs['avatar'];
+            $object->id =  $inputs['id'];
+            if ($inputs['cambiarPassword'] ){
+                $object->password = Hash::make($inputs['password']);
+            }
+            $object->save();
+            $object->roles()->sync($inputs['roles']);
+            $object->roles;
+            unset($object->password); 
+            return Response::json([ 'data' => $object ],200);
+
+        } catch (\Exception $e) {
+            return Response::json(['error' => $e->getMessage()], HttpResponse::HTTP_CONFLICT);
+        } 
+
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy($id)
+    {
+       try {
+			$object = Usuario::destroy($id);
+			return Response::json(['data'=>$object],200);
+		} catch (Exception $e) {
+		   return Response::json(['error' => $e->getMessage()], HttpResponse::HTTP_CONFLICT);
+		}
+    }
+}
