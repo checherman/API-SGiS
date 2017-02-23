@@ -12,6 +12,8 @@ use \DB, \Storage, \ZipArchive, \Hash, \Response, \Config;
 use App\Models\Transacciones\Sincronizacion, App\Models\Sistema\Servidor;
 use App\Librerias\Sync\ArchivoSync;
 
+use Illuminate\Support\Facades\Crypt;
+
 class SincronizacionController extends Controller
 {
 
@@ -45,39 +47,44 @@ class SincronizacionController extends Controller
 
             // Generamos archivo de sincronización de registros actualizados o creados a la fecha de corte
 
-            foreach(Config::get("sync.tablas") as $key){
+            foreach (Config::get("sync.tablas") as $key) {
 
                 if ($ultima_sincronizacion) {
-                    $rows = DB::table($key)->where("servidor_id",env("SERVIDOR_ID"))->whereBetween('updated_at',[$ultima_sincronizacion->fecha_generacion,$fecha_generacion])->get();
+                    $rows = DB::table($key)->where("servidor_id", env("SERVIDOR_ID"))->whereBetween('updated_at', [$ultima_sincronizacion->fecha_generacion, $fecha_generacion])->get();
                 } else {
-                    $rows = DB::table($key)->where("servidor_id",env("SERVIDOR_ID"))->get();
+                    $rows = DB::table($key)->where("servidor_id", env("SERVIDOR_ID"))->get();
                 }
 
-                if($rows){
-                    Storage::append('sync/sumami.sync', "REPLACE INTO ".$key." VALUES ");
+                if ($rows) {
+                    Storage::append('sync/sumami.sync', "REPLACE INTO " . $key . " VALUES ");
 
                     $columnas = DB::getSchemaBuilder()->getColumnListing($key);
                     $index_replace = 0;
 
-                    foreach($rows as $row){
-                        if ($index_replace!=0){
+                    foreach ($rows as $row) {
+                        if ($index_replace != 0) {
                             $item = ", (";
                         } else {
                             $item = "(";
                         }
 
                         $index_items = 0;
-                        foreach($columnas as $nombre){
-                            if ($index_items!=0){
+                        foreach ($columnas as $nombre) {
+                            if ($index_items != 0) {
                                 $item .= ",";
                             }
 
-                            $tipo  = gettype($row->$nombre);
+                            $tipo = gettype($row->$nombre);
 
-                            switch($tipo){
-                                case "string": $item .= "\"".$row->$nombre."\""; break;
-                                case "NULL": $item .= "NULL"; break;
-                                default: $item .= $row->$nombre;
+                            switch ($tipo) {
+                                case "string":
+                                    $item .= "\"" . $row->$nombre . "\"";
+                                    break;
+                                case "NULL":
+                                    $item .= "NULL";
+                                    break;
+                                default:
+                                    $item .= $row->$nombre;
                             }
 
                             $index_items += 1;
@@ -93,7 +100,7 @@ class SincronizacionController extends Controller
 
             // Generamos archivo de catalogos para que cuando se sincronize en el servidor principal se sepa si están actualizados o no
 
-            if(Config::get("sync.catalogos")){
+            if (Config::get("sync.catalogos")) {
 
                 $contador = 0;
 
@@ -101,26 +108,42 @@ class SincronizacionController extends Controller
 
                     $ultima_actualizacion = DB::table($key)->max("updated_at");
 
-                    if($contador==0){
-                        Storage::put('sync/catalogos.sync', $key."=".$ultima_actualizacion);
+                    if ($contador == 0) {
+                        Storage::put('sync/catalogos.sync', $key . "=" . $ultima_actualizacion);
                     } else {
-                        Storage::append('sync/catalogos.sync', $key."=".$ultima_actualizacion);
+                        Storage::append('sync/catalogos.sync', $key . "=" . $ultima_actualizacion);
                     }
                     $contador++;
                 }
             } else {
-                Storage::put('sync/catalogos.sync','');
+                Storage::put('sync/catalogos.sync', '');
             }
+
             $storage_path = storage_path();
+
+            $header = file($storage_path."/app/sync/header.sync");
+            //$headerEncrypt = Crypt::encryptString(serialize(file($storage_path."/app/sync/header.sync")));
+            //$sumamiSEncrypt = Crypt::encryptString(serialize(file($storage_path."/app/sync/sumami.sync")));
+            //$catalogosEncrypt = Crypt::encryptString(serialize(file($storage_path."/app/sync/catalogos.sync")));
+
+            Storage::put('sync/json.header', json_encode($header));
+
+            $filename = $storage_path."/app/sync/json.header";
+
+            $handle = fopen($filename, "r");
+            $contents = fread($handle, filesize($filename));
+            $EncryptedData=Crypt::encryptString($contents);
+            Storage::put('sync/json.header', $EncryptedData);
+            fclose($handle);
+
             $zip = new ZipArchive();
-            $zippath = $storage_path."/app/";
+            $zippath = $storage_path.'/app/';
             $zipname = "sync.".env('SERVIDOR_ID').".zip";
 
-            exec("zip -P ".env('SECRET_KEY')." -j -r ".$zippath.$zipname." \"".$zippath."/sync/\"");
-
-            $zip_status = $zip->open($zippath.$zipname);
+            $zip_status = $zip->open($zippath.$zipname,ZIPARCHIVE::CREATE);
 
             if ($zip_status === true) {
+                $zip->addFile($storage_path."/app/sync/json.header",'header.json');
 
                 $zip->close();
                 Storage::deleteDirectory("sync");
@@ -132,9 +155,10 @@ class SincronizacionController extends Controller
                 readfile($zippath.$zipname);
                 Storage::delete($zipname);
                 exit();
-            } else {
-                throw new \Exception("No se pudo crear el archivo");
+            }else{
+                return Response::json(['error' => 'El archivo zip, no se encuentra'], HttpResponse::HTTP_CONFLICT);
             }
+
         } catch (\Exception $e) {
             echo " Sync Manual Excepción: ".$e->getMessage();
             Storage::append('log.sync', $fecha_generacion." Sync Manual Excepción: ".$e->getMessage());
@@ -548,9 +572,15 @@ class SincronizacionController extends Controller
                     }
                     $statement .= ";";
 
-                    $conexion_remota->statement($statement);
+                    if(count($rows) > 0){
+                        $conexion_remota->statement($statement);
 
-                    echo "Tabla: ".$key."\t=> ".count($rows)." registros sincronizados \n";
+                        echo "Tabla: ".$key."\t=> ".count($rows)." registros sincronizados \n";
+                    }else{
+                        echo "Tabla: ".$key."\t=> 0 registros sincronizados \n";
+                    }
+
+
                 } else {
                     echo "Tabla: ".$key."\t=> 0 registros sincronizados \n";
                 }
@@ -657,5 +687,14 @@ class SincronizacionController extends Controller
             DB::rollback();
             $conexion_remota->rollback();
         }
+    }
+
+    function encryptData($value){
+        $key = env('SERVIDOR_ID');
+        $text = $value;
+        $iv_size = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_256, MCRYPT_MODE_ECB);
+        $iv = mcrypt_create_iv($iv_size, MCRYPT_RAND);
+        $crypttext = mcrypt_encrypt(MCRYPT_RIJNDAEL_256, $key, $text, MCRYPT_MODE_ECB, $iv);
+        return $crypttext;
     }
 }

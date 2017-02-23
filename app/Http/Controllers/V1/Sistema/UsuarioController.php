@@ -55,7 +55,8 @@ class UsuarioController extends Controller
             'password'      => 'required',
             'nombre'        => 'required',
             'paterno'       => 'required',
-            'materno'       => 'required'
+            'materno'       => 'required',
+            'celular'       => 'required'
         ];
 
         $inputs = Input::only('id','servidor_id','password','nombre', 'paterno', 'materno', 'celular', 'avatar','roles');
@@ -123,7 +124,8 @@ class UsuarioController extends Controller
             'password'      => 'required_with:cambiarPassword',
             'nombre'        => 'required',
             'paterno'       => 'required',
-            'materno'       => 'required'
+            'materno'       => 'required',
+            'celular'       => 'required'
         ];
         $object = Usuario::find($id);
 
