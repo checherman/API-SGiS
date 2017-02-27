@@ -119,23 +119,20 @@ class SincronizacionController extends Controller
                 Storage::put('sync/catalogos.sync', '');
             }
 
+            $contents_header = Storage::get("sync/header.sync");
+            $EncryptedHeader=Crypt::encryptString($contents_header);
+            Storage::put('sync/header.sync',$EncryptedHeader);
+
+            $contents_sumami = Storage::get("sync/sumami.sync");
+            $EncryptedSumami=Crypt::encryptString($contents_sumami);
+            Storage::put('sync/sumami.sync',$EncryptedSumami);
+
+            $contents_catalogos = Storage::get("sync/catalogos.sync");
+            $EncryptedCatalogos=Crypt::encryptString($contents_catalogos);
+            Storage::put('sync/catalogos.sync',$EncryptedCatalogos);
+
+
             $storage_path = storage_path();
-
-            $header = file($storage_path."/app/sync/header.sync");
-            //$headerEncrypt = Crypt::encryptString(serialize(file($storage_path."/app/sync/header.sync")));
-            //$sumamiSEncrypt = Crypt::encryptString(serialize(file($storage_path."/app/sync/sumami.sync")));
-            //$catalogosEncrypt = Crypt::encryptString(serialize(file($storage_path."/app/sync/catalogos.sync")));
-
-            Storage::put('sync/json.header', json_encode($header));
-
-            $filename = $storage_path."/app/sync/json.header";
-
-            $handle = fopen($filename, "r");
-            $contents = fread($handle, filesize($filename));
-            $EncryptedData=Crypt::encryptString($contents);
-            Storage::put('sync/json.header', $EncryptedData);
-            fclose($handle);
-
             $zip = new ZipArchive();
             $zippath = $storage_path.'/app/';
             $zipname = "sync.".env('SERVIDOR_ID').".zip";
@@ -143,7 +140,9 @@ class SincronizacionController extends Controller
             $zip_status = $zip->open($zippath.$zipname,ZIPARCHIVE::CREATE);
 
             if ($zip_status === true) {
-                $zip->addFile($storage_path."/app/sync/json.header",'header.json');
+                $zip->addFile($storage_path."/app/sync/header.sync",'header.sync');
+                $zip->addFile($storage_path."/app/sync/sumami.sync",'sumami.sync');
+                $zip->addFile($storage_path."/app/sync/catalogos.sync",'catalogos.sync');
 
                 $zip->close();
                 Storage::deleteDirectory("sync");
