@@ -20,7 +20,7 @@ class UsuariosSeeder extends Seeder
                 'paterno' => 'Usuario',
                 'materno' => 'Usuario',
                 'celular' => '9611665125',
-                'avatar' => '',
+                'avatar' => 'avatar-circled-root',
                 'su' => true
             ]
         ]);

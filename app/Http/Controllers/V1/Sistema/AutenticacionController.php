@@ -8,7 +8,7 @@ use JWTAuth, JWTFactory;
 use Tymon\JWTAuth\Exceptions\JWTException;
 
 use Illuminate\Http\Request;
-use \Hash;
+use \Hash, \Config;
 use App\Models\Sistema\Usuario, App\Models\Sistema\Permiso;
 
 class AutenticacionController extends Controller
@@ -72,10 +72,15 @@ class AutenticacionController extends Controller
                     "permisos" => $lista_permisos
                 ];
 
+                $server_info = [
+                    "server_datetime_snap" => getdate(),
+	                "token_refresh_ttl" => Config::get("jwt.refresh_ttl")
+                ];
+
                 $payload = JWTFactory::make($claims);
                 $token = JWTAuth::encode($payload);
 
-                return response()->json(['token' => $token->get(), 'usuario'=>$usuario], 200);
+                return response()->json(['token' => $token->get(), 'usuario'=>$usuario, 'server_info'=> $server_info], 200);
             } else {
                 return response()->json(['error' => 'invalid_credentials'], 401); 
             }
@@ -88,7 +93,12 @@ class AutenticacionController extends Controller
     public function refreshToken(Request $request){
         try{
             $token =  JWTAuth::parseToken()->refresh();
-            return response()->json(['token' => $token], 200);
+            $server_info = [
+                "server_datetime_snap" => getdate(),
+                "token_refresh_ttl" => Config::get("jwt.refresh_ttl")
+            ];
+
+            return response()->json(['token' => $token, 'server_info'=> $server_info], 200);
 
         } catch (TokenExpiredException $e) {
             return response()->json(['error' => 'token_expirado'], 401);  

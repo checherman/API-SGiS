@@ -23,15 +23,22 @@ class UsuarioController extends Controller
      */
     public function index()
     {
-        $parametros = Input::only('q');
+        $parametros = Input::only('q','page','per_page');
         if ($parametros['q']) {
              $usuarios =  Usuario::where('su',false)->where(function($query) use ($parametros) {
                  $query->where('id','LIKE',"%".$parametros['q']."%")->orWhere(DB::raw("CONCAT(nombre,' ',paterno,' ',materno)"),'LIKE',"%".$parametros['q']."%");
-             })->get();
+             });
         } else {
-             $usuarios =  Usuario::where('su',false)->get();
+             $usuarios =  Usuario::where('su',false);
         }
-       
+
+        if(isset($parametros['page'])){
+            $resultadosPorPagina = isset($parametros["per_page"])? $parametros["per_page"] : 20;
+            $usuarios = $usuarios->paginate($resultadosPorPagina);
+        } else {
+            $usuarios = $usuarios->get();
+        }
+
         return Response::json([ 'data' => $usuarios],200);
     }
 
