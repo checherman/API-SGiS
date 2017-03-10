@@ -120,17 +120,16 @@ class SincronizacionController extends Controller
             }
 
             $contents_header = Storage::get("sync/header.sync");
-            $EncryptedHeader=Crypt::encryptString($contents_header);
+            $EncryptedHeader= Crypt::encryptString($contents_header);
             Storage::put('sync/header.sync',$EncryptedHeader);
 
             $contents_sumami = Storage::get("sync/sumami.sync");
-            $EncryptedSumami=Crypt::encryptString($contents_sumami);
+            $EncryptedSumami= Crypt::encryptString($contents_sumami);
             Storage::put('sync/sumami.sync',$EncryptedSumami);
 
             $contents_catalogos = Storage::get("sync/catalogos.sync");
-            $EncryptedCatalogos=Crypt::encryptString($contents_catalogos);
+            $EncryptedCatalogos= Crypt::encryptString($contents_catalogos);
             Storage::put('sync/catalogos.sync',$EncryptedCatalogos);
-
 
             $storage_path = storage_path();
             $zip = new ZipArchive();
@@ -145,6 +144,7 @@ class SincronizacionController extends Controller
                 $zip->addFile($storage_path."/app/sync/catalogos.sync",'catalogos.sync');
 
                 $zip->close();
+
                 Storage::deleteDirectory("sync");
 
                 ///Then download the zipped file.
@@ -199,10 +199,7 @@ class SincronizacionController extends Controller
                         $zippath = $storage_path."/app/importar/";
                         $zipname = "sync.".$servidor_id.".zip";
 
-
                         $zip_status = $zip->open($zippath.$zipname) ;
-
-
 
                         if ($zip_status === true) {
 
@@ -218,12 +215,13 @@ class SincronizacionController extends Controller
 
                                     //Obtenemos información del servidor que está sincronizando
                                     $contents_header = Storage::get("importar/".$servidor->id."/header.sync");
-                                    $header_vars = ArchivoSync::parseVars($contents_header);
+                                    $headerDes = Crypt::decryptString($contents_header);
+                                    $header_vars = ArchivoSync::parseVars($headerDes);
 
                                     // Obtenemos las fechas de actualizacion de sus catálogos
                                     $contents_catalogos = Storage::get("importar/".$servidor->id."/catalogos.sync");
-                                    $catalogos_vars = ArchivoSync::parseVars($contents_catalogos);
-
+                                    $catalogosDes = Crypt::decryptString($contents_catalogos);
+                                    $catalogos_vars = ArchivoSync::parseVars($catalogosDes);
 
                                     // Verificamos que esta actualiacion no se haya aplicado antes
                                     if(Sincronizacion::where('servidor_id',$servidor->id)->where('fecha_generacion',$header_vars['FECHA_SYNC'])->count() > 0){
@@ -232,9 +230,9 @@ class SincronizacionController extends Controller
                                     }
 
 
-
                                     $actualizar_catalogos = "false";
                                     Storage::put("importar/".$servidor->id."/confirmacion/catalogos.sync","");
+
                                     foreach ($catalogos_vars as $key => $cat_ultima_actualizacion) {
 
                                         $principal_ultima_actualizacion = DB::table($key)->max("updated_at");
@@ -287,6 +285,10 @@ class SincronizacionController extends Controller
                                         }
                                     }
 
+                                    $contents_catalogos = Storage::get("importar/".$servidor->id."/confirmacion/catalogos.sync");
+                                    $EncryptedCatalogos= Crypt::encryptString($contents_catalogos);
+                                    Storage::put('importar/'.$servidor->id.'/confirmacion/catalogos.sync',$EncryptedCatalogos);
+
                                     // Registramos la version del servidor y si los catálogos estan actualizados
                                     $servidor->version = $header_vars['VERSION'];
 
@@ -304,7 +306,9 @@ class SincronizacionController extends Controller
                                         $actualizar_software = "false";
                                     }
                                     $contents = Storage::get("importar/".$servidor->id."/sumami.sync");
-                                    DB::connection()->getpdo()->exec($contents);
+                                    $sumamiDes = Crypt::decryptString($contents);
+
+                                    DB::connection()->getpdo()->exec($sumamiDes);
 
                                     // Registramos la sincronización en la base de datos.
                                     $sincronizacion = new Sincronizacion;
@@ -318,16 +322,21 @@ class SincronizacionController extends Controller
                                     Storage::append($confirmacion_file,"ACTUALIZAR_SOFTWARE=".$actualizar_software);
                                     Storage::append($confirmacion_file,"VERSION_ACTUAL_SOFTWARE=".env('VERSION'));
                                     Storage::append($confirmacion_file,"ACTUALIZAR_CATALOGOS=".$actualizar_catalogos);
-                                    $storage_path = storage_path();
 
+                                    $contents_confirmacion = Storage::get("importar/".$servidor->id."/confirmacion/confirmacion.sync");
+                                    $EncryptedConfirmacion= Crypt::encryptString($contents_confirmacion);
+                                    Storage::put('importar/'.$servidor->id.'/confirmacion/confirmacion.sync',$EncryptedConfirmacion);
+
+                                    $storage_path = storage_path();
                                     $zip = new ZipArchive();
                                     $zippath = $storage_path."/app/";
                                     $zipname = "sync.confirmacion.".$servidor->id.".zip";
-
-                                    exec("zip -P ".$servidor->secret_key." -j -r ".$zippath.$zipname." \"".$zippath."/importar/".$servidor->id."/confirmacion\"");
-                                    $zip_status = $zip->open($zippath.$zipname);
+                                    $zip_status = $zip->open($zippath.$zipname,ZIPARCHIVE::CREATE);
 
                                     if ($zip_status === true) {
+
+                                        $zip->addFile($storage_path."/app/importar/".$servidor->id."/confirmacion/confirmacion.sync",'confirmacion.sync');
+                                        $zip->addFile($storage_path."/app/importar/".$servidor->id."/confirmacion/catalogos.sync",'catalogos.sync');
 
                                         $zip->close();
 
@@ -338,6 +347,7 @@ class SincronizacionController extends Controller
                                         readfile($zippath.$zipname);
                                         Storage::delete($zipname);
                                         Storage::deleteDirectory("importar/".$servidor->id);
+
 
                                         DB::commit();
                                         exit();
@@ -579,7 +589,6 @@ class SincronizacionController extends Controller
                         echo "Tabla: ".$key."\t=> 0 registros sincronizados \n";
                     }
 
-
                 } else {
                     echo "Tabla: ".$key."\t=> 0 registros sincronizados \n";
                 }
@@ -594,7 +603,6 @@ class SincronizacionController extends Controller
                 if ($ultima_actualizacion_local) {
                     if ($ultima_actualizacion_local != $ultima_actualizacion_remoto) {
                         $rows = $conexion_remota->table($key)->whereBetween('updated_at',[$ultima_actualizacion_local, $ultima_actualizacion_remoto])->get();
-
                     } else {
                         $rows = null;
                     }
@@ -686,14 +694,5 @@ class SincronizacionController extends Controller
             DB::rollback();
             $conexion_remota->rollback();
         }
-    }
-
-    function encryptData($value){
-        $key = env('SERVIDOR_ID');
-        $text = $value;
-        $iv_size = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_256, MCRYPT_MODE_ECB);
-        $iv = mcrypt_create_iv($iv_size, MCRYPT_RAND);
-        $crypttext = mcrypt_encrypt(MCRYPT_RIJNDAEL_256, $key, $text, MCRYPT_MODE_ECB, $iv);
-        return $crypttext;
     }
 }
