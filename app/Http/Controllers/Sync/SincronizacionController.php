@@ -308,7 +308,12 @@ class SincronizacionController extends Controller
                                     $contents = Storage::get("importar/".$servidor->id."/sumami.sync");
                                     $sumamiDes = Crypt::decryptString($contents);
 
-                                    DB::connection()->getpdo()->exec($sumamiDes);
+                                    $variable = DB::connection('mysql_sync')->getpdo()->exec($sumamiDes);
+
+                                    if (!$variable){
+                                        DB::rollback();
+                                        return \Response::json(['error' => "Error al sincronizar"], 301);
+                                    }
 
                                     // Registramos la sincronización en la base de datos.
                                     $sincronizacion = new Sincronizacion;

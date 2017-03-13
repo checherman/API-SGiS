@@ -182,6 +182,10 @@ return [
         */
         Tymon\JWTAuth\Providers\JWTAuthServiceProvider::class,
 
+        /*
+        * CORS
+        */
+        Barryvdh\Cors\ServiceProvider::class,
     ],
 
     /*
