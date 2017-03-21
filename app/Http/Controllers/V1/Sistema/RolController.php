@@ -21,13 +21,20 @@ class RolController extends Controller
      */
     public function index()
     {
-        $parametros = Input::only('q');
+        $parametros = Input::only('q','page','per_page');
         if ($parametros['q']) {
-             $roles =  Rol::where('nombre','LIKE',"%".$parametros['q']."%")->get();
+            $roles =  Rol::where('nombre','LIKE',"%".$parametros['q']."%");
         } else {
-             $roles =  Rol::all();
+            $roles =  Rol::select();
         }
-       
+
+        if(isset($parametros['page'])){
+            $resultadosPorPagina = isset($parametros["per_page"])? $parametros["per_page"] : 20;
+            $roles = $roles->paginate($resultadosPorPagina);
+        } else {
+            $roles = $roles->get();
+        }
+
         return Response::json([ 'data' => $roles],200);
     }
 
