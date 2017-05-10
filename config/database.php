@@ -49,6 +49,7 @@ return [
             'charset' => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
             'prefix' => '',
+            'options' => [PDO::MYSQL_ATTR_LOCAL_INFILE => true],
             'strict' => false,
             'engine' => null,
         ],

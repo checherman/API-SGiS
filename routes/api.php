@@ -29,8 +29,9 @@ Route::middleware('jwt')->group(function () {
         Route::resource('roles',        'V1\Sistema\RolController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
         Route::resource('permisos',     'V1\Sistema\PermisoController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
 
-        Route::resource('clues',        'V1\Catalogos\CluesController', ['only' => ['index']]);
-        Route::resource('niveles-cones','V1\Catalogos\NivelesConesController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
+        Route::resource('clues',                'V1\Catalogos\CluesController', ['only' => ['index']]);
+        Route::resource('niveles-cones',        'V1\Catalogos\NivelesConesController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
+        Route::resource('estados-incidencias',  'V1\Catalogos\EstadosIncidenciasController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
     });
 
     // Sync
