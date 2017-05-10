@@ -28,6 +28,8 @@ Route::middleware('jwt')->group(function () {
         Route::resource('usuarios',     'V1\Sistema\UsuarioController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
         Route::resource('roles',        'V1\Sistema\RolController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
         Route::resource('permisos',     'V1\Sistema\PermisoController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
+
+        Route::resource('clues',        'V1\Catalogos\CluesController', ['only' => ['index']]);
     });
 
     // Sync
