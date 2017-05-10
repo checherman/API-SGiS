@@ -12,8 +12,6 @@ use App\Models\Sistema\Usuario;
 use Illuminate\Support\Facades\Input;
 use \Validator,\Hash, \Response, \DB;
 
-
-
 class UsuarioController extends Controller
 {
     /**

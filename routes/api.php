@@ -30,6 +30,7 @@ Route::middleware('jwt')->group(function () {
         Route::resource('permisos',     'V1\Sistema\PermisoController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
 
         Route::resource('clues',        'V1\Catalogos\CluesController', ['only' => ['index']]);
+        Route::resource('niveles-cones','V1\Catalogos\NivelesConesController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
     });
 
     // Sync
