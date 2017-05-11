@@ -28,11 +28,12 @@ Route::middleware('jwt')->group(function () {
         Route::resource('usuarios',     'V1\Sistema\UsuarioController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
         Route::resource('roles',        'V1\Sistema\RolController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
         Route::resource('permisos',     'V1\Sistema\PermisoController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
-
+        //Catalogos
         Route::resource('clues',                'V1\Catalogos\CluesController', ['only' => ['index']]);
-        Route::resource('niveles-cones',        'V1\Catalogos\NivelesConesController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
-        Route::resource('estados-incidencias',  'V1\Catalogos\EstadosIncidenciasController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
-        Route::resource('grupos-cie10',         'V1\Catalogos\GruposCie10Controller', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
+        Route::resource('niveles-cones',        'V1\Catalogos\NivelConeController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
+        Route::resource('estados-incidencias',  'V1\Catalogos\EstadoIncidenciaController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
+        Route::resource('grupos-cie10',         'V1\Catalogos\GrupoCie10Controller', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
+        Route::resource('tipos-items',          'V1\Catalogos\TipoItemController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
     });
 
     // Sync

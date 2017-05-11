@@ -12,7 +12,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Input;
 use \Validator,\Hash, \Response;
 
-class EstadosIncidenciasController extends Controller
+class EstadoIncidenciaController extends Controller
 {
     /**
      * Display a listing of the resource.

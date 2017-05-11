@@ -12,7 +12,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Input;
 use \Validator,\Hash, \Response;
 
-class NivelesConesController extends Controller
+class NivelConeController extends Controller
 {
     /**
      * Display a listing of the resource.
