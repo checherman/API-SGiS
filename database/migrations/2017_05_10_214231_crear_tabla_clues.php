@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateCluesTable extends Migration
+class CrearTablaClues extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,11 @@ class CreateCluesTable extends Migration
      */
     public function up()
     {
-        Schema::create('clues', function (Blueprint $table) {
+        Schema::create('clues', function (Blueprint $table)
+        {
+            $table->engine = 'InnoDB';
 
-            $table->string('clues');
+            $table->string('clues')->unique();
             $table->string('nombre', 255)->nullable()->default(null);
             $table->string('domicilio', 255)->nullable()->default(null);
             $table->integer('codigoPostal');
@@ -31,6 +33,8 @@ class CreateCluesTable extends Migration
 
             $table->timestamps();
             $table->softDeletes();
+
+            $table->primary('clues');
         });
     }
 

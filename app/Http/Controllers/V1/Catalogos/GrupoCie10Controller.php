@@ -58,7 +58,7 @@ class GrupoCie10Controller extends Controller
         ];
 
         $reglas = [
-            'nombre'        => 'required|unique:niveles_cones',
+            'nombre'        => 'required|unique:grupos_cie10',
         ];
 
         $inputs = Input::only('nombre');

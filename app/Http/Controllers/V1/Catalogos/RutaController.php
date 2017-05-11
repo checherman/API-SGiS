@@ -6,13 +6,13 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response as HttpResponse;
 
 use App\Http\Requests;
-use App\Models\Catalogos\EstadosIncidencias;
+use App\Models\Catalogos\Rutas;
 use App\Http\Controllers\Controller;
 
 use Illuminate\Support\Facades\Input;
 use \Validator,\Hash, \Response;
 
-class EstadoIncidenciaController extends Controller
+class RutaController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -23,12 +23,12 @@ class EstadoIncidenciaController extends Controller
     {
         $parametros = Input::only('q','page','per_page');
         if ($parametros['q']) {
-            $data =  EstadosIncidencias::where(function($query) use ($parametros) {
+            $data =  Rutas::where(function($query) use ($parametros) {
                 $query->where('id','LIKE',"%".$parametros['q']."%")
                     ->orWhere('nombre','LIKE',"%".$parametros['q']."%");
             });
         } else {
-            $data =  EstadosIncidencias::where("id","!=", "");
+            $data =  Rutas::where("id","!=", "");
         }
 
 
@@ -58,10 +58,15 @@ class EstadoIncidenciaController extends Controller
         ];
 
         $reglas = [
-            'nombre'        => 'required|unique:estados_incidencias',
+            'nombre'                => 'required|unique:rutas',
+            'clues_origen'          => 'required',
+            'clues_destino'         => 'required',
+            'tiempo_traslado'       => 'required',
+            'distancia_traslado'    => 'required',
+            'observaciones'         => 'required',
         ];
 
-        $inputs = Input::only('nombre');
+        $inputs = Input::only('nombre', 'clues_origen', 'clues_destino', 'tiempo_traslado', 'distancia_traslado', 'observaciones');
 
         $v = Validator::make($inputs, $reglas, $mensajes);
 
@@ -70,8 +75,7 @@ class EstadoIncidenciaController extends Controller
         }
 
         try {
-
-            $data = EstadosIncidencias::create($inputs);
+            $data = Rutas::create($inputs);
 
             return Response::json([ 'data' => $data ],200);
 
@@ -88,7 +92,7 @@ class EstadoIncidenciaController extends Controller
      */
     public function show($id)
     {
-        $data = EstadosIncidencias::find($id);
+        $data = Rutas::find($id);
 
         if(!$data){
             return Response::json(['error' => "No se encuentra el recurso que esta buscando."], HttpResponse::HTTP_NOT_FOUND);
@@ -113,10 +117,15 @@ class EstadoIncidenciaController extends Controller
         ];
 
         $reglas = [
-            'nombre'        => 'required',
+            'nombre'                => 'required',
+            'clues_origen'          => 'required',
+            'clues_destino'         => 'required',
+            'tiempo_traslado'       => 'required',
+            'distancia_traslado'    => 'required',
+            'observaciones'         => 'required',
         ];
 
-        $inputs = Input::only('id', 'nombre');
+        $inputs = Input::only('id', 'nombre', 'clues_origen', 'clues_destino', 'tiempo_traslado', 'distancia_traslado', 'observaciones');
 
         $v = Validator::make($inputs, $reglas, $mensajes);
 
@@ -125,9 +134,14 @@ class EstadoIncidenciaController extends Controller
         }
 
         try {
-            $data = EstadosIncidencias::find($id);
+            $data = Rutas::find($id);
             $data->id =  $inputs['id'];
             $data->nombre =  $inputs['nombre'];
+            $data->nombre =  $inputs['clues_origen'];
+            $data->nombre =  $inputs['clues_destino'];
+            $data->nombre =  $inputs['tiempo_traslado'];
+            $data->nombre =  $inputs['distancia_traslado'];
+            $data->nombre =  $inputs['observaciones'];
 
             $data->save();
             return Response::json([ 'data' => $data ],200);
@@ -146,7 +160,7 @@ class EstadoIncidenciaController extends Controller
     public function destroy($id)
     {
         try {
-            $data = EstadosIncidencias::destroy($id);
+            $data = Rutas::destroy($id);
             return Response::json(['data'=>$data],200);
         } catch (Exception $e) {
             return Response::json(['error' => $e->getMessage()], HttpResponse::HTTP_CONFLICT);

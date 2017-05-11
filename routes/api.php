@@ -34,6 +34,7 @@ Route::middleware('jwt')->group(function () {
         Route::resource('estados-incidencias',  'V1\Catalogos\EstadoIncidenciaController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
         Route::resource('grupos-cie10',         'V1\Catalogos\GrupoCie10Controller', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
         Route::resource('tipos-items',          'V1\Catalogos\TipoItemController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
+        Route::resource('rutas',                'V1\Catalogos\RutaController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
     });
 
     // Sync

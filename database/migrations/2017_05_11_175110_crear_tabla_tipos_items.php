@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateNivelesConesTable extends Migration
+class CrearTablaTiposItems extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,7 @@ class CreateNivelesConesTable extends Migration
      */
     public function up()
     {
-        Schema::create('niveles_cones', function (Blueprint $table) {
-
+        Schema::create('tipos_items', function (Blueprint $table) {
             $table->increments('id');
             $table->string('nombre', 255)->nullable()->default(null);
 
@@ -30,6 +29,6 @@ class CreateNivelesConesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('niveles_cones');
+        Schema::dropIfExists('tipos_items');
     }
 }

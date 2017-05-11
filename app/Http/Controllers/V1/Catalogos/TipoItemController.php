@@ -58,7 +58,7 @@ class TipoItemController extends Controller
         ];
 
         $reglas = [
-            'nombre'        => 'required|unique:niveles_cones',
+            'nombre'        => 'required|unique:tipos_items',
         ];
 
         $inputs = Input::only('nombre');
