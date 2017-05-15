@@ -1,6 +1,8 @@
 <?php
+
 namespace App\Http\Controllers\V1\Catalogos;
 
+use App\Models\Catalogos\Items;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Response as HttpResponse;
@@ -9,11 +11,9 @@ use App\Http\Requests;
 use \Validator,\Hash, \Response, \DB;
 use Illuminate\Support\Facades\Input;
 
-use App\Models\Catalogos\GruposCie10;
-use App\Models\Catalogos\CategoriasCie10;
-use App\Models\Catalogos\SubCategoriasCie10;
+use App\Models\Catalogos\Checklists;
 
-class GrupoCie10Controller extends Controller
+class ChecklistController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -24,12 +24,12 @@ class GrupoCie10Controller extends Controller
     {
         $parametros = Input::only('q','page','per_page');
         if ($parametros['q']) {
-            $data =  GruposCie10::where(function($query) use ($parametros) {
+            $data =  Checklists::where(function($query) use ($parametros) {
                 $query->where('id','LIKE',"%".$parametros['q']."%")
                     ->orWhere('nombre','LIKE',"%".$parametros['q']."%");
             });
         } else {
-            $data =  GruposCie10::getModel()->with('categoriasCie10');
+            $data =  Checklists::getModel()->with('items');
         }
 
 
@@ -59,14 +59,14 @@ class GrupoCie10Controller extends Controller
         DB::beginTransaction();
 
         try {
-            if(array_key_exists('grupos_cie10', $datos)) { // Insertar más de un registro
-                foreach ($datos['grupos_cie10'] as $key => $value) {
+            if(array_key_exists('checklists', $datos)) { // Insertar más de un registro
+                foreach ($datos['checklists'] as $key => $value) {
                     $validacion = $this->ValidarParametros($key, NULL, $value);
                     if($validacion != ""){
                         array_push($errors_main, $validacion);
                     }
 
-                    $data = new GruposCie10;
+                    $data = new Checklists;
 
                     $data->nombre = $value['nombre'];
 
@@ -86,7 +86,7 @@ class GrupoCie10Controller extends Controller
                     return Response::json(['error' => $validacion], HttpResponse::HTTP_CONFLICT);
                 }
 
-                $data = new GruposCie10;
+                $data = new Checklists;
 
                 $data->nombre = $datos['nombre'];
 
@@ -118,7 +118,7 @@ class GrupoCie10Controller extends Controller
      * <code> Respuesta Error json(array("status": 404, "messages": "No hay resultados"),status) </code>
      */
     public function show($id){
-        $data = GruposCie10::with('categoriasCie10')->find($id);
+        $data = Checklists::with('Items')->find($id);
 
         if(!$data){
             return Response::json(array("status" => 204,"messages" => "No hay resultados"), 204);
@@ -148,7 +148,7 @@ class GrupoCie10Controller extends Controller
         $success = false;
         DB::beginTransaction();
         try{
-            $data = GruposCie10::find($id);
+            $data = Checklists::find($id);
 
             $data->nombre = $datos['nombre'];
 
@@ -182,7 +182,7 @@ class GrupoCie10Controller extends Controller
         $success = false;
         DB::beginTransaction();
         try {
-            $data = GruposCie10::find($id);
+            $data = Checklists::find($id);
             if($data)
                 $data->delete();
             $success = true;
@@ -223,7 +223,7 @@ class GrupoCie10Controller extends Controller
         }
         */
         $rules = [
-            'nombre' => 'required|min:3|max:250|unique:grupos_cie10',
+            'nombre' => 'required|min:3|max:250|unique:checklists',
         ];
 
         $v = Validator::make($request, $rules, $messages);
@@ -245,11 +245,11 @@ class GrupoCie10Controller extends Controller
 
     private function AgregarDatos($datos, $data){
         //verificar si existe resguardos, en caso de que exista proceder a guardarlo
-        if(property_exists($datos, "categorias_cie10")){
+        if(property_exists($datos, "items")){
             //limpiar el arreglo de posibles nullos
-            $detalle = array_filter($datos->categorias_cie10, function($v){return $v !== null;});
+            $detalle = array_filter($datos->items, function($v){return $v !== null;});
             //borrar los datos previos de articulo para no duplicar información
-            CategoriasCie10::where("grupos_cie10_id", $data->id)->delete();
+            Items::where("checklists_id", $data->id)->delete();
             //recorrer cada elemento del arreglo
             foreach ($detalle as $key => $value) {
                 //validar que el valor no sea null
@@ -259,49 +259,18 @@ class GrupoCie10Controller extends Controller
                         $value = (object) $value;
 
                     //comprobar que el dato que se envio no exista o este borrado, si existe y esta borrado poner en activo nuevamente
-                    DB::select("update categorias_cie10 set deleted_at = null where grupos_cie10_id = '$data->id' and nombre = '$value->nombre' ");
+                    DB::select("update items set deleted_at = null where checklists_id = '$data->id' and nombre = '$value->nombre' ");
                     //si existe el elemento actualizar
-                    $categoria = CategoriasCie10::where("grupos_cie10_id", $data->id)->where("nombre", $value->nombre)->first();
+                    $items = Items::where("checklists_id", $data->id)->where("nombre", $value->nombre)->first();
                     //si no existe crear
-                    if(!$categoria)
-                        $categoria = new CategoriasCie10;
+                    if(!$items)
+                        $items = new Items;
 
-                    $categoria->grupos_cie10_id 	= $data->id;
-                    $categoria->nombre              = $value->nombre;
+                    $items->checklists_id 	    = $data->id;
+                    $items->tipos_items_id 	    = $value->tipos_items;
+                    $items->nombre              = $value->nombre;
 
-                    if ($categoria->save()){
-                        if(property_exists($value, "subcategorias_cie10")){
-
-                            //limpiar el arreglo de posibles nullos
-                            $detalle = array_filter($value->subcategorias_cie10, function($v){return $v !== null;});
-                            //borrar los datos previos de articulo para no duplicar información
-
-                            SubCategoriasCie10::where("categorias_cie10_id", $categoria->id)->delete();
-
-                            //recorrer cada elemento del arreglo
-                            foreach ($detalle as $key => $val) {
-                                //validar que el valor no sea null
-                                if($val != null){
-                                    //comprobar si el value es un array, si es convertirlo a object mas facil para manejar.
-                                    if(is_array($val))
-                                        $val = (object) $val;
-
-                                    //comprobar que el dato que se envio no exista o este borrado, si existe y esta borrado poner en activo nuevamente
-                                    DB::select("update subcategorias_cie10 set deleted_at = null where categorias_cie10_id = '$categoria->id' and nombre = '$val->nombre' ");
-                                    //si existe el elemento actualizar
-                                    $subCategoria = SubCategoriasCie10::where("categorias_cie10_id", $categoria->id)->where("nombre", $val->nombre)->first();
-                                    //si no existe crear
-                                    if(!$subCategoria)
-                                        $subCategoria = new SubCategoriasCie10;
-
-                                    $subCategoria->categorias_cie10_id 	= $categoria->id;
-                                    $subCategoria->nombre               = $val->nombre;
-
-                                    $subCategoria->save();
-                                }
-                            }
-                        }
-                    }
+                    $items->save();
 
                 }
             }

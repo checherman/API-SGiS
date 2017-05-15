@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CrearTablaTiposItems extends Migration
+class CrearTablaChecklists extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CrearTablaTiposItems extends Migration
      */
     public function up()
     {
-        Schema::create('tipos_items', function (Blueprint $table) {
+        Schema::create('checklists', function (Blueprint $table) {
 
             $table->engine = 'InnoDB';
 
@@ -32,6 +32,6 @@ class CrearTablaTiposItems extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('tipos_items');
+        Schema::dropIfExists('checklists');
     }
 }
