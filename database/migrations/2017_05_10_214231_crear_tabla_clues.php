@@ -18,8 +18,8 @@ class CrearTablaClues extends Migration
             $table->engine = 'InnoDB';
 
             $table->string('clues')->unique();
-            $table->string('nombre', 255)->nullable()->default(null);
-            $table->string('domicilio', 255)->nullable()->default(null);
+            $table->string('nombre', 255);
+            $table->string('domicilio', 255);
             $table->integer('codigoPostal');
             $table->double('numeroLongitud');
             $table->double('numeroLatitud');
@@ -30,11 +30,16 @@ class CrearTablaClues extends Migration
             $table->string('localidad', 255);
             $table->string('municipio', 255);
             $table->string('tipologia', 255);
+            $table->integer('nivel_cone_id')->unsigned()->nullable();
 
             $table->timestamps();
             $table->softDeletes();
 
             $table->primary('clues');
+
+            $table->foreign('nivel_cone_id')->references('id')->on('niveles_cones')
+                ->onDelete('cascade')
+                ->onUpdate('cascade');
         });
     }
 
