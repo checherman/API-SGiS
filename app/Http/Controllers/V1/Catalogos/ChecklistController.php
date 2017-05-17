@@ -67,11 +67,13 @@ class ChecklistController extends Controller
                     }
 
                     $data = new Checklists;
-
                     $data->nombre = $value['nombre'];
 
                     if ($data->save())
                         $datos = (object) $datos;
+
+                    $data->nivelesCones()->sync($datos->niveles_cones);
+
                     $this->AgregarDatos($datos, $data);
                     $success = true;
                 }
@@ -82,16 +84,18 @@ class ChecklistController extends Controller
             } else {
 
                 $validacion = $this->ValidarParametros("", NULL, $datos);
-                if($validacion != ""){
+                if ($validacion != "") {
                     return Response::json(['error' => $validacion], HttpResponse::HTTP_CONFLICT);
                 }
 
                 $data = new Checklists;
-
                 $data->nombre = $datos['nombre'];
 
                 if ($data->save())
-                    $datos = (object) $datos;
+                    $datos = (object)$datos;
+
+                $data->nivelesCones()->sync($datos->niveles_cones);
+
                 $this->AgregarDatos($datos, $data);
                 $success = true;
             }
@@ -271,11 +275,8 @@ class ChecklistController extends Controller
                     $items->nombre              = $value->nombre;
 
                     $items->save();
-
                 }
             }
-
-
         }
     }
 }

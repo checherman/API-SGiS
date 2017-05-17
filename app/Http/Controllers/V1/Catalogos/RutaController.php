@@ -125,7 +125,7 @@ class RutaController extends Controller
             'observaciones'         => 'required',
         ];
 
-        $inputs = Input::only('id', 'nombre', 'clues_origen', 'clues_destino', 'tiempo_traslado', 'distancia_traslado', 'observaciones');
+        $inputs = Input::only('nombre', 'clues_origen', 'clues_destino', 'tiempo_traslado', 'distancia_traslado', 'observaciones');
 
         $v = Validator::make($inputs, $reglas, $mensajes);
 
@@ -135,13 +135,12 @@ class RutaController extends Controller
 
         try {
             $data = Rutas::find($id);
-            $data->id =  $inputs['id'];
             $data->nombre =  $inputs['nombre'];
-            $data->nombre =  $inputs['clues_origen'];
-            $data->nombre =  $inputs['clues_destino'];
-            $data->nombre =  $inputs['tiempo_traslado'];
-            $data->nombre =  $inputs['distancia_traslado'];
-            $data->nombre =  $inputs['observaciones'];
+            $data->clues_origen =  $inputs['clues_origen'];
+            $data->clues_destino =  $inputs['clues_destino'];
+            $data->tiempo_traslado =  $inputs['tiempo_traslado'];
+            $data->distancia_traslado =  $inputs['distancia_traslado'];
+            $data->observaciones =  $inputs['observaciones'];
 
             $data->save();
             return Response::json([ 'data' => $data ],200);
