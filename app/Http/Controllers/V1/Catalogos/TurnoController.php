@@ -6,13 +6,14 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response as HttpResponse;
 
 use App\Http\Requests;
-use App\Models\Catalogos\TiposItems;
 use App\Http\Controllers\Controller;
 
 use Illuminate\Support\Facades\Input;
 use \Validator,\Hash, \Response;
 
-class TipoItemController extends Controller
+use App\Models\Catalogos\Turnos;
+
+class TurnoController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -23,14 +24,13 @@ class TipoItemController extends Controller
     {
         $parametros = Input::only('q','page','per_page');
         if ($parametros['q']) {
-            $data =  TiposItems::where(function($query) use ($parametros) {
+            $data =  Turnos::where(function($query) use ($parametros) {
                 $query->where('id','LIKE',"%".$parametros['q']."%")
                     ->orWhere('nombre','LIKE',"%".$parametros['q']."%");
             });
         } else {
-            $data =  TiposItems::where("id","!=", "");
+            $data =  Turnos::where("id","!=", "");
         }
-
 
         if(isset($parametros['page'])){
 
@@ -61,7 +61,7 @@ class TipoItemController extends Controller
             'nombre'        => 'required|unique:tipos_items',
         ];
 
-        $inputs = Input::only('nombre');
+        $inputs = Input::only('nombre', 'clues');
 
         $v = Validator::make($inputs, $reglas, $mensajes);
 
@@ -71,7 +71,9 @@ class TipoItemController extends Controller
 
         try {
 
-            $data = TiposItems::create($inputs);
+            $data = Turnos::create($inputs);
+
+            $data->clues()->sync($inputs['clues']);
 
             return Response::json([ 'data' => $data ],200);
 
@@ -88,7 +90,7 @@ class TipoItemController extends Controller
      */
     public function show($id)
     {
-        $data = TiposItems::find($id);
+        $data = Turnos::find($id);
 
         if(!$data){
             return Response::json(['error' => "No se encuentra el recurso que esta buscando."], HttpResponse::HTTP_NOT_FOUND);
@@ -125,7 +127,7 @@ class TipoItemController extends Controller
         }
 
         try {
-            $data = TiposItems::find($id);
+            $data = Turnos::find($id);
             $data->nombre =  $inputs['nombre'];
 
             $data->save();
@@ -145,7 +147,7 @@ class TipoItemController extends Controller
     public function destroy($id)
     {
         try {
-            $data = TiposItems::destroy($id);
+            $data = Turnos::destroy($id);
             return Response::json(['data'=>$data],200);
         } catch (Exception $e) {
             return Response::json(['error' => $e->getMessage()], HttpResponse::HTTP_CONFLICT);

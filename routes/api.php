@@ -36,6 +36,7 @@ Route::middleware('jwt')->group(function () {
         Route::resource('tipos-items',          'V1\Catalogos\TipoItemController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
         Route::resource('rutas',                'V1\Catalogos\RutaController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
         Route::resource('checklists',           'V1\Catalogos\ChecklistController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
+        Route::resource('turnos',               'V1\Catalogos\TurnoController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
     });
 
     // Sync
