@@ -19,7 +19,7 @@ class Checklists extends Model
     protected $fillable = ["id","nombre"];
 
     public function items(){
-        return $this->hasMany(CategoriasCie10::class,'checklists_id','id');
+        return $this->hasMany(Items::class,'checklists_id','id');
     }
 
     public function nivelesCones(){

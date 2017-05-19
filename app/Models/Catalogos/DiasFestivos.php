@@ -6,7 +6,7 @@ namespace App\Models\Catalogos;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Items extends Model
+class DiasFestivos extends Model
 {
     use SoftDeletes;
 
@@ -15,11 +15,6 @@ class Items extends Model
     protected $guardarIDUsuario = false;
     public $incrementing = true;
 
-    protected $table = "items";
-    protected $fillable = ["id","nombre", "checklists_id"];
-
-    public function checklist()
-    {
-        return $this->belongsTo(Checklists::class,'checklists_id','id');
-    }
+    protected $table = "dias_festivos";
+    protected $fillable = ["turno_id", "fecha"];
 }

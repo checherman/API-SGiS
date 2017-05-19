@@ -29,7 +29,7 @@ class ChecklistController extends Controller
                     ->orWhere('nombre','LIKE',"%".$parametros['q']."%");
             });
         } else {
-            $data =  Checklists::getModel()->with('items');
+            $data =  Checklists::getModel()->with('nivelesCones');
         }
 
 
