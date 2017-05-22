@@ -122,14 +122,21 @@ class ChecklistController extends Controller
      * <code> Respuesta Error json(array("status": 404, "messages": "No hay resultados"),status) </code>
      */
     public function show($id){
-        $data = Checklists::with('Items')->find($id);
+        $object = Checklists::with('Items')->find($id);
 
-        if(!$data){
-            return Response::json(array("status" => 204,"messages" => "No hay resultados"), 204);
+        if(!$object ){
+
+            return Response::json(['error' => "No se encuentra el recurso que esta buscando."], HttpResponse::HTTP_NOT_FOUND);
         }
-        else{
-            return Response::json(array("status" => 200,"messages" => "Operación realizada con exito","data" => $data), 200);
+
+        $variable = DB::table("checklist_nivel_cone")->select("niveles_cones_id")->where("checklists_id", $id)->get();
+        $nivelCone = [];
+        foreach ($variable as $key => $value) {
+            $nivelCone[] = $value->niveles_cones_id;
         }
+        $object->niveles_cones = $nivelCone;
+
+        return Response::json([ 'data' => $object ], HttpResponse::HTTP_OK);
     }
 
     /**
