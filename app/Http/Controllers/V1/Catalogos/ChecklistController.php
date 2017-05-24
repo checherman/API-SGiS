@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers\V1\Catalogos;
 
-use App\Models\Catalogos\Items;
-use Illuminate\Http\Request;
+use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Response as HttpResponse;
 
-use App\Http\Requests;
+use Request;
 use \Validator,\Hash, \Response, \DB;
 use Illuminate\Support\Facades\Input;
 
 use App\Models\Catalogos\Checklists;
+use App\Models\Catalogos\Items;
 
 class ChecklistController extends Controller
 {
@@ -59,46 +59,22 @@ class ChecklistController extends Controller
         DB::beginTransaction();
 
         try {
-            if(array_key_exists('checklists', $datos)) { // Insertar más de un registro
-                foreach ($datos['checklists'] as $key => $value) {
-                    $validacion = $this->ValidarParametros($key, NULL, $value);
-                    if($validacion != ""){
-                        array_push($errors_main, $validacion);
-                    }
-
-                    $data = new Checklists;
-                    $data->nombre = $value['nombre'];
-
-                    if ($data->save())
-                        $datos = (object) $datos;
-
-                    $data->nivelesCones()->sync($datos->niveles_cones);
-
-                    $this->AgregarDatos($datos, $data);
-                    $success = true;
-                }
-
-                if(count($errors_main)>0) {
-                    return Response::json(['error' => array_collapse($errors_main)], HttpResponse::HTTP_CONFLICT);
-                }
-            } else {
-
-                $validacion = $this->ValidarParametros("", NULL, $datos);
-                if ($validacion != "") {
-                    return Response::json(['error' => $validacion], HttpResponse::HTTP_CONFLICT);
-                }
-
-                $data = new Checklists;
-                $data->nombre = $datos['nombre'];
-
-                if ($data->save())
-                    $datos = (object)$datos;
-
-                $data->nivelesCones()->sync($datos->niveles_cones);
-
-                $this->AgregarDatos($datos, $data);
-                $success = true;
+            $validacion = $this->ValidarParametros("", NULL, $datos);
+            if ($validacion != "") {
+                return Response::json(['error' => $validacion], HttpResponse::HTTP_CONFLICT);
             }
+
+            $data = new Checklists;
+            $data->nombre = $datos['nombre'];
+
+            if ($data->save())
+                $datos = (object)$datos;
+
+            $data->nivelesCones()->sync($datos->niveles_cones);
+
+            $this->AgregarDatos($datos, $data);
+            $success = true;
+
         } catch (\Exception $e){
             return Response::json($e->getMessage(), 500);
         }
@@ -155,20 +131,31 @@ class ChecklistController extends Controller
         if($validacion != ""){
             return Response::json(['error' => $validacion], HttpResponse::HTTP_CONFLICT);
         }
-        $datos = Request::json();
+
+        $datos = Request::json()->all();
+        if(is_array($datos))
+            $datos = (object) $datos;
         $success = false;
         DB::beginTransaction();
         try{
             $data = Checklists::find($id);
 
-            $data->nombre = $datos['nombre'];
+            $data->nombre = $datos->nombre;
 
-            if ($data->save())
+            if ($data->save()){
+
+                $data->nivelesCones()->sync($datos->niveles_cones);
+
+                $this->AgregarDatos($datos, $data);
                 $success = true;
+            }
+
+
         }
         catch (\Exception $e){
             return Response::json($e->getMessage(), 500);
         }
+
         if ($success){
             DB::commit();
             return Response::json(array("status" => 200, "messages" => "Operación realizada con exito", "data" => $data), 200);
@@ -226,15 +213,8 @@ class ChecklistController extends Controller
             'unique' => 'unique'
         ];
 
-        /*
-        if($request['nivel_cone']) {
-            $nivel_cone = $request['nivel_cone'];
-        } else {
-            $nivel_cone = NULL;
-        }
-        */
         $rules = [
-            'nombre' => 'required|min:3|max:250|unique:checklists',
+            'nombre' => 'required|min:3|max:250|unique:checklists,nombre,'.$id.',id,deleted_at,NULL',
         ];
 
         $v = Validator::make($request, $rules, $messages);
@@ -255,7 +235,8 @@ class ChecklistController extends Controller
     }
 
     private function AgregarDatos($datos, $data){
-        //verificar si existe resguardos, en caso de que exista proceder a guardarlo
+        //verificar si existe items, en caso de que exista proceder a guardarlo
+
         if(property_exists($datos, "items")){
             //limpiar el arreglo de posibles nullos
             $detalle = array_filter($datos->items, function($v){return $v !== null;});
@@ -278,7 +259,7 @@ class ChecklistController extends Controller
                         $items = new Items;
 
                     $items->checklists_id 	    = $data->id;
-                    $items->tipos_items_id 	    = $value->tipos_items;
+                    $items->tipos_items_id 	    = $value->tipos_items_id;
                     $items->nombre              = $value->nombre;
 
                     $items->save();
