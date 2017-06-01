@@ -16,15 +16,6 @@ class Turnos extends Model
     public $incrementing = true;
 
     protected $table = "turnos";
-    protected $fillable = ["id", "nombre", "hora_entrada", "hora_salida"];
+    protected $fillable = ["id", "nombre", "descripcion"];
 
-    public function clues()
-    {
-        return $this->belongsToMany(Clues::class, 'clue_turno', 'turno_id', 'clues_id');
-    }
-
-    public function diaFestivo()
-    {
-        return $this->hasOne(DiasFestivos::class);
-    }
 }

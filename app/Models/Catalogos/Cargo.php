@@ -6,7 +6,7 @@ namespace App\Models\Catalogos;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class MetodoPlanificacion extends Model
+class Cargo extends Model
 {
     use SoftDeletes;
 
@@ -15,6 +15,6 @@ class MetodoPlanificacion extends Model
     protected $guardarIDUsuario = false;
     public $incrementing = true;
 
-    protected $table = "metodos_planificacion";
-    protected $fillable = ["id","nombre"];
+    protected $table = "cargos";
+    protected $fillable = ["id", "nombre", "descripcion"];
 }

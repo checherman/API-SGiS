@@ -11,9 +11,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Input;
 use \Validator,\Hash, \Response;
 
-use App\Models\Catalogos\Turnos;
+use App\Models\Catalogos\Cargo;
 
-class TurnoController extends Controller
+class CargoController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -24,13 +24,13 @@ class TurnoController extends Controller
     {
         $parametros = Input::only('q','page','per_page');
         if ($parametros['q']) {
-            $data =  Turnos::where(function($query) use ($parametros) {
+            $data =  Cargo::where(function($query) use ($parametros) {
                 $query->where('id','LIKE',"%".$parametros['q']."%")
                     ->orWhere('nombre','LIKE',"%".$parametros['q']."%")
                     ->orWhere('descripcion','LIKE',"%".$parametros['q']."%");
             });
         } else {
-            $data =  Turnos::where("id","!=", "");
+            $data =  Cargo::where("id","!=", "");
         }
 
         if(isset($parametros['page'])){
@@ -73,7 +73,7 @@ class TurnoController extends Controller
 
         try {
 
-            $data = Turnos::create($inputs);
+            $data = Cargo::create($inputs);
 
             return Response::json([ 'data' => $data ],200);
 
@@ -90,7 +90,7 @@ class TurnoController extends Controller
      */
     public function show($id)
     {
-        $data = Turnos::find($id);
+        $data = Cargo::find($id);
 
         if(!$data){
             return Response::json(['error' => "No se encuentra el recurso que esta buscando."], HttpResponse::HTTP_NOT_FOUND);
@@ -128,7 +128,7 @@ class TurnoController extends Controller
         }
 
         try {
-            $data = Turnos::find($id);
+            $data = Cargo::find($id);
             $data->nombre =  $inputs['nombre'];
             $data->descripcion =  $inputs['descripcion'];
 
@@ -149,7 +149,7 @@ class TurnoController extends Controller
     public function destroy($id)
     {
         try {
-            $data = Turnos::destroy($id);
+            $data = Cargo::destroy($id);
             return Response::json(['data'=>$data],200);
         } catch (Exception $e) {
             return Response::json(['error' => $e->getMessage()], HttpResponse::HTTP_CONFLICT);

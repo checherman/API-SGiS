@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CrearTablaTurnos extends Migration
+class CrearTablaCargos extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CrearTablaTurnos extends Migration
      */
     public function up()
     {
-        Schema::create('turnos', function (Blueprint $table)
+        Schema::create('cargos', function (Blueprint $table)
         {
             $table->engine = 'InnoDB';
 
@@ -33,6 +33,6 @@ class CrearTablaTurnos extends Migration
      */
     public function down()
     {
-        Schema::drop('turnos');
+        Schema::drop('cargos');
     }
 }
