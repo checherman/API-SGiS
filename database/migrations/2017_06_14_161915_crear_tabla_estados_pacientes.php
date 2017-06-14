@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CrearTablaChecklists extends Migration
+class CrearTablaEstadosPacientes extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,10 @@ class CrearTablaChecklists extends Migration
      */
     public function up()
     {
-        Schema::create('checklists', function (Blueprint $table) {
+        Schema::create('estados_pacientes', function (Blueprint $table) {
 
-            $table->engine = 'InnoDB';
-
-            $table->increments('id')->unique();
-            $table->string('nombre', 255);
+            $table->increments('id');
+            $table->string('nombre', 255)->nullable()->default(null);
 
             $table->timestamps();
             $table->softDeletes();
@@ -32,6 +30,6 @@ class CrearTablaChecklists extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('checklists');
+        Schema::dropIfExists('estados_pacientes');
     }
 }

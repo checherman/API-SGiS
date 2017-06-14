@@ -13,6 +13,17 @@ use \Validator,\Hash, \Response;
 
 use App\Models\Catalogos\Turnos;
 
+/**
+ * Controlador Turno
+ *
+ * @package    UGUS API
+ * @subpackage Controlador
+ * @author     Luis Alberto Valdez Lescieur <luisvl13@gmail.com>
+ * @created    2017-03-22
+ *
+ * Controlador `Turno`: Controlador  para el manejo de catalogo de turnos de clues
+ *
+ */
 class TurnoController extends Controller
 {
     /**

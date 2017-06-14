@@ -12,6 +12,17 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Input;
 use \Validator,\Hash, \Response;
 
+/**
+ * Controlador TipoItem
+ *
+ * @package    UGUS API
+ * @subpackage Controlador
+ * @author     Luis Alberto Valdez Lescieur <luisvl13@gmail.com>
+ * @created    2017-03-22
+ *
+ * Controlador `TipoItem`: Controlador  para el manejo de catalogo de tipos de items
+ *
+ */
 class TipoItemController extends Controller
 {
     /**

@@ -6,7 +6,7 @@ namespace App\Models\Catalogos;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Checklists extends Model
+class CarteraServicios extends Model
 {
     use SoftDeletes;
 
@@ -15,14 +15,14 @@ class Checklists extends Model
     protected $guardarIDUsuario = false;
     public $incrementing = true;
 
-    protected $table = "checklists";
+    protected $table = "cartera_servicios";
     protected $fillable = ["id","nombre"];
 
     public function items(){
-        return $this->hasMany(Items::class,'checklists_id','id');
+        return $this->hasMany(Items::class,'cartera_servicios_id','id');
     }
 
     public function nivelesCones(){
-        return $this->belongsToMany(NivelesCones::class, 'checklist_nivel_cone', 'checklists_id', 'niveles_cones_id');
+        return $this->belongsToMany(NivelesCones::class, 'cartera_servicio_nivel_cone', 'cartera_servicios_id', 'niveles_cones_id');
     }
 }

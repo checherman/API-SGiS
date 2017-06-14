@@ -13,6 +13,17 @@ use \Validator,\Hash, \Response;
 
 use App\Models\Catalogos\Cargo;
 
+/**
+ * Controlador Cargo
+ *
+ * @package    UGUS API
+ * @subpackage Controlador
+ * @author     Luis Alberto Valdez Lescieur <luisvl13@gmail.com>
+ * @created    2017-03-22
+ *
+ * Controlador `Cargos`: Controlador  para el manejo de catalogo cargos
+ *
+ */
 class CargoController extends Controller
 {
     /**

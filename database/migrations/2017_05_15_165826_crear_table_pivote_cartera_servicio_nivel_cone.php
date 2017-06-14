@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CrearTablePivoteChecklistNivelCone extends Migration
+class CrearTablePivoteCarteraServicioNivelCone extends Migration
 {
     /**
      * Run the migrations.
@@ -13,15 +13,15 @@ class CrearTablePivoteChecklistNivelCone extends Migration
      */
     public function up()
     {
-        Schema::create('checklist_nivel_cone', function (Blueprint $table) {
+        Schema::create('cartera_servicio_nivel_cone', function (Blueprint $table) {
 
             $table->engine = 'InnoDB';
 
-            $table->integer('checklists_id')->unsigned();
+            $table->integer('cartera_servicios_id')->unsigned();
             $table->integer('niveles_cones_id')->unsigned();
 
-            $table->foreign('checklists_id')
-                ->references('id')->on('checklists')
+            $table->foreign('cartera_servicios_id')
+                ->references('id')->on('cartera_servicios')
                 ->onDelete('cascade');
 
             $table->foreign('niveles_cones_id')
@@ -37,6 +37,6 @@ class CrearTablePivoteChecklistNivelCone extends Migration
      */
     public function down()
     {
-        Schema::drop('checklist_nivel_cone');
+        Schema::drop('cartera_servicio_nivel_cone');
     }
 }

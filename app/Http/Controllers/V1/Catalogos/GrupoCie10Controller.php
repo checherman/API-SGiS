@@ -13,6 +13,17 @@ use App\Models\Catalogos\GruposCie10;
 use App\Models\Catalogos\CategoriasCie10;
 use App\Models\Catalogos\SubCategoriasCie10;
 
+/**
+ * Controlador GrupoCie10
+ *
+ * @package    UGUS API
+ * @subpackage Controlador
+ * @author     Luis Alberto Valdez Lescieur <luisvl13@gmail.com>
+ * @created    2017-03-22
+ *
+ * Controlador `GrupoCie10`: Controlador  para el manejo de grupos del cie10
+ *
+ */
 class GrupoCie10Controller extends Controller
 {
     /**

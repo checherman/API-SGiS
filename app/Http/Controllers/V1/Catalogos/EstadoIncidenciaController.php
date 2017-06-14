@@ -12,6 +12,17 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Input;
 use \Validator,\Hash, \Response;
 
+/**
+ * Controlador EstadoIncidencia
+ *
+ * @package    UGUS API
+ * @subpackage Controlador
+ * @author     Luis Alberto Valdez Lescieur <luisvl13@gmail.com>
+ * @created    2017-03-22
+ *
+ * Controlador `EstadoIncidencia`: Controlador  para el manejo de estados de incidencias
+ *
+ */
 class EstadoIncidenciaController extends Controller
 {
     /**
@@ -116,7 +127,7 @@ class EstadoIncidenciaController extends Controller
             'nombre'        => 'required',
         ];
 
-        $inputs = Input::only('id', 'nombre');
+        $inputs = Input::only('nombre');
 
         $v = Validator::make($inputs, $reglas, $mensajes);
 
@@ -126,7 +137,6 @@ class EstadoIncidenciaController extends Controller
 
         try {
             $data = EstadosIncidencias::find($id);
-            $data->id =  $inputs['id'];
             $data->nombre =  $inputs['nombre'];
 
             $data->save();

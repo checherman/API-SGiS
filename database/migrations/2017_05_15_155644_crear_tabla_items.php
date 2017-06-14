@@ -19,13 +19,13 @@ class CrearTablaItems extends Migration
 
             $table->increments('id');
             $table->string('nombre', 255);
-            $table->integer('checklists_id')->unsigned();
+            $table->integer('cartera_servicios_id')->unsigned();
             $table->integer('tipos_items_id')->unsigned();
 
             $table->timestamps();
             $table->softDeletes();
 
-            $table->foreign('checklists_id')->references('id')->on('checklists')
+            $table->foreign('cartera_servicios_id')->references('id')->on('cartera_servicios')
                 ->onDelete('cascade')
                 ->onUpdate('cascade');
 

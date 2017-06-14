@@ -13,6 +13,17 @@ use Illuminate\Support\Facades\Input;
 use App\Models\Catalogos\NivelesCones;
 use App\Models\Catalogos\Clues;
 
+/**
+ * Controlador NivelCone
+ *
+ * @package    UGUS API
+ * @subpackage Controlador
+ * @author     Luis Alberto Valdez Lescieur <luisvl13@gmail.com>
+ * @created    2017-03-22
+ *
+ * Controlador `NivelCone`: Controlador  para el manejo de niveles de cone
+ *
+ */
 class NivelConeController extends Controller
 {
     /**

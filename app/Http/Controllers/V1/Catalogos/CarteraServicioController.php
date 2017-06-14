@@ -10,10 +10,21 @@ use Request;
 use \Validator,\Hash, \Response, \DB;
 use Illuminate\Support\Facades\Input;
 
-use App\Models\Catalogos\Checklists;
+use App\Models\Catalogos\CarteraServicios;
 use App\Models\Catalogos\Items;
 
-class ChecklistController extends Controller
+/**
+ * Controlador CarteraServicios
+ *
+ * @package    UGUS API
+ * @subpackage Controlador
+ * @author     Luis Alberto Valdez Lescieur <luisvl13@gmail.com>
+ * @created    2017-03-22
+ *
+ * Controlador `CarteraServicios`: Controlador  para el manejo de checklists
+ *
+ */
+class CarteraServicioController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -24,12 +35,12 @@ class ChecklistController extends Controller
     {
         $parametros = Input::only('q','page','per_page');
         if ($parametros['q']) {
-            $data =  Checklists::where(function($query) use ($parametros) {
+            $data =  CarteraServicios::where(function($query) use ($parametros) {
                 $query->where('id','LIKE',"%".$parametros['q']."%")
                     ->orWhere('nombre','LIKE',"%".$parametros['q']."%");
             });
         } else {
-            $data =  Checklists::getModel()->with('nivelesCones');
+            $data =  CarteraServicios::getModel()->with('nivelesCones');
         }
 
 
@@ -64,7 +75,7 @@ class ChecklistController extends Controller
                 return Response::json(['error' => $validacion], HttpResponse::HTTP_CONFLICT);
             }
 
-            $data = new Checklists;
+            $data = new CarteraServicios;
             $data->nombre = $datos['nombre'];
 
             if ($data->save())
@@ -98,14 +109,14 @@ class ChecklistController extends Controller
      * <code> Respuesta Error json(array("status": 404, "messages": "No hay resultados"),status) </code>
      */
     public function show($id){
-        $object = Checklists::with('Items')->find($id);
+        $object = CarteraServicios::with('Items')->find($id);
 
         if(!$object ){
 
             return Response::json(['error' => "No se encuentra el recurso que esta buscando."], HttpResponse::HTTP_NOT_FOUND);
         }
 
-        $variable = DB::table("checklist_nivel_cone")->select("niveles_cones_id")->where("checklists_id", $id)->get();
+        $variable = DB::table("cartera_servicio_nivel_cone")->select("niveles_cones_id")->where("cartera_servicios_id", $id)->get();
         $nivelCone = [];
         foreach ($variable as $key => $value) {
             $nivelCone[] = $value->niveles_cones_id;
@@ -138,7 +149,7 @@ class ChecklistController extends Controller
         $success = false;
         DB::beginTransaction();
         try{
-            $data = Checklists::find($id);
+            $data = CarteraServicios::find($id);
 
             $data->nombre = $datos->nombre;
 
@@ -180,7 +191,7 @@ class ChecklistController extends Controller
         $success = false;
         DB::beginTransaction();
         try {
-            $data = Checklists::find($id);
+            $data = CarteraServicios::find($id);
             if($data)
                 $data->delete();
             $success = true;
@@ -214,9 +225,9 @@ class ChecklistController extends Controller
         ];
 
         $rules = [
-            'nombre' => 'required|min:3|max:250|unique:checklists,nombre,'.$id.',id,deleted_at,NULL',
+            'nombre' => 'required|min:3|max:250|unique:cartera_servicios,nombre,'.$id.',id,deleted_at,NULL',
         ];
-
+        //dd($rules);
         $v = Validator::make($request, $rules, $messages);
 
         if ($v->fails()){
@@ -241,7 +252,7 @@ class ChecklistController extends Controller
             //limpiar el arreglo de posibles nullos
             $detalle = array_filter($datos->items, function($v){return $v !== null;});
             //borrar los datos previos de articulo para no duplicar información
-            Items::where("checklists_id", $data->id)->delete();
+            Items::where("cartera_servicios_id", $data->id)->delete();
             //recorrer cada elemento del arreglo
             foreach ($detalle as $key => $value) {
                 //validar que el valor no sea null
@@ -251,16 +262,16 @@ class ChecklistController extends Controller
                         $value = (object) $value;
 
                     //comprobar que el dato que se envio no exista o este borrado, si existe y esta borrado poner en activo nuevamente
-                    DB::select("update items set deleted_at = null where checklists_id = '$data->id' and nombre = '$value->nombre' ");
+                    DB::select("update items set deleted_at = null where cartera_servicios_id = '$data->id' and nombre = '$value->nombre' ");
                     //si existe el elemento actualizar
-                    $items = Items::where("checklists_id", $data->id)->where("nombre", $value->nombre)->first();
+                    $items = Items::where("cartera_servicios_id", $data->id)->where("nombre", $value->nombre)->first();
                     //si no existe crear
                     if(!$items)
                         $items = new Items;
 
-                    $items->checklists_id 	    = $data->id;
-                    $items->tipos_items_id 	    = $value->tipos_items_id;
-                    $items->nombre              = $value->nombre;
+                    $items->cartera_servicios_id 	= $data->id;
+                    $items->tipos_items_id 	        = $value->tipos_items_id;
+                    $items->nombre                  = $value->nombre;
 
                     $items->save();
                 }

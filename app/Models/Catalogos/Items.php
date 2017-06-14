@@ -16,10 +16,10 @@ class Items extends Model
     public $incrementing = true;
 
     protected $table = "items";
-    protected $fillable = ["id","nombre", "checklists_id"];
+    protected $fillable = ["id", "nombre", "cartera_servicios_id"];
 
-    public function checklist()
+    public function carteraServicio()
     {
-        return $this->belongsTo(Checklists::class,'checklists_id','id');
+        return $this->belongsTo(CarteraServicios::class,'cartera_servicios_id','id');
     }
 }

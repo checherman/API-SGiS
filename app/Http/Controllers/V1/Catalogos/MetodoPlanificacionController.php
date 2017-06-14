@@ -13,6 +13,17 @@ use \Validator,\Hash, \Response;
 
 use App\Models\Catalogos\MetodoPlanificacion;
 
+/**
+ * Controlador MetodoPlanificacion
+ *
+ * @package    UGUS API
+ * @subpackage Controlador
+ * @author     Luis Alberto Valdez Lescieur <luisvl13@gmail.com>
+ * @created    2017-03-22
+ *
+ * Controlador `MetodoPlanificacion`: Controlador  para el manejo de catalogo Metodos de planificacion familiar
+ *
+ */
 class MetodoPlanificacionController extends Controller
 {
     /**
@@ -117,7 +128,7 @@ class MetodoPlanificacionController extends Controller
             'nombre'        => 'required',
         ];
 
-        $inputs = Input::only('id', 'nombre');
+        $inputs = Input::only('nombre');
 
         $v = Validator::make($inputs, $reglas, $mensajes);
 
@@ -127,7 +138,6 @@ class MetodoPlanificacionController extends Controller
 
         try {
             $data = MetodoPlanificacion::find($id);
-            $data->id =  $inputs['id'];
             $data->nombre =  $inputs['nombre'];
 
             $data->save();

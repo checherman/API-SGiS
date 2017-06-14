@@ -6,24 +6,25 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response as HttpResponse;
 
 use App\Http\Requests;
-use App\Models\Catalogos\Rutas;
+use App\Models\Catalogos\EstadosPacientes;
 use App\Http\Controllers\Controller;
 
 use Illuminate\Support\Facades\Input;
 use \Validator,\Hash, \Response;
 
+
 /**
- * Controlador Ruta
+ * Controlador EstadoPaciente
  *
  * @package    UGUS API
  * @subpackage Controlador
  * @author     Luis Alberto Valdez Lescieur <luisvl13@gmail.com>
- * @created    2017-03-22
+ * @created    2017-06-14
  *
- * Controlador `Ruta`: Controlador  para el manejo de catalogo de las rutas
+ * Controlador `EstadoPaciente`: Controlador  para el manejo de estados de pacientes
  *
  */
-class RutaController extends Controller
+class EstadoPacienteController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -34,12 +35,12 @@ class RutaController extends Controller
     {
         $parametros = Input::only('q','page','per_page');
         if ($parametros['q']) {
-            $data =  Rutas::where(function($query) use ($parametros) {
+            $data =  EstadosPacientes::where(function($query) use ($parametros) {
                 $query->where('id','LIKE',"%".$parametros['q']."%")
                     ->orWhere('nombre','LIKE',"%".$parametros['q']."%");
             });
         } else {
-            $data =  Rutas::where("id","!=", "");
+            $data =  EstadosPacientes::where("id","!=", "");
         }
 
 
@@ -69,15 +70,10 @@ class RutaController extends Controller
         ];
 
         $reglas = [
-            'nombre'                => 'required|unique:rutas',
-            'clues_origen'          => 'required',
-            'clues_destino'         => 'required',
-            'tiempo_traslado'       => 'required',
-            'distancia_traslado'    => 'required',
-            'observaciones'         => 'required',
+            'nombre'        => 'required|unique:estados_incidencias',
         ];
 
-        $inputs = Input::only('nombre', 'clues_origen', 'clues_destino', 'tiempo_traslado', 'distancia_traslado', 'observaciones');
+        $inputs = Input::only('nombre');
 
         $v = Validator::make($inputs, $reglas, $mensajes);
 
@@ -86,7 +82,8 @@ class RutaController extends Controller
         }
 
         try {
-            $data = Rutas::create($inputs);
+
+            $data = EstadosPacientes::create($inputs);
 
             return Response::json([ 'data' => $data ],200);
 
@@ -103,7 +100,7 @@ class RutaController extends Controller
      */
     public function show($id)
     {
-        $data = Rutas::find($id);
+        $data = EstadosPacientes::find($id);
 
         if(!$data){
             return Response::json(['error' => "No se encuentra el recurso que esta buscando."], HttpResponse::HTTP_NOT_FOUND);
@@ -128,15 +125,10 @@ class RutaController extends Controller
         ];
 
         $reglas = [
-            'nombre'                => 'required',
-            'clues_origen'          => 'required',
-            'clues_destino'         => 'required',
-            'tiempo_traslado'       => 'required',
-            'distancia_traslado'    => 'required',
-            'observaciones'         => 'required',
+            'nombre'        => 'required',
         ];
 
-        $inputs = Input::only('nombre', 'clues_origen', 'clues_destino', 'tiempo_traslado', 'distancia_traslado', 'observaciones');
+        $inputs = Input::only('nombre');
 
         $v = Validator::make($inputs, $reglas, $mensajes);
 
@@ -145,13 +137,8 @@ class RutaController extends Controller
         }
 
         try {
-            $data = Rutas::find($id);
+            $data = EstadosPacientes::find($id);
             $data->nombre =  $inputs['nombre'];
-            $data->clues_origen =  $inputs['clues_origen'];
-            $data->clues_destino =  $inputs['clues_destino'];
-            $data->tiempo_traslado =  $inputs['tiempo_traslado'];
-            $data->distancia_traslado =  $inputs['distancia_traslado'];
-            $data->observaciones =  $inputs['observaciones'];
 
             $data->save();
             return Response::json([ 'data' => $data ],200);
@@ -170,7 +157,7 @@ class RutaController extends Controller
     public function destroy($id)
     {
         try {
-            $data = Rutas::destroy($id);
+            $data = EstadosPacientes::destroy($id);
             return Response::json(['data'=>$data],200);
         } catch (Exception $e) {
             return Response::json(['error' => $e->getMessage()], HttpResponse::HTTP_CONFLICT);

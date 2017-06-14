@@ -11,14 +11,14 @@ use Illuminate\Support\Facades\Input;
 use \Validator,\Hash, \Response, \DB;
 
 /**
- * Controlador Acción
+ * Controlador Clues
  *
  * @package    UGUS API
  * @subpackage Controlador
  * @author     Luis Alberto Valdez Lescieur <luisvl13@gmail.com>
- * @created    2016-12-06
+ * @created    2017-03-22
  *
- * Controlador `Clues`
+ * Controlador `Clues`: Controlador  para el manejo de clues
  *
  */
 class CluesController extends Controller
