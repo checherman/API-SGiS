@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\V1\Sistema;
+namespace App\Http\Controllers\V1\Transacciones;
 
 use App\Http\Controllers\Controller;
 
@@ -12,7 +12,7 @@ use App\Models\Sistema\Usuario;
 use Illuminate\Support\Facades\Input;
 use \Validator,\Hash, \Response, \DB;
 
-class UsuarioController extends Controller
+class DirectorioController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -23,11 +23,12 @@ class UsuarioController extends Controller
     {
         $parametros = Input::only('q','page','per_page');
         if ($parametros['q']) {
-             $usuarios =  Usuario::where('su',false)->whereNotNull('password')->where(function($query) use ($parametros) {
+             $usuarios =  Usuario::where('su',false)->whereNull('password')
+                 ->where(function($query) use ($parametros) {
                  $query->where('id','LIKE',"%".$parametros['q']."%")->orWhere(DB::raw("CONCAT(nombre,' ',paterno,' ',materno)"),'LIKE',"%".$parametros['q']."%");
              });
         } else {
-             $usuarios =  Usuario::where('su',false)->whereNotNull('password');
+             $usuarios =  Usuario::where('su',false)->whereNull('password');
         }
 
         if(isset($parametros['page'])){
@@ -57,14 +58,13 @@ class UsuarioController extends Controller
 
         $reglas = [
             'id'            => 'required|email|unique:usuarios',
-            'password'      => 'required',
             'nombre'        => 'required',
             'paterno'       => 'required',
             'materno'       => 'required',
             'celular'       => 'required'
         ];
 
-        $inputs = Input::only('id','servidor_id','password','nombre', 'paterno', 'materno', 'celular', 'avatar','roles');
+        $inputs = Input::only('id','servidor_id','nombre', 'paterno', 'materno', 'celular', 'cargos_id');
 
         $v = Validator::make($inputs, $reglas, $mensajes);
 
@@ -74,10 +74,7 @@ class UsuarioController extends Controller
 
         try {
             $inputs['servidor_id'] = env("SERVIDOR_ID");
-            $inputs['password'] = Hash::make($inputs['password']);
             $usuario = Usuario::create($inputs);
-
-            $usuario->roles()->sync($inputs['roles']);
 
             return Response::json([ 'data' => $usuario ],200);
 
@@ -126,7 +123,6 @@ class UsuarioController extends Controller
 
         $reglas = [
             'id'            => 'required|email|unique:usuarios,id,'.$id,
-            'password'      => 'required_with:cambiarPassword',
             'nombre'        => 'required',
             'paterno'       => 'required',
             'materno'       => 'required',
@@ -138,7 +134,7 @@ class UsuarioController extends Controller
             return Response::json(['error' => "No se encuentra el recurso que esta buscando."], HttpResponse::HTTP_NOT_FOUND);
         }
 
-        $inputs = Input::only('id','servidor_id', 'password', 'nombre', 'paterno', 'materno', 'celular', 'avatar', 'roles', 'cambiarPassword');
+        $inputs = Input::only('id','servidor_id','nombre', 'paterno', 'materno', 'celular', 'cargos_id');
 
         $v = Validator::make($inputs, $reglas, $mensajes);
 
@@ -151,15 +147,11 @@ class UsuarioController extends Controller
             $object->paterno =  $inputs['paterno'];
             $object->materno =  $inputs['materno'];
             $object->celular =  $inputs['celular'];
-            $object->avatar =  $inputs['avatar'];
+            $object->cargos_id =  $inputs['cargos_id'];
             $object->id =  $inputs['id'];
-            if ($inputs['cambiarPassword'] ){
-                $object->password = Hash::make($inputs['password']);
-            }
+
             $object->save();
-            $object->roles()->sync($inputs['roles']);
-            $object->roles;
-            unset($object->password); 
+
             return Response::json([ 'data' => $object ],200);
 
         } catch (\Exception $e) {

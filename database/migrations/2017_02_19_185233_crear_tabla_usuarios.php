@@ -16,18 +16,25 @@ class CrearTablaUsuarios extends Migration
         Schema::create('usuarios', function (Blueprint $table) {
             $table->string('id');
             $table->string('servidor_id',4);
-            $table->string('password',60);
+            $table->string('password',60)->nullable();
             $table->string('nombre');
             $table->string('paterno');
             $table->string('materno');
             $table->string('celular');
-            $table->string('avatar');
+            $table->integer('cargos_id')->nullable()->unsigned();
+            $table->string('avatar')->nullable();
             $table->boolean('su')->default(false);
             $table->timestamps();
             $table->softDeletes();
 
             $table->primary('id');
-            $table->foreign('servidor_id')->references('id')->on('servidores')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign('servidor_id')->references('id')->on('servidores')
+                ->onUpdate('cascade')
+                ->onDelete('cascade');
+
+            $table->foreign('cargos_id')->references('id')->on('cargos')
+                ->onDelete('cascade')
+                ->onUpdate('cascade');
         });
     }
 

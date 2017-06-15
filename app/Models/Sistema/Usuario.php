@@ -11,7 +11,7 @@ class Usuario extends BaseModel implements Authenticatable{
     use SoftDeletes;
     protected $generarID = false;
     protected $guardarIDUsuario = false;
-    protected $fillable = ["id","servidor_id","password","nombre","paterno","materno","celular","avatar","su"];
+    protected $fillable = ["id", "servidor_id", "password", "nombre", "paterno", "materno", "celular", "avatar", "su", "cargos_id"];
 
     public function scopeObtenerClavesPermisos($query){
         return $query->select('permisos.id AS clavePermiso')
