@@ -14,14 +14,14 @@ use App\Models\Catalogos\CarteraServicios;
 use App\Models\Catalogos\Items;
 
 /**
- * Controlador CarteraServicios
+ * Controlador CarteraServicio
  *
  * @package    UGUS API
  * @subpackage Controlador
  * @author     Luis Alberto Valdez Lescieur <luisvl13@gmail.com>
  * @created    2017-03-22
  *
- * Controlador `CarteraServicios`: Controlador  para el manejo de checklists
+ * Controlador `CarteraServicio`: Controlador  para el manejo de checklists
  *
  */
 class CarteraServicioController extends Controller

@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\V1\Catalogos;
 
+use App\Http\Controllers\ApiController;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response as HttpResponse;
 
 use App\Http\Requests;
-use App\Http\Controllers\Controller;
 
 use Illuminate\Support\Facades\Input;
 use \Validator,\Hash, \Response;
@@ -24,7 +24,7 @@ use App\Models\Catalogos\MetodoPlanificacion;
  * Controlador `MetodoPlanificacion`: Controlador  para el manejo de catalogo Metodos de planificacion familiar
  *
  */
-class MetodoPlanificacionController extends Controller
+class MetodoPlanificacionController extends ApiController
 {
     /**
      * Display a listing of the resource.
@@ -52,7 +52,7 @@ class MetodoPlanificacionController extends Controller
             $data = $data->get();
         }
 
-        return Response::json([ 'data' => $data],200);
+        return $this->respuestaVerTodo($data);
     }
 
     /**
@@ -78,17 +78,17 @@ class MetodoPlanificacionController extends Controller
         $v = Validator::make($inputs, $reglas, $mensajes);
 
         if ($v->fails()) {
-            return Response::json(['error' => $v->errors()], HttpResponse::HTTP_CONFLICT);
+            return $this->respuestaError($v->errors(), 409);
         }
 
         try {
 
             $data = MetodoPlanificacion::create($inputs);
 
-            return Response::json([ 'data' => $data ],200);
+            return $this->respuestaVerUno($data,201);
 
         } catch (\Exception $e) {
-            return Response::json(['error' => $e->getMessage()], HttpResponse::HTTP_CONFLICT);
+            return $this->respuestaError($e->getMessage(), 409);
         }
     }
 
@@ -106,7 +106,7 @@ class MetodoPlanificacionController extends Controller
             return Response::json(['error' => "No se encuentra el recurso que esta buscando."], HttpResponse::HTTP_NOT_FOUND);
         }
 
-        return Response::json([ 'data' => $data ], HttpResponse::HTTP_OK);
+        return $this->respuestaVerUno($data);
     }
 
     /**
@@ -133,7 +133,7 @@ class MetodoPlanificacionController extends Controller
         $v = Validator::make($inputs, $reglas, $mensajes);
 
         if ($v->fails()) {
-            return Response::json(['error' => $v->errors()], HttpResponse::HTTP_CONFLICT);
+            return $this->respuestaError($v->errors(), 409);
         }
 
         try {
@@ -141,10 +141,10 @@ class MetodoPlanificacionController extends Controller
             $data->nombre =  $inputs['nombre'];
 
             $data->save();
-            return Response::json([ 'data' => $data ],200);
+            return $this->respuestaVerUno($data);
 
         } catch (\Exception $e) {
-            return Response::json(['error' => $e->getMessage()], HttpResponse::HTTP_CONFLICT);
+            return $this->respuestaError($e->getMessage(), 409);
         }
     }
 
@@ -158,9 +158,9 @@ class MetodoPlanificacionController extends Controller
     {
         try {
             $data = MetodoPlanificacion::destroy($id);
-            return Response::json(['data'=>$data],200);
+            return $this->respuestaVerUno($data);
         } catch (Exception $e) {
-            return Response::json(['error' => $e->getMessage()], HttpResponse::HTTP_CONFLICT);
+            return $this->respuestaError($e->getMessage(), 409);
         }
     }
 }

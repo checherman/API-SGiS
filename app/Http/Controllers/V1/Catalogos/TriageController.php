@@ -15,14 +15,14 @@ use App\Models\Catalogos\TriageColores;
 use App\Models\Catalogos\TriageSintomas;
 
 /**
- * Controlador GrupoCie10
+ * Controlador Triage
  *
  * @package    UGUS API
  * @subpackage Controlador
  * @author     Luis Alberto Valdez Lescieur <luisvl13@gmail.com>
- * @created    2017-03-22
+ * @created    2017-05-22
  *
- * Controlador `GrupoCie10`: Controlador  para el manejo de grupos del cie10
+ * Controlador `Triage`: Controlador  para el manejo de triage
  *
  */
 class TriageController extends Controller
@@ -41,7 +41,7 @@ class TriageController extends Controller
                     ->orWhere('nombre','LIKE',"%".$parametros['q']."%");
             });
         } else {
-            $data =  Triage::getModel()->with('triage_sintomas');
+            $data =  Triage::getModel()->with('triageSintomas');
         }
 
         if(isset($parametros['page'])){
@@ -109,7 +109,7 @@ class TriageController extends Controller
      * <code> Respuesta Error json(array("status": 404, "messages": "No hay resultados"),status) </code>
      */
     public function show($id){
-        $data = Triage::with('triage_sintomas')->find($id);
+        $data = Triage::with('triageSintomass')->find($id);
 
         if(!$data){
             return Response::json(array("status" => 204,"messages" => "No hay resultados"), 204);
@@ -263,27 +263,29 @@ class TriageController extends Controller
                     $sintoma->nombre        = $value->nombre;
 
                     if ($sintoma->save()){
-//                        if(property_exists($value, "resultado")){
-//
-//                            //limpiar el arreglo de posibles nullos
+                        if(property_exists($value, "resultado")){
+                            dd($sintoma);
+                            $sintoma->triageColores()->sync($datos);
+
+                            //limpiar el arreglo de posibles nullos
 //                            $detalle = array_filter($value->subcategorias_cie10, function($v){return $v !== null;});
-//                            //borrar los datos previos de articulo para no duplicar información
+                            //borrar los datos previos de articulo para no duplicar información
 //
 //                            SubCategoriasCie10::where("categorias_cie10_id", $categoria->id)->delete();
 //
-//                            //recorrer cada elemento del arreglo
+                            //recorrer cada elemento del arreglo
 //                            foreach ($detalle as $key => $val) {
-//                                //validar que el valor no sea null
+                                //validar que el valor no sea null
 //                                if($val != null){
-//                                    //comprobar si el value es un array, si es convertirlo a object mas facil para manejar.
+                                    //comprobar si el value es un array, si es convertirlo a object mas facil para manejar.
 //                                    if(is_array($val))
 //                                        $val = (object) $val;
 //
-//                                    //comprobar que el dato que se envio no exista o este borrado, si existe y esta borrado poner en activo nuevamente
+                                    //comprobar que el dato que se envio no exista o este borrado, si existe y esta borrado poner en activo nuevamente
 //                                    DB::select("update subcategorias_cie10 set deleted_at = null where categorias_cie10_id = '$categoria->id' and nombre = '$val->nombre' ");
-//                                    //si existe el elemento actualizar
+                                    //si existe el elemento actualizar
 //                                    $subCategoria = SubCategoriasCie10::where("categorias_cie10_id", $categoria->id)->where("nombre", $val->nombre)->first();
-//                                    //si no existe crear
+                                    //si no existe crear
 //                                    if(!$subCategoria)
 //                                        $subCategoria = new SubCategoriasCie10;
 //
@@ -293,7 +295,7 @@ class TriageController extends Controller
 //                                    $subCategoria->save();
 //                                }
 //                            }
-//                        }
+                        }
                     }
 
                 }

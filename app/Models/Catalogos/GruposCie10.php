@@ -18,7 +18,8 @@ class GruposCie10 extends Model
     protected $table = "grupos_cie10";
     protected $fillable = ["id","nombre"];
 
-    public function categoriasCie10(){
-        return $this->hasMany(CategoriasCie10::class,'grupos_cie10_id','id');
+    public function categoriasCie10()
+    {
+        return $this->hasMany(CategoriasCie10::class,'grupos_cie10_id','id')->with('subCategoriasCie10');
     }
 }

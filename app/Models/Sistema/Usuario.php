@@ -3,6 +3,7 @@
 namespace App\Models\Sistema;
 
 use App\Models\BaseModel;
+use App\Models\Catalogos\Cargo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Contracts\Auth\Authenticatable;
 
@@ -21,8 +22,14 @@ class Usuario extends BaseModel implements Authenticatable{
             ->groupBy('clavePermiso','usuarios.id');
     }
 
-    public function roles(){
+    public function roles()
+    {
         return $this->belongsToMany('App\Models\Sistema\Rol', 'rol_usuario', 'usuario_id', 'rol_id');
+    }
+
+    public function cargos()
+    {
+        return $this->belongsTo(Cargo::class,'cargos_id','id');
     }
 
 

@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\V1\Catalogos;
 
+use App\Http\Controllers\ApiController;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response as HttpResponse;
 
 use App\Http\Requests;
 use App\Models\Catalogos\EstadosPacientes;
-use App\Http\Controllers\Controller;
 
 use Illuminate\Support\Facades\Input;
 use \Validator,\Hash, \Response;
@@ -24,7 +24,7 @@ use \Validator,\Hash, \Response;
  * Controlador `EstadoPaciente`: Controlador  para el manejo de estados de pacientes
  *
  */
-class EstadoPacienteController extends Controller
+class EstadoPacienteController extends ApiController
 {
     /**
      * Display a listing of the resource.
@@ -52,7 +52,7 @@ class EstadoPacienteController extends Controller
             $data = $data->get();
         }
 
-        return Response::json([ 'data' => $data],200);
+        return $this->respuestaVerTodo($data);
     }
 
     /**
@@ -78,17 +78,17 @@ class EstadoPacienteController extends Controller
         $v = Validator::make($inputs, $reglas, $mensajes);
 
         if ($v->fails()) {
-            return Response::json(['error' => $v->errors()], HttpResponse::HTTP_CONFLICT);
+            return $this->respuestaError($v->errors(), 409);
         }
 
         try {
 
             $data = EstadosPacientes::create($inputs);
 
-            return Response::json([ 'data' => $data ],200);
+            return $this->respuestaVerUno($data,201);
 
         } catch (\Exception $e) {
-            return Response::json(['error' => $e->getMessage()], HttpResponse::HTTP_CONFLICT);
+            return $this->respuestaError($e->getMessage(), 409);
         }
     }
 
@@ -106,7 +106,7 @@ class EstadoPacienteController extends Controller
             return Response::json(['error' => "No se encuentra el recurso que esta buscando."], HttpResponse::HTTP_NOT_FOUND);
         }
 
-        return Response::json([ 'data' => $data ], HttpResponse::HTTP_OK);
+        return $this->respuestaVerUno($data);
     }
 
     /**
@@ -133,7 +133,7 @@ class EstadoPacienteController extends Controller
         $v = Validator::make($inputs, $reglas, $mensajes);
 
         if ($v->fails()) {
-            return Response::json(['error' => $v->errors()], HttpResponse::HTTP_CONFLICT);
+            return $this->respuestaError($v->errors(), 409);
         }
 
         try {
@@ -141,10 +141,10 @@ class EstadoPacienteController extends Controller
             $data->nombre =  $inputs['nombre'];
 
             $data->save();
-            return Response::json([ 'data' => $data ],200);
+            return $this->respuestaVerUno($data);
 
         } catch (\Exception $e) {
-            return Response::json(['error' => $e->getMessage()], HttpResponse::HTTP_CONFLICT);
+            return $this->respuestaError($e->getMessage(), 409);
         }
     }
 
@@ -158,9 +158,9 @@ class EstadoPacienteController extends Controller
     {
         try {
             $data = EstadosPacientes::destroy($id);
-            return Response::json(['data'=>$data],200);
+            return $this->respuestaVerUno($data);
         } catch (Exception $e) {
-            return Response::json(['error' => $e->getMessage()], HttpResponse::HTTP_CONFLICT);
+            return $this->respuestaError($e->getMessage(), 409);
         }
     }
 }

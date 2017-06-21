@@ -18,7 +18,8 @@ class Triage extends Model
     protected $table = "triage";
     protected $fillable = ["id", "nombre", "descripcion"];
 
-    public function triageSintomas(){
+    public function triageSintomas()
+    {
         return $this->hasMany(TriageSintomas::class,'triage_id','id');
     }
 }

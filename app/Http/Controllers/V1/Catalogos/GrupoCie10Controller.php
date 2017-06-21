@@ -40,9 +40,8 @@ class GrupoCie10Controller extends Controller
                     ->orWhere('nombre','LIKE',"%".$parametros['q']."%");
             });
         } else {
-            $data =  GruposCie10::getModel()->with('categoriasCie10');
+            $data =  GruposCie10::getModel()->with('CategoriasCie10');
         }
-
 
         if(isset($parametros['page'])){
 

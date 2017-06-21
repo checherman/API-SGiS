@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers\V1\Catalogos;
 
+use App\Http\Controllers\ApiController;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response as HttpResponse;
 
 use App\Http\Requests;
-use App\Http\Controllers\Controller;
-
 use Illuminate\Support\Facades\Input;
 use \Validator,\Hash, \Response;
 
@@ -24,7 +23,7 @@ use App\Models\Catalogos\Cargo;
  * Controlador `Cargos`: Controlador  para el manejo de catalogo cargos
  *
  */
-class CargoController extends Controller
+class CargoController extends ApiController
 {
     /**
      * Display a listing of the resource.
@@ -52,7 +51,7 @@ class CargoController extends Controller
             $data = $data->get();
         }
 
-        return Response::json([ 'data' => $data],200);
+        return $this->respuestaVerTodo($data);
     }
 
     /**
@@ -79,17 +78,16 @@ class CargoController extends Controller
         $v = Validator::make($inputs, $reglas, $mensajes);
 
         if ($v->fails()) {
-            return Response::json(['error' => $v->errors()], HttpResponse::HTTP_CONFLICT);
+            return $this->respuestaError($v->errors(), 409);
         }
 
         try {
 
             $data = Cargo::create($inputs);
-
-            return Response::json([ 'data' => $data ],200);
+            return $this->respuestaVerUno($data,201);
 
         } catch (\Exception $e) {
-            return Response::json(['error' => $e->getMessage()], HttpResponse::HTTP_CONFLICT);
+            return $this->respuestaError($e->getMessage(), 409);
         }
     }
 
@@ -104,10 +102,10 @@ class CargoController extends Controller
         $data = Cargo::find($id);
 
         if(!$data){
-            return Response::json(['error' => "No se encuentra el recurso que esta buscando."], HttpResponse::HTTP_NOT_FOUND);
+            return $this->respuestaError('No se encuentra el recurso que esta buscando.', 404);
         }
 
-        return Response::json([ 'data' => $data ], HttpResponse::HTTP_OK);
+        return $this->respuestaVerUno($data);
     }
 
     /**
@@ -135,7 +133,7 @@ class CargoController extends Controller
         $v = Validator::make($inputs, $reglas, $mensajes);
 
         if ($v->fails()) {
-            return Response::json(['error' => $v->errors()], HttpResponse::HTTP_CONFLICT);
+            return $this->respuestaError($v->errors(), 409);
         }
 
         try {
@@ -144,10 +142,10 @@ class CargoController extends Controller
             $data->descripcion =  $inputs['descripcion'];
 
             $data->save();
-            return Response::json([ 'data' => $data ],200);
+            return $this->respuestaVerUno($data);
 
         } catch (\Exception $e) {
-            return Response::json(['error' => $e->getMessage()], HttpResponse::HTTP_CONFLICT);
+            return $this->respuestaError($e->getMessage(), 409);
         }
     }
 
@@ -161,9 +159,9 @@ class CargoController extends Controller
     {
         try {
             $data = Cargo::destroy($id);
-            return Response::json(['data'=>$data],200);
+            return $this->respuestaVerUno($data);
         } catch (Exception $e) {
-            return Response::json(['error' => $e->getMessage()], HttpResponse::HTTP_CONFLICT);
+            return $this->respuestaError($e->getMessage(), 409);
         }
     }
 }

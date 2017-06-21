@@ -8,16 +8,18 @@ use App\Models\Sistema\Usuario;
 |--------------------------------------------------------------------------
 |
 | Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServi ceProvider within a group which
+| routes are loaded by the RoutesProvider within a group which
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-
 
 Route::post('obtener-token',    'V1\Sistema\AutenticacionController@autenticar');
 Route::post('refresh-token',    'V1\Sistema\AutenticacionController@refreshToken');
 Route::get('check-token',       'V1\Sistema\AutenticacionController@verificar');
 
+//Autocomplete
+Route::get('grupo-permiso',       'AutoCompleteController@grupo_permiso');
+Route::get('clues-auto',          'AutoCompleteController@clues');
 
 Route::middleware('jwt')->group(function () {
     //Sistema

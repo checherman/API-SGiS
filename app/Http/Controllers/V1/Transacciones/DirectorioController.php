@@ -28,7 +28,7 @@ class DirectorioController extends Controller
                  $query->where('id','LIKE',"%".$parametros['q']."%")->orWhere(DB::raw("CONCAT(nombre,' ',paterno,' ',materno)"),'LIKE',"%".$parametros['q']."%");
              });
         } else {
-             $usuarios =  Usuario::where('su',false)->whereNull('password');
+             $usuarios =  Usuario::where('su',false)->whereNull('password')->with('cargos');
         }
 
         if(isset($parametros['page'])){
@@ -93,14 +93,10 @@ class DirectorioController extends Controller
     {
         $object = Usuario::find($id);
 
-        
-        
         if(!$object ){
-            
+
             return Response::json(['error' => "No se encuentra el recurso que esta buscando."], HttpResponse::HTTP_NOT_FOUND);
         }
-        unset($object->password);
-        $object->roles;
 
         return Response::json([ 'data' => $object ], HttpResponse::HTTP_OK);
     }

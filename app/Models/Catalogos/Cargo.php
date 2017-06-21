@@ -3,6 +3,7 @@
 namespace App;
 
 namespace App\Models\Catalogos;
+use App\Models\Sistema\Usuario;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -17,4 +18,9 @@ class Cargo extends Model
 
     protected $table = "cargos";
     protected $fillable = ["id", "nombre", "descripcion"];
+
+    public function usuario()
+    {
+        return $this->hasMany(Usuario::class,'cargos_id','id');
+    }
 }

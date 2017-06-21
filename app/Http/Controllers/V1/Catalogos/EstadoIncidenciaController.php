@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\V1\Catalogos;
 
+use App\Http\Controllers\ApiController;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response as HttpResponse;
 
 use App\Http\Requests;
 use App\Models\Catalogos\EstadosIncidencias;
-use App\Http\Controllers\Controller;
 
 use Illuminate\Support\Facades\Input;
 use \Validator,\Hash, \Response;
@@ -23,7 +23,7 @@ use \Validator,\Hash, \Response;
  * Controlador `EstadoIncidencia`: Controlador  para el manejo de estados de incidencias
  *
  */
-class EstadoIncidenciaController extends Controller
+class EstadoIncidenciaController extends ApiController
 {
     /**
      * Display a listing of the resource.
@@ -51,7 +51,7 @@ class EstadoIncidenciaController extends Controller
             $data = $data->get();
         }
 
-        return Response::json([ 'data' => $data],200);
+        return $this->respuestaVerTodo($data);
     }
 
     /**
@@ -77,7 +77,7 @@ class EstadoIncidenciaController extends Controller
         $v = Validator::make($inputs, $reglas, $mensajes);
 
         if ($v->fails()) {
-            return Response::json(['error' => $v->errors()], HttpResponse::HTTP_CONFLICT);
+            return $this->respuestaError($v->errors(), 409);
         }
 
         try {
@@ -87,7 +87,7 @@ class EstadoIncidenciaController extends Controller
             return Response::json([ 'data' => $data ],200);
 
         } catch (\Exception $e) {
-            return Response::json(['error' => $e->getMessage()], HttpResponse::HTTP_CONFLICT);
+            return $this->respuestaError($e->getMessage(), 409);
         }
     }
 
@@ -105,7 +105,7 @@ class EstadoIncidenciaController extends Controller
             return Response::json(['error' => "No se encuentra el recurso que esta buscando."], HttpResponse::HTTP_NOT_FOUND);
         }
 
-        return Response::json([ 'data' => $data ], HttpResponse::HTTP_OK);
+        return $this->respuestaVerUno($data);
     }
 
     /**
@@ -132,7 +132,7 @@ class EstadoIncidenciaController extends Controller
         $v = Validator::make($inputs, $reglas, $mensajes);
 
         if ($v->fails()) {
-            return Response::json(['error' => $v->errors()], HttpResponse::HTTP_CONFLICT);
+            return $this->respuestaError($v->errors(), 409);
         }
 
         try {
@@ -140,10 +140,10 @@ class EstadoIncidenciaController extends Controller
             $data->nombre =  $inputs['nombre'];
 
             $data->save();
-            return Response::json([ 'data' => $data ],200);
+            return $this->respuestaVerUno($data);
 
         } catch (\Exception $e) {
-            return Response::json(['error' => $e->getMessage()], HttpResponse::HTTP_CONFLICT);
+            return $this->respuestaError($e->getMessage(), 409);
         }
     }
 
@@ -157,9 +157,9 @@ class EstadoIncidenciaController extends Controller
     {
         try {
             $data = EstadosIncidencias::destroy($id);
-            return Response::json(['data'=>$data],200);
+            return $this->respuestaVerUno($data);
         } catch (Exception $e) {
-            return Response::json(['error' => $e->getMessage()], HttpResponse::HTTP_CONFLICT);
+            return $this->respuestaError($e->getMessage(), 409);
         }
     }
 }

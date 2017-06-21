@@ -18,7 +18,8 @@ class SubCategoriasCie10 extends Model
     protected $table = "subcategorias_cie10";
     protected $fillable = ["id","nombre", "categorias_cie10_id"];
 
-    public function categoriaCie10(){
+    public function categoriaCie10()
+    {
         return $this->belongsTo(CategoriasCie10::class, 'categorias_cie10_id','id');
     }
 }
