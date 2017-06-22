@@ -11,8 +11,9 @@ use \Validator,\Hash, \Response, \DB;
 use Illuminate\Support\Facades\Input;
 
 use App\Models\Catalogos\Triage;
-use App\Models\Catalogos\TriageColores;
 use App\Models\Catalogos\TriageSintomas;
+use App\Models\Catalogos\TriageColorTriageSintoma;
+
 
 /**
  * Controlador Triage
@@ -109,7 +110,7 @@ class TriageController extends Controller
      * <code> Respuesta Error json(array("status": 404, "messages": "No hay resultados"),status) </code>
      */
     public function show($id){
-        $data = Triage::with('triageSintomass')->find($id);
+        $data = Triage::with('triageSintomas')->find($id);
 
         if(!$data){
             return Response::json(array("status" => 204,"messages" => "No hay resultados"), 204);
@@ -263,38 +264,26 @@ class TriageController extends Controller
                     $sintoma->nombre        = $value->nombre;
 
                     if ($sintoma->save()){
-                        if(property_exists($value, "resultado")){
-                            dd($sintoma);
-                            $sintoma->triageColores()->sync($datos);
+                        if(property_exists($value, "triage_colores")){
 
                             //limpiar el arreglo de posibles nullos
-//                            $detalle = array_filter($value->subcategorias_cie10, function($v){return $v !== null;});
+                            $detalle = array_filter($value->triage_colores, function($v){return $v !== null;});
                             //borrar los datos previos de articulo para no duplicar información
-//
-//                            SubCategoriasCie10::where("categorias_cie10_id", $categoria->id)->delete();
-//
+
+                            TriageColorTriageSintoma::where("triage_sintomas_id", $sintoma->id)->delete();
+
                             //recorrer cada elemento del arreglo
-//                            foreach ($detalle as $key => $val) {
+                               foreach ($detalle as $key => $val) {
                                 //validar que el valor no sea null
-//                                if($val != null){
+                                if($val != null){
                                     //comprobar si el value es un array, si es convertirlo a object mas facil para manejar.
-//                                    if(is_array($val))
-//                                        $val = (object) $val;
-//
-                                    //comprobar que el dato que se envio no exista o este borrado, si existe y esta borrado poner en activo nuevamente
-//                                    DB::select("update subcategorias_cie10 set deleted_at = null where categorias_cie10_id = '$categoria->id' and nombre = '$val->nombre' ");
-                                    //si existe el elemento actualizar
-//                                    $subCategoria = SubCategoriasCie10::where("categorias_cie10_id", $categoria->id)->where("nombre", $val->nombre)->first();
-                                    //si no existe crear
-//                                    if(!$subCategoria)
-//                                        $subCategoria = new SubCategoriasCie10;
-//
-//                                    $subCategoria->categorias_cie10_id 	= $categoria->id;
-//                                    $subCategoria->nombre               = $val->nombre;
-//
-//                                    $subCategoria->save();
-//                                }
-//                            }
+                                    if(is_array($val))
+                                        $val = (object) $val;
+
+
+                                    DB::select("insert into triage_color_triage_sintoma (triage_sintomas_id, triage_colores_id, nombre) VALUE ($sintoma->id, $val->color_id, '$val->nombre')");
+                                }
+                            }
                         }
                     }
 

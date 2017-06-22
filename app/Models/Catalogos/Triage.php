@@ -20,6 +20,6 @@ class Triage extends Model
 
     public function triageSintomas()
     {
-        return $this->hasMany(TriageSintomas::class,'triage_id','id');
+        return $this->hasMany(TriageSintomas::class,'triage_id','id')->with('TriageColores');
     }
 }
