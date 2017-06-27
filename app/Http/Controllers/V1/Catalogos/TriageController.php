@@ -110,7 +110,13 @@ class TriageController extends Controller
      * <code> Respuesta Error json(array("status": 404, "messages": "No hay resultados"),status) </code>
      */
     public function show($id){
-        $data = Triage::with('triageSintomas')->find($id);
+        $data = Triage::find($id);
+
+        $triageSintomas = TriageSintomas::where("triage_id", $id)
+            ->with('triageColorTriageSintoma')
+            ->get();
+
+        $data->triage_sintomas = $triageSintomas;
 
         if(!$data){
             return Response::json(array("status" => 204,"messages" => "No hay resultados"), 204);

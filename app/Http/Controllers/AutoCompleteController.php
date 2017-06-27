@@ -35,7 +35,6 @@ class AutoCompleteController extends ApiController
         }
 
         return $this->respuestaVerTodo($data);
-        //return Response::json([ 'data' => $data],200);
     }
 
     /**
@@ -54,8 +53,6 @@ class AutoCompleteController extends ApiController
 
         $data = $data->get();
         return $this->respuestaVerTodo($data);
-
-        //return Response::json([ 'data' => $data],200);
     }
 
 }
