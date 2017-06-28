@@ -18,11 +18,13 @@ class CarteraServicios extends Model
     protected $table = "cartera_servicios";
     protected $fillable = ["id","nombre"];
 
-    public function items(){
+    public function items()
+    {
         return $this->hasMany(Items::class,'cartera_servicios_id','id');
     }
 
-    public function nivelesCones(){
+    public function nivelesCones()
+    {
         return $this->belongsToMany(NivelesCones::class, 'cartera_servicio_nivel_cone', 'cartera_servicios_id', 'niveles_cones_id');
     }
 }

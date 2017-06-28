@@ -48,6 +48,7 @@ Route::middleware('jwt')->group(function () {
 
         //Transacciones
         Route::resource('directorio',           'V1\Transacciones\DirectorioController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
+        Route::resource('incidencias',          'V1\Transacciones\IncidenciaController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
     });
 
     // Sync

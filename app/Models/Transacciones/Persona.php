@@ -2,11 +2,11 @@
 
 namespace App;
 
-namespace App\Models\Catalogos;
-use Illuminate\Database\Eloquent\Model;
+namespace App\Models\Transacciones;
+use App\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Persona extends Model
+class Persona extends BaseModel
 {
     use SoftDeletes;
 

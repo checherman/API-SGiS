@@ -18,7 +18,8 @@ class NivelesCones extends Model
     protected $table = "niveles_cones";
     protected $fillable = ["id","nombre"];
 
-    public function carteraServicio(){
+    public function carteraServicio()
+    {
         return $this->belongsToMany(CarteraServicios::class, 'cartera_servicio_nivel_cone', 'niveles_cones_id', 'cartera_servicios_id');
     }
 
