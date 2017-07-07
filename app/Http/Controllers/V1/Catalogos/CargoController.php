@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers\V1\Catalogos;
 
-use App\Http\Controllers\ApiController;
+
 use Illuminate\Http\Request;
-use Illuminate\Http\Response as HttpResponse;
 
 use App\Http\Requests;
 use Illuminate\Support\Facades\Input;
 use \Validator,\Hash, \Response;
 
+use App\Http\Controllers\ApiController;
 use App\Models\Catalogos\Cargo;
+
 
 /**
  * Controlador Cargo
@@ -20,15 +21,36 @@ use App\Models\Catalogos\Cargo;
  * @author     Luis Alberto Valdez Lescieur <luisvl13@gmail.com>
  * @created    2017-03-22
  *
- * Controlador `Cargos`: Controlador  para el manejo de catalogo cargos
+ * Controlador `Cargo`: Controlador  para el manejo de catalogo cargos
  *
  */
 class CargoController extends ApiController
 {
     /**
-     * Display a listing of the resource.
+     * Muestra una lista de los recursos según los parametros a procesar en la petición.
      *
-     * @return \Illuminate\Http\Response
+     * <h3>Lista de parametros Request:</h3>
+     * <Ul>Paginación
+     * <Li> <code>$pagina</code> numero del puntero(offset) para la sentencia limit </ li>
+     * <Li> <code>$limite</code> numero de filas a mostrar por página</ li>
+     * </Ul>
+     * <Ul>Busqueda
+     * <Li> <code>$valor</code> string con el valor para hacer la busqueda</ li>
+     * <Li> <code>$order</code> campo de la base de data por la que se debe ordenar la información. Por Defaul es ASC</ li>
+     * </Ul>
+     *
+     * Conceptos ordenamiento con respecto a id:
+     * <code>
+     * http://url?pagina=1&limite=5&order=id ASC
+     * </code>
+     * <code>
+     * http://url?pagina=1&limite=5&order=-id DESC
+     * </code>
+     *
+     * Todo Los parametros son opcionales, pero si existe pagina debe de existir tambien limite
+     * @return Response
+     * <code style="color:green"> Respuesta Ok json(array("status": 200, "messages": "Operación realizada con exito", "data": array(resultado)),status) </code>
+     * <code> Respuesta Error json(array("status": 404, "messages": "No hay resultados"),status) </code>
      */
     public function index()
     {
@@ -45,7 +67,7 @@ class CargoController extends ApiController
 
         if(isset($parametros['page'])){
 
-            $resultadosPorPagina = isset($parametros["per_page"])? $parametros["per_page"] : 20;
+            $resultadosPorPagina = isset($parametros["per_page"]) ? $parametros["per_page"] : 20;
             $data = $data->paginate($resultadosPorPagina);
         } else {
             $data = $data->get();

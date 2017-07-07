@@ -30,6 +30,7 @@ Route::middleware('jwt')->group(function () {
 
         //Catalogos
         Route::resource('clues',                'V1\Catalogos\CluesController', ['only' => ['index']]);
+        Route::resource('jurisdicciones',       'V1\Catalogos\JurisdiccionController', ['only' => ['index']]);
         Route::resource('estados-incidencias',  'V1\Catalogos\EstadoIncidenciaController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
         Route::resource('estados-pacientes',    'V1\Catalogos\EstadoPacienteController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
         Route::resource('parentescos',          'V1\Catalogos\ParentescoController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);

@@ -13,7 +13,6 @@ class CluesSeeder extends Seeder
     {
         $lista_csv = [
             'clues'                  =>'clues',
-            'jurisdicciones'         =>'jurisdicciones',
         ];
 
         foreach($lista_csv as $csv => $tabla){

@@ -20,6 +20,9 @@ class CrearTablePivoteCarteraServicioNivelCone extends Migration
             $table->integer('cartera_servicios_id')->unsigned();
             $table->integer('niveles_cones_id')->unsigned();
 
+            $table->timestamps();
+            $table->softDeletes();
+
             $table->foreign('cartera_servicios_id')
                 ->references('id')->on('cartera_servicios')
                 ->onDelete('cascade');

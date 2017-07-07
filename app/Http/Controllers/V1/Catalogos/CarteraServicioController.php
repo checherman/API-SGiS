@@ -4,6 +4,7 @@ namespace App\Http\Controllers\V1\Catalogos;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
+use App\Models\Catalogos\CarteraServicioNivelCone;
 use Illuminate\Http\Response as HttpResponse;
 
 use Request;
@@ -65,7 +66,6 @@ class CarteraServicioController extends Controller
     {
         $datos = Input::json()->all();
 
-        $success = false;
         $errors_main = array();
         DB::beginTransaction();
 
@@ -78,13 +78,10 @@ class CarteraServicioController extends Controller
             $data = new CarteraServicios;
             $data->nombre = $datos['nombre'];
 
-            if ($data->save())
+            if ($data->save()) {
                 $datos = (object)$datos;
-
-            $data->nivelesCones()->sync($datos->niveles_cones);
-
-            $this->AgregarDatos($datos, $data);
-            $success = true;
+                $success = $this->AgregarDatos($datos, $data);
+            }
 
         } catch (\Exception $e){
             return Response::json($e->getMessage(), 500);
@@ -116,12 +113,11 @@ class CarteraServicioController extends Controller
             return Response::json(['error' => "No se encuentra el recurso que esta buscando."], HttpResponse::HTTP_NOT_FOUND);
         }
 
-        $variable = DB::table("cartera_servicio_nivel_cone")->select("niveles_cones_id")->where("cartera_servicios_id", $id)->get();
-        $nivelCone = [];
-        foreach ($variable as $key => $value) {
-            $nivelCone[] = $value->niveles_cones_id;
-        }
-        $object->niveles_cones = $nivelCone;
+        $nivelesCones = CarteraServicioNivelCone::where("cartera_servicios_id", $id)
+            ->join('niveles_cones', 'niveles_cones.id', '=', 'cartera_servicio_nivel_cone.niveles_cones_id')
+            ->get();
+
+        $object->niveles_cones = $nivelesCones;
 
         return Response::json([ 'data' => $object ], HttpResponse::HTTP_OK);
     }
@@ -138,30 +134,27 @@ class CarteraServicioController extends Controller
      * <code> Respuesta Error json(array("status": 304, "messages": "No modificado"),status) </code>
      */
     public function update($id){
-        $validacion = $this->ValidarParametros("", $id, Input::json()->all());
+
+        $datos = Request::json()->all();
+
+        $validacion = $this->ValidarParametros("", $id, $datos);
         if($validacion != ""){
             return Response::json(['error' => $validacion], HttpResponse::HTTP_CONFLICT);
         }
 
-        $datos = Request::json()->all();
         if(is_array($datos))
             $datos = (object) $datos;
+
         $success = false;
+
         DB::beginTransaction();
         try{
             $data = CarteraServicios::find($id);
-
             $data->nombre = $datos->nombre;
 
             if ($data->save()){
-
-                $data->nivelesCones()->sync($datos->niveles_cones);
-
-                $this->AgregarDatos($datos, $data);
-                $success = true;
+                $success = $this->AgregarDatos($datos, $data);
             }
-
-
         }
         catch (\Exception $e){
             return Response::json($e->getMessage(), 500);
@@ -246,8 +239,43 @@ class CarteraServicioController extends Controller
     }
 
     private function AgregarDatos($datos, $data){
-        //verificar si existe items, en caso de que exista proceder a guardarlo
 
+        $success = false;
+        //verificar si existe items, en caso de que exista proceder a guardarlo
+        if(property_exists($datos, "niveles_cones")){
+            //limpiar el arreglo de posibles nullos
+            $detalle = array_filter($datos->niveles_cones, function($v){return $v !== null;});
+
+            //recorrer cada elemento del arreglo
+            foreach ($detalle as $key => $value) {
+                //validar que el valor no sea null
+                if($value != null){
+                    //comprobar si el value es un array, si es convertirlo a object mas facil para manejar.
+                    if(is_array($value))
+                        $value = (object) $value;
+
+                    //borrar los datos previos de articulo para no duplicar información
+                    CarteraServicioNivelCone::where("cartera_servicios_id", $data->id)->delete();
+
+                    //si existe actualizar
+                    $nivelCone = CarteraServicioNivelCone::where("cartera_servicios_id", $data->id)->where("niveles_cones_id", $value->id)->first();
+
+                    //si no existe crear
+                    if(!$nivelCone)
+                        $nivelCone = new CarteraServicioNivelCone;
+
+                    $nivelCone->cartera_servicios_id 	= $data->id;
+                    $nivelCone->niveles_cones_id        = $value->id;
+
+                    if($nivelCone->save()){
+                        $success = true;
+                    }
+                }
+            }
+        }
+
+
+        //verificar si existe items, en caso de que exista proceder a guardarlo
         if(property_exists($datos, "items")){
             //limpiar el arreglo de posibles nullos
             $detalle = array_filter($datos->items, function($v){return $v !== null;});
@@ -273,9 +301,13 @@ class CarteraServicioController extends Controller
                     $items->tipos_items_id 	        = $value->tipos_items_id;
                     $items->nombre                  = $value->nombre;
 
-                    $items->save();
+                    if($items->save()){
+                        $success = true;
+                    }
                 }
             }
         }
+
+        return $success;
     }
 }
