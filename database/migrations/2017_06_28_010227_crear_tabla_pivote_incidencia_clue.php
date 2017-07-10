@@ -24,9 +24,9 @@ class CrearTablaPivoteIncidenciaClue extends Migration
                 ->references('id')->on('incidencias')
                 ->onDelete('cascade');
 
-            $table->foreign('clues')
-                ->references('clues')->on('clues')
-                ->onDelete('cascade');
+//            $table->foreign('clues')
+//                ->references('clues')->on('clues')
+//                ->onDelete('cascade');
         });
     }
 

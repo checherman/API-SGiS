@@ -28,13 +28,13 @@ class CrearTablaRutas extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            $table->foreign('clues_origen')->references('clues')->on('clues')
-                ->onDelete('cascade')
-                ->onUpdate('cascade');
-
-            $table->foreign('clues_destino')->references('clues')->on('clues')
-                ->onDelete('cascade')
-                ->onUpdate('cascade');
+//            $table->foreign('clues_origen')->references('clues')->on('clues')
+//                ->onDelete('cascade')
+//                ->onUpdate('cascade');
+//
+//            $table->foreign('clues_destino')->references('clues')->on('clues')
+//                ->onDelete('cascade')
+//                ->onUpdate('cascade');
         });
     }
 

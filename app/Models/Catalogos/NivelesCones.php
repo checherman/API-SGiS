@@ -22,5 +22,4 @@ class NivelesCones extends Model
     {
         return $this->belongsToMany(CarteraServicios::class, 'cartera_servicio_nivel_cone', 'niveles_cones_id', 'cartera_servicios_id');
     }
-
 }

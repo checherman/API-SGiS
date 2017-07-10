@@ -40,7 +40,7 @@ class NivelConeController extends Controller
                     ->orWhere('nombre','LIKE',"%".$parametros['q']."%");
             });
         } else {
-            $data =  NivelesCones::where("id","!=", "");
+            $data =  NivelesCones::getModel();
         }
 
 
@@ -132,6 +132,12 @@ class NivelConeController extends Controller
         if(!$data){
             return Response::json(['error' => "No se encuentra el recurso que esta buscando."], HttpResponse::HTTP_NOT_FOUND);
         }
+
+        $clues = Clues::where("nivel_cone_id", $id)
+            ->get();
+
+        $data->clues = $clues;
+
 
         return Response::json([ 'data' => $data ], HttpResponse::HTTP_OK);
     }
