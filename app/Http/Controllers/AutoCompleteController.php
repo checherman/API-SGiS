@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Catalogos\Clues;
-
 use App\Http\Requests;
+use App\Models\Catalogos\Jurisdicciones;
+use App\Models\Catalogos\Clues;
 use App\Models\Sistema\Permiso;
 
 use Illuminate\Support\Facades\Input;
@@ -52,6 +52,25 @@ class AutoCompleteController extends ApiController
         });
 
         $data = $data->get();
+        return $this->respuestaVerTodo($data);
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function jurisdiccion_clues()
+    {
+        $parametros = Input::only('term');
+
+        $data =  Jurisdicciones::where(function($query) use ($parametros) {
+            $query->where('id',$parametros['term']."%");
+        });
+
+        $data = $data
+            ->join('clues', 'clues.jurisdicciones_id', '=', 'jurisdicciones.id')
+            ->get();
         return $this->respuestaVerTodo($data);
     }
 

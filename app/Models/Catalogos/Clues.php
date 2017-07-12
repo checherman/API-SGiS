@@ -17,4 +17,9 @@ class Clues extends Model
         return $this->belongsToMany(Incidencias::class, 'incidencia_clue', 'clues', 'incidencias_id');
     }
 
+    public function jurisdiccion()
+    {
+        return $this->belongsTo(Jurisdicciones::class,'jurisdicciones_id','id');
+    }
+
 }

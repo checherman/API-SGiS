@@ -103,7 +103,16 @@ class RutaController extends Controller
      */
     public function show($id)
     {
-        $data = Rutas::find($id);
+        $data = Rutas::find($id)
+            ->select("rutas.id", "rutas.nombre", "rutas.clues_origen", "rutas.clues_destino", "rutas.tiempo_traslado", "rutas.distancia_traslado", "rutas.observaciones",
+                    "CO.nombre AS nombre_origen", "CO.numeroLatitud AS numeroLatitud_origen", "CO.numeroLongitud AS numeroLongitud_origen", "CO.codigoPostal AS codigoPostal_origen", "CO.domicilio AS domicilio_origen",
+                    "CO.localidad AS localidad_origen", "MO.nombre AS municipio_origen", "CD.nombre AS nombre_destino", "CD.numeroLatitud AS numeroLatitud_destino", "CD.numeroLongitud AS numeroLongitud_destino",
+                    "CD.codigoPostal AS codigoPostal_destino", "CD.domicilio AS domicilio_destino", "CD.localidad AS localidad_destino", "MD.nombre AS municipio_destino")
+                    ->join('clues AS CO', 'CO.clues', '=', 'rutas.clues_origen')
+                    ->join('clues AS CD', 'CD.clues', '=', 'rutas.clues_destino')
+                    ->join('municipios AS MO', 'MO.id', '=', 'CO.municipios_id')
+                    ->join('municipios AS MD', 'MD.id', '=', 'CD.municipios_id')
+                    ->get();
 
         if(!$data){
             return Response::json(['error' => "No se encuentra el recurso que esta buscando."], HttpResponse::HTTP_NOT_FOUND);

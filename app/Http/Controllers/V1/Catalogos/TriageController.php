@@ -138,11 +138,12 @@ class TriageController extends Controller
      * <code> Respuesta Error json(array("status": 304, "messages": "No modificado"),status) </code>
      */
     public function update($id){
-        $validacion = $this->ValidarParametros("", $id, Input::json()->all());
+        $datos = Input::json()->all();
+
+        $validacion = $this->ValidarParametros("", $id, $datos);
         if($validacion != ""){
             return Response::json(['error' => $validacion], HttpResponse::HTTP_CONFLICT);
         }
-        $datos = Request::json();
         $success = false;
         DB::beginTransaction();
         try{
@@ -152,7 +153,9 @@ class TriageController extends Controller
             $data->descripcion = $datos['descripcion'];
 
             if ($data->save())
-                $success = true;
+                $datos = (object) $datos;
+            $this->AgregarDatos($datos, $data);
+            $success = true;
         }
         catch (\Exception $e){
             return Response::json($e->getMessage(), 500);
@@ -214,15 +217,8 @@ class TriageController extends Controller
             'unique' => 'unique'
         ];
 
-        /*
-        if($request['nivel_cone']) {
-            $nivel_cone = $request['nivel_cone'];
-        } else {
-            $nivel_cone = NULL;
-        }
-        */
         $rules = [
-            'nombre' => 'required|min:3|max:250|unique:triage',
+            'nombre' => 'required|min:3|max:250|unique:triage,nombre,'.$id.',id,deleted_at,NULL',
             'descripcion' => 'required',
         ];
 
@@ -270,10 +266,10 @@ class TriageController extends Controller
                     $sintoma->nombre        = $value->nombre;
 
                     if ($sintoma->save()){
-                        if(property_exists($value, "triage_colores")){
+                        if(property_exists($value, "triage_color_triage_sintoma")){
 
                             //limpiar el arreglo de posibles nullos
-                            $detalle = array_filter($value->triage_colores, function($v){return $v !== null;});
+                            $detalle = array_filter($value->triage_color_triage_sintoma, function($v){return $v !== null;});
                             //borrar los datos previos de articulo para no duplicar información
 
                             TriageColorTriageSintoma::where("triage_sintomas_id", $sintoma->id)->delete();
@@ -287,7 +283,7 @@ class TriageController extends Controller
                                         $val = (object) $val;
 
 
-                                    DB::select("insert into triage_color_triage_sintoma (triage_sintomas_id, triage_colores_id, nombre) VALUE ($sintoma->id, $val->color_id, '$val->nombre')");
+                                    DB::select("insert into triage_color_triage_sintoma (triage_sintomas_id, triage_colores_id, nombre) VALUE ($sintoma->id, $val->triage_colores_id, '$val->nombre')");
                                 }
                             }
                         }

@@ -69,42 +69,20 @@ class GrupoCie10Controller extends Controller
         DB::beginTransaction();
 
         try {
-            if(array_key_exists('grupos_cie10', $datos)) { // Insertar más de un registro
-                foreach ($datos['grupos_cie10'] as $key => $value) {
-                    $validacion = $this->ValidarParametros($key, NULL, $value);
-                    if($validacion != ""){
-                        array_push($errors_main, $validacion);
-                    }
-
-                    $data = new GruposCie10;
-
-                    $data->nombre = $value['nombre'];
-
-                    if ($data->save())
-                        $datos = (object) $datos;
-                    $this->AgregarDatos($datos, $data);
-                    $success = true;
-                }
-
-                if(count($errors_main)>0) {
-                    return Response::json(['error' => array_collapse($errors_main)], HttpResponse::HTTP_CONFLICT);
-                }
-            } else {
-
-                $validacion = $this->ValidarParametros("", NULL, $datos);
-                if($validacion != ""){
-                    return Response::json(['error' => $validacion], HttpResponse::HTTP_CONFLICT);
-                }
-
-                $data = new GruposCie10;
-
-                $data->nombre = $datos['nombre'];
-
-                if ($data->save())
-                    $datos = (object) $datos;
-                $this->AgregarDatos($datos, $data);
-                $success = true;
+            $validacion = $this->ValidarParametros("", NULL, $datos);
+            if($validacion != ""){
+                return Response::json(['error' => $validacion], HttpResponse::HTTP_CONFLICT);
             }
+
+            $data = new GruposCie10;
+
+            $data->nombre = $datos['nombre'];
+
+            if ($data->save())
+                $datos = (object) $datos;
+            $this->AgregarDatos($datos, $data);
+            $success = true;
+
         } catch (\Exception $e){
             return Response::json($e->getMessage(), 500);
         }
@@ -128,7 +106,7 @@ class GrupoCie10Controller extends Controller
      * <code> Respuesta Error json(array("status": 404, "messages": "No hay resultados"),status) </code>
      */
     public function show($id){
-        $data = GruposCie10::with('categoriasCie10')->find($id);
+        $data = GruposCie10::with('CategoriasCie10')->find($id);
 
         if(!$data){
             return Response::json(array("status" => 204,"messages" => "No hay resultados"), 204);
@@ -150,11 +128,13 @@ class GrupoCie10Controller extends Controller
      * <code> Respuesta Error json(array("status": 304, "messages": "No modificado"),status) </code>
      */
     public function update($id){
-        $validacion = $this->ValidarParametros("", $id, Input::json()->all());
+        $datos = Input::json()->all();
+
+        $validacion = $this->ValidarParametros("", $id, $datos);
         if($validacion != ""){
             return Response::json(['error' => $validacion], HttpResponse::HTTP_CONFLICT);
         }
-        $datos = Request::json();
+
         $success = false;
         DB::beginTransaction();
         try{
@@ -163,7 +143,10 @@ class GrupoCie10Controller extends Controller
             $data->nombre = $datos['nombre'];
 
             if ($data->save())
-                $success = true;
+                $datos = (object) $datos;
+            $this->AgregarDatos($datos, $data);
+            $success = true;
+
         }
         catch (\Exception $e){
             return Response::json($e->getMessage(), 500);
@@ -233,7 +216,7 @@ class GrupoCie10Controller extends Controller
         }
         */
         $rules = [
-            'nombre' => 'required|min:3|max:250|unique:grupos_cie10',
+            'nombre' => 'required|min:3|max:250|unique:grupos_cie10,nombre,'.$id.',id,deleted_at,NULL',
         ];
 
         $v = Validator::make($request, $rules, $messages);
@@ -280,10 +263,10 @@ class GrupoCie10Controller extends Controller
                     $categoria->nombre              = $value->nombre;
 
                     if ($categoria->save()){
-                        if(property_exists($value, "subcategorias_cie10")){
+                        if(property_exists($value, "sub_categorias_cie10")){
 
                             //limpiar el arreglo de posibles nullos
-                            $detalle = array_filter($value->subcategorias_cie10, function($v){return $v !== null;});
+                            $detalle = array_filter($value->sub_categorias_cie10, function($v){return $v !== null;});
                             //borrar los datos previos de articulo para no duplicar información
 
                             SubCategoriasCie10::where("categorias_cie10_id", $categoria->id)->delete();

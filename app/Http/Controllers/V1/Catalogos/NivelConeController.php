@@ -70,42 +70,21 @@ class NivelConeController extends Controller
         DB::beginTransaction();
 
         try {
-            if(array_key_exists('niveles_cones', $datos)) { // Insertar más de un registro
-                foreach ($datos['niveles_cones'] as $key => $value) {
-                    $validacion = $this->ValidarParametros($key, NULL, $value);
-                    if($validacion != ""){
-                        array_push($errors_main, $validacion);
-                    }
 
-                    $data = new NivelesCones;
-
-                    $data->nombre = $value['nombre'];
-
-                    if ($data->save())
-                        $datos = (object) $datos;
-                    $this->AgregarDatos($datos, $data);
-                    $success = true;
-                }
-
-                if(count($errors_main)>0) {
-                    return Response::json(['error' => array_collapse($errors_main)], HttpResponse::HTTP_CONFLICT);
-                }
-            } else {
-
-                $validacion = $this->ValidarParametros("", NULL, $datos);
-                if($validacion != ""){
-                    return Response::json(['error' => $validacion], HttpResponse::HTTP_CONFLICT);
-                }
-
-                $data = new NivelesCones;
-
-                $data->nombre = $datos['nombre'];
-
-                if ($data->save())
-                    $datos = (object) $datos;
-                $this->AgregarDatos($datos, $data);
-                $success = true;
+            $validacion = $this->ValidarParametros("", NULL, $datos);
+            if($validacion != ""){
+                return Response::json(['error' => $validacion], HttpResponse::HTTP_CONFLICT);
             }
+
+            $data = new NivelesCones;
+
+            $data->nombre = $datos['nombre'];
+
+            if ($data->save())
+                $datos = (object) $datos;
+            $this->AgregarDatos($datos, $data);
+            $success = true;
+
         } catch (\Exception $e){
             return Response::json($e->getMessage(), 500);
         }
@@ -262,7 +241,7 @@ class NivelConeController extends Controller
                     if(!$clues)
                         $clues = new Clues;
 
-                    $clues->nivel_cone_id       =       $data->id;
+                    $clues->nivel_cone_id = $data->id;
 
                     $clues->save();
 

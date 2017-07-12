@@ -10,5 +10,8 @@ use App\Turnos;
 
 class Jurisdicciones extends Model
 {
-
+    public function clues()
+    {
+        return $this->hasMany(Clues::class,'jurisdicciones_id','id');
+    }
 }

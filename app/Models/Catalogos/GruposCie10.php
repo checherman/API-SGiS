@@ -20,6 +20,6 @@ class GruposCie10 extends Model
 
     public function categoriasCie10()
     {
-        return $this->hasMany(CategoriasCie10::class,'grupos_cie10_id','id')->with('subCategoriasCie10');
+        return $this->hasMany(CategoriasCie10::class,'grupos_cie10_id','id')->with('SubCategoriasCie10');
     }
 }

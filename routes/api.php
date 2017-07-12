@@ -18,8 +18,9 @@ Route::post('refresh-token',    'V1\Sistema\AutenticacionController@refreshToken
 Route::get('check-token',       'V1\Sistema\AutenticacionController@verificar');
 
 //Autocomplete
-Route::get('grupo-permiso',       'AutoCompleteController@grupo_permiso');
-Route::get('clues-auto',          'AutoCompleteController@clues');
+Route::get('grupo-permiso',             'AutoCompleteController@grupo_permiso');
+Route::get('clues-auto',                'AutoCompleteController@clues');
+
 
 Route::middleware('jwt')->group(function () {
     //Sistema
@@ -27,6 +28,9 @@ Route::middleware('jwt')->group(function () {
         Route::resource('usuarios',     'V1\Sistema\UsuarioController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
         Route::resource('roles',        'V1\Sistema\RolController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
         Route::resource('permisos',     'V1\Sistema\PermisoController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
+
+        //Varios
+        Route::get('jurisdiccion-clues',        'AutoCompleteController@jurisdiccion_clues');
 
         //Catalogos
         Route::resource('clues',                'V1\Catalogos\CluesController', ['only' => ['index']]);
