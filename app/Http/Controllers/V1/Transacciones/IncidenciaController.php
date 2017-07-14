@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\V1\Transacciones;
 
 use App\Models\Transacciones\Acompaniantes;
+use App\Models\Transacciones\MovimientosIncidencias;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Response as HttpResponse;
@@ -108,7 +109,7 @@ class IncidenciaController extends Controller
      * <code> Respuesta Error json(array("status": 404, "messages": "No hay resultados"),status) </code>
      */
     public function show($id){
-        $data = Triage::find($id);
+        $data = Incidencias::find($id);
 
         $triageSintomas = TriageSintomas::where("triage_id", $id)
             ->with('triageColorTriageSintoma')
@@ -144,7 +145,7 @@ class IncidenciaController extends Controller
         $success = false;
         DB::beginTransaction();
         try{
-            $data = Triage::find($id);
+            $data = Incidencias::find($id);
 
             $data->nombre = $datos['nombre'];
             $data->descripcion = $datos['descripcion'];
@@ -179,7 +180,7 @@ class IncidenciaController extends Controller
         $success = false;
         DB::beginTransaction();
         try {
-            $data = Triage::find($id);
+            $data = Incidencias::find($id);
             if($data)
                 $data->delete();
             $success = true;
@@ -213,7 +214,7 @@ class IncidenciaController extends Controller
         ];
 
         $rules = [
-            'motivo_ingreso' => 'required|',
+            'motivo_ingreso' => 'required',
             'impresion_diagnostica' => 'required',
         ];
 
@@ -241,12 +242,9 @@ class IncidenciaController extends Controller
         $data->servidor_id = env("SERVIDOR_ID");
         $data->motivo_ingreso = $datos['motivo_ingreso'];
         $data->impresion_diagnostica = $datos['impresion_diagnostica'];
-        $data->estado_paciente_id = $datos['estado_paciente_id'];
 
         if ($data->save()){
             $datos = (object) $datos;
-
-            DB::select("insert into incidencia_clue (incidencias_id, clues) VALUE ('$data->id', '$datos->clues')");
 
             //verificar si existe referencias, en caso de que exista proceder a guardarlo
             if(property_exists($datos, "referencia")){
@@ -262,15 +260,18 @@ class IncidenciaController extends Controller
                         if(is_array($value))
                             $value = (object) $value;
 
-
                         $referencia = new Referencias;
 
                         $referencia->servidor_id 	    = env("SERVIDOR_ID");
                         $referencia->medico_refiere_id 	= $value->medico_refiere_id;
                         $referencia->diagnostico        = $value->diagnostico;
+                        $referencia->clues_origen       = $value->clues_origen;
+                        $referencia->clues_destino      = $value->clues_destino;
                         $referencia->incidencias_id     = $data->id;
 
                         $referencia->save();
+
+                        DB::select("insert into incidencia_clue (incidencias_id, clues) VALUE ('$data->id', '$value->clues_origen')");
                     }
                 }
             }
@@ -402,12 +403,53 @@ class IncidenciaController extends Controller
                             $acompaniante->personas_id      = $persona->id;
                             $acompaniante->parentescos_id   = $value->parentescos_id;
 
-                            $acompaniante->save();
+                            if($acompaniante->save()){
+                                DB::select("insert into paciente_ticket (incidencias_id, pacientes_id, acompaniantes_id) VALUE ('$data->id', '$paciente->id', '$acompaniante->id')");
+                            }
                         }
 
                     }
                 }
             }
+
+            //verificar si existe paciente, en caso de que exista proceder a guardarlo
+            if(property_exists($datos, "movimientos_incidencias")){
+                //limpiar el arreglo de posibles nullos
+                $detalleResponsable = array_filter($datos->movimientos_incidencias, function($v){return $v !== null;});
+                //borrar los datos previos de articulo para no duplicar información
+                //Referencias::where("triage_id", $data->id)->delete();
+                //recorrer cada elemento del arreglo
+                foreach ($detalleResponsable as $key => $value) {
+                    //validar que el valor no sea null
+                    if($value != null){
+                        //comprobar si el value es un array, si es convertirlo a object mas facil para manejar.
+                        if(is_array($value))
+                            $value = (object) $value;
+
+                        //comprobar que el dato que se envio no exista o este borrado, si existe y esta borrado poner en activo nuevamente
+//                        DB::select("update triage_sintomas set deleted_at = null where triage_id = '$data->id' and nombre = '$value->nombre' ");
+                        //si existe el elemento actualizar
+//                        $sintoma = TriageSintomas::where("triage_id", $data->id)->where("nombre", $value->nombre)->first();
+                        //si no existe crear
+//                        if(!$sintoma)
+                        $movientos_incidencias = new MovimientosIncidencias;
+
+                        $movientos_incidencias->servidor_id 	                = env("SERVIDOR_ID");
+                        $movientos_incidencias->incidencias_id                  = $data->id;
+                        $movientos_incidencias->medico_reporta_id               = 'MED1';
+                        $movientos_incidencias->indicaciones                    = $value->indicaciones;
+                        $movientos_incidencias->reporte_medico                  = $value->reporte_medico;
+                        $movientos_incidencias->estados_incidencias_id          = $value->estados_incidencias_id;
+                        $movientos_incidencias->valoraciones_pacientes_id       = $value->valoraciones_pacientes_id;
+                        $movientos_incidencias->estados_pacientes_id            = $value->estados_pacientes_id;
+
+                        $movientos_incidencias->save();
+
+                    }
+                }
+            }
+
+
         }
     }
 }

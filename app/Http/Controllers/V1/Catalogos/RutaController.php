@@ -75,9 +75,13 @@ class RutaController extends Controller
             'tiempo_traslado'       => 'required',
             'distancia_traslado'    => 'required',
             'observaciones'         => 'required',
+            'numeroLatitud_origen'         => 'required',
+            'numeroLongitud_origen'         => 'required',
+            'numeroLatitud_destino'         => 'required',
+            'numeroLongitud_destino'         => 'required'
         ];
 
-        $inputs = Input::only('nombre', 'clues_origen', 'clues_destino', 'tiempo_traslado', 'distancia_traslado', 'observaciones');
+        $inputs = Input::only('nombre', 'clues_origen', 'clues_destino', 'tiempo_traslado', 'distancia_traslado', 'observaciones', 'numeroLatitud_origen', 'numeroLongitud_origen', 'numeroLatitud_destino', 'numeroLongitud_destino');
 
         $v = Validator::make($inputs, $reglas, $mensajes);
 
@@ -103,16 +107,7 @@ class RutaController extends Controller
      */
     public function show($id)
     {
-        $data = Rutas::find($id)
-            ->select("rutas.id", "rutas.nombre", "rutas.clues_origen", "rutas.clues_destino", "rutas.tiempo_traslado", "rutas.distancia_traslado", "rutas.observaciones",
-                    "CO.nombre AS nombre_origen", "CO.numeroLatitud AS numeroLatitud_origen", "CO.numeroLongitud AS numeroLongitud_origen", "CO.codigoPostal AS codigoPostal_origen", "CO.domicilio AS domicilio_origen",
-                    "CO.localidad AS localidad_origen", "MO.nombre AS municipio_origen", "CD.nombre AS nombre_destino", "CD.numeroLatitud AS numeroLatitud_destino", "CD.numeroLongitud AS numeroLongitud_destino",
-                    "CD.codigoPostal AS codigoPostal_destino", "CD.domicilio AS domicilio_destino", "CD.localidad AS localidad_destino", "MD.nombre AS municipio_destino")
-                    ->join('clues AS CO', 'CO.clues', '=', 'rutas.clues_origen')
-                    ->join('clues AS CD', 'CD.clues', '=', 'rutas.clues_destino')
-                    ->join('municipios AS MO', 'MO.id', '=', 'CO.municipios_id')
-                    ->join('municipios AS MD', 'MD.id', '=', 'CD.municipios_id')
-                    ->get();
+        $data = Rutas::find($id);
 
         if(!$data){
             return Response::json(['error' => "No se encuentra el recurso que esta buscando."], HttpResponse::HTTP_NOT_FOUND);
@@ -143,9 +138,13 @@ class RutaController extends Controller
             'tiempo_traslado'       => 'required',
             'distancia_traslado'    => 'required',
             'observaciones'         => 'required',
+            'numeroLatitud_origen'         => 'required',
+            'numeroLongitud_origen'         => 'required',
+            'numeroLatitud_destino'         => 'required',
+            'numeroLongitud_destino'         => 'required'
         ];
 
-        $inputs = Input::only('nombre', 'clues_origen', 'clues_destino', 'tiempo_traslado', 'distancia_traslado', 'observaciones');
+        $inputs = Input::only('nombre', 'clues_origen', 'clues_destino', 'tiempo_traslado', 'distancia_traslado', 'observaciones', 'numeroLatitud_origen', 'numeroLongitud_origen', 'numeroLatitud_destino', 'numeroLongitud_destino');
 
         $v = Validator::make($inputs, $reglas, $mensajes);
 
@@ -161,6 +160,10 @@ class RutaController extends Controller
             $data->tiempo_traslado =  $inputs['tiempo_traslado'];
             $data->distancia_traslado =  $inputs['distancia_traslado'];
             $data->observaciones =  $inputs['observaciones'];
+            $data->numeroLatitud_origen =  $inputs['numeroLatitud_origen'];
+            $data->numeroLongitud_origen =  $inputs['numeroLongitud_origen'];
+            $data->numeroLatitud_destino =  $inputs['numeroLatitud_destino'];
+            $data->numeroLongitud_destino =  $inputs['numeroLongitud_destino'];
 
             $data->save();
             return Response::json([ 'data' => $data ],200);

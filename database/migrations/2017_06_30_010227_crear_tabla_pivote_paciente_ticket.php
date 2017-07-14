@@ -19,7 +19,7 @@ class CrearTablaPivotePacienteTicket extends Migration
 
             $table->string('pacientes_id');
             $table->string('incidencias_id');
-            $table->string('acompaniantes_id');
+            $table->string('acompaniantes_id')->nullable();
 
             $table->foreign('pacientes_id')
                 ->references('id')->on('pacientes')

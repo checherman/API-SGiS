@@ -22,7 +22,7 @@ class CrearTablaPacientes extends Migration
             $table->integer('incremento');
             $table->string('domicilio');
             $table->string('personas_id');
-            $table->string('responsables_id');
+            $table->string('responsables_id')->nullable();
 
             $table->timestamps();
             $table->softDeletes();

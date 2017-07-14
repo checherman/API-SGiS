@@ -21,16 +21,12 @@ class CrearTablaIncidencias extends Migration
             $table->string('servidor_id',4);
             $table->string('motivo_ingreso');
             $table->string('impresion_diagnostica');
-            $table->integer('estado_paciente_id')->unsigned();
+
 
             $table->timestamps();
             $table->softDeletes();
 
             $table->primary('id');
-
-            $table->foreign('estado_paciente_id')->references('id')->on('estados_pacientes')
-                ->onDelete('cascade')
-                ->onUpdate('cascade');
         });
     }
 

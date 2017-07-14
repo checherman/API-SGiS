@@ -16,5 +16,5 @@ class Rutas extends Model
     public $incrementing = true;
 
     protected $table = "rutas";
-    protected $fillable = ["id","nombre", "clues_origen", "clues_destino", "tiempo_traslado", "distancia_traslado", "observaciones"];
+    protected $fillable = ["id","nombre", "clues_origen", "clues_destino", "tiempo_traslado", "distancia_traslado", "observaciones", "numeroLatitud_origen", "numeroLongitud_origen", "numeroLatitud_destino", "numeroLongitud_destino"];
 }

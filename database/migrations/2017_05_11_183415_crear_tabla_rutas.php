@@ -20,7 +20,11 @@ class CrearTablaRutas extends Migration
             $table->increments('id');
             $table->string('nombre');
             $table->string('clues_origen');
+            $table->double('numeroLatitud_origen');
+            $table->double('numeroLongitud_origen');
             $table->string('clues_destino');
+            $table->double('numeroLatitud_destino');
+            $table->double('numeroLongitud_destino');
             $table->string('tiempo_traslado',45);
             $table->string('distancia_traslado',45);
             $table->string('observaciones');

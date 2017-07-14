@@ -19,8 +19,4 @@ class ValoraciionesPacientes extends BaseModel
     protected $table = "valoraciones_pacientes";
     protected $fillable = ["id", "nombre", "descripcion"];
 
-    public function incidenciaPaciente()
-    {
-        return $this->hasMany(Pacientes::class,'valoraciones_pacientes_id','id');
-    }
 }
