@@ -44,6 +44,9 @@ Route::middleware('jwt')->group(function () {
 
         Route::resource('turnos',               'V1\Catalogos\TurnoController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
         Route::resource('cargos',               'V1\Catalogos\CargoController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
+        Route::resource('apoyos',               'V1\Catalogos\ApoyoController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
+
+
         Route::resource('rutas',                'V1\Catalogos\RutaController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
         Route::resource('cartera-servicios',    'V1\Catalogos\CarteraServicioController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
         Route::resource('niveles-cones',        'V1\Catalogos\NivelConeController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
@@ -54,6 +57,7 @@ Route::middleware('jwt')->group(function () {
 
         //Transacciones
         Route::resource('directorio',           'V1\Transacciones\DirectorioController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
+        Route::resource('directorio-apoyos',    'V1\Transacciones\DirectorioApoyoController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
         Route::resource('incidencias',          'V1\Transacciones\IncidenciaController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
     });
 
