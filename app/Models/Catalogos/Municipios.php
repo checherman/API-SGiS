@@ -3,10 +3,10 @@
 namespace App;
 
 namespace App\Models\Catalogos;
-use Illuminate\Database\Eloquent\Model;
+use App\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class EstadosPacientes extends Model
+class Municipios extends BaseModel
 {
     use SoftDeletes;
 
@@ -15,11 +15,11 @@ class EstadosPacientes extends Model
     protected $guardarIDUsuario = false;
     public $incrementing = true;
 
-    protected $table = "estados_pacientes";
-    protected $fillable = ["id","nombre"];
+    protected $table = "municipios";
+    protected $fillable = ["id", "clave", "nombre", "jurisdicciones_id"];
 
-    public function baseConocimiento()
+    public function jurisdiccion()
     {
-        return $this->hasMany(EstadosPacientes::class);
+        return $this->belongsTo(Jurisdicciones::class,'jurisdicciones_id','id');
     }
 }

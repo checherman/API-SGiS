@@ -255,7 +255,7 @@ class TriageController extends Controller
                         $value = (object) $value;
 
                     //comprobar que el dato que se envio no exista o este borrado, si existe y esta borrado poner en activo nuevamente
-                    DB::select("update triage_sintomas set deleted_at = null where triage_id = '$data->id' and nombre = '$value->nombre' ");
+                    DB::update("update triage_sintomas set deleted_at = null where triage_id = $data->id and nombre = '$value->nombre' ");
                     //si existe el elemento actualizar
                     $sintoma = TriageSintomas::where("triage_id", $data->id)->where("nombre", $value->nombre)->first();
                     //si no existe crear
@@ -283,7 +283,7 @@ class TriageController extends Controller
                                         $val = (object) $val;
 
 
-                                    DB::select("insert into triage_color_triage_sintoma (triage_sintomas_id, triage_colores_id, nombre) VALUE ($sintoma->id, $val->triage_colores_id, '$val->nombre')");
+                                    DB::insert("insert into triage_color_triage_sintoma (triage_sintomas_id, triage_colores_id, nombre) VALUE ($sintoma->id, $val->triage_colores_id, '$val->nombre')");
                                 }
                             }
                         }

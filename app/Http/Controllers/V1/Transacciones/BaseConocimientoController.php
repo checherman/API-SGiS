@@ -4,16 +4,15 @@ namespace App\Http\Controllers\V1\Transacciones;
 
 use App\Http\Controllers\Controller;
 
-use App\Models\Catalogos\DirectorioApoyos;
+use App\Models\Catalogos\BaseConocimientos;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response as HttpResponse;
 
 use App\Http\Requests;
-use App\Models\Sistema\Usuario;
 use Illuminate\Support\Facades\Input;
 use \Validator,\Hash, \Response, \DB;
 
-class DirectorioApoyoController extends Controller
+class BaseConocimientoController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -24,15 +23,12 @@ class DirectorioApoyoController extends Controller
     {
         $parametros = Input::only('q','page','per_page');
         if ($parametros['q']) {
-            $data =  DirectorioApoyos::where(function($query) use ($parametros) {
+            $data =  BaseConocimientos::where(function($query) use ($parametros) {
                 $query->where('id','LIKE',"%".$parametros['q']."%")
-                    ->orWhere('institucion','LIKE',"%".$parametros['q']."%")
-                    ->orWhere('direccion','LIKE',"%".$parametros['q']."%")
-                    ->orWhere('responsable','LIKE',"%".$parametros['q']."%")
-                    ->orWhere('telefono','LIKE',"%".$parametros['q']."%");
+                    ->orWhere('procesos','LIKE',"%".$parametros['q']."%");
             });
         } else {
-            $data =  DirectorioApoyos::getModel();
+            $data =  BaseConocimientos::getModel()->with('triageColor')->with('valoracionPaciente')->with('subCategoriaCie10')->with('estadoPaciente');
         }
 
         if(isset($parametros['page'])){
@@ -57,19 +53,14 @@ class DirectorioApoyoController extends Controller
         $mensajes = [
             
             'required'      => "required",
-            'email'         => "email",
             'unique'        => "unique"
         ];
 
         $reglas = [
-            'institucion'       => 'required',
-            'direccion'         => 'required',
-            'responsable'       => 'required',
-            'telefono'          => 'required',
-            'correo'            => 'required|email'
+            'proceso'       => 'required'
         ];
 
-        $inputs = Input::only('id','servidor_id','institucion', 'direccion', 'responsable', 'telefono', 'correo', 'municipios_id','apoyos');
+        $inputs = Input::only('id','servidor_id','proceso', 'triage_colores_id', 'subcategorias_cie10_id', 'valoraciones_pacientes_id', 'estados_pacientes_id');
 
         $v = Validator::make($inputs, $reglas, $mensajes);
 
@@ -79,9 +70,8 @@ class DirectorioApoyoController extends Controller
 
         try {
             $inputs['servidor_id'] = env("SERVIDOR_ID");
-            $data = DirectorioApoyos::create($inputs);
+            $data = BaseConocimientos::create($inputs);
 
-            $data->apoyos()->sync($inputs['apoyos']);
 
             return Response::json([ 'data' => $data ],200);
 
@@ -98,7 +88,7 @@ class DirectorioApoyoController extends Controller
      */
     public function show($id)
     {
-        $object = DirectorioApoyos::find($id);
+        $object = BaseConocimientos::with('triageColor')->with('valoracionPaciente')->with('subCategoriaCie10')->with('estadoPaciente')->find($id);
 
         if(!$object ){
 
@@ -121,25 +111,20 @@ class DirectorioApoyoController extends Controller
         $mensajes = [
 
             'required'      => "required",
-            'email'         => "email",
             'unique'        => "unique"
         ];
 
         $reglas = [
-            'institucion'       => 'required',
-            'direccion'         => 'required',
-            'responsable'       => 'required',
-            'telefono'          => 'required',
-            'correo'            => 'required|email'
+            'proceso'       => 'required'
         ];
 
-        $object = DirectorioApoyos::find($id);
+        $object = BaseConocimientos::find($id);
 
         if(!$object){
             return Response::json(['error' => "No se encuentra el recurso que esta buscando."], HttpResponse::HTTP_NOT_FOUND);
         }
 
-        $inputs = Input::only('id','servidor_id','nombre', 'paterno', 'materno', 'celular', 'cargos_id');
+        $inputs = Input::only('id','servidor_id','proceso', 'triage_colores_id', 'subcategorias_cie10_id', 'valoraciones_pacientes_id', 'estados_pacientes_id');
 
         $v = Validator::make($inputs, $reglas, $mensajes);
 
@@ -148,12 +133,11 @@ class DirectorioApoyoController extends Controller
         }
 
         try {
-            $object->institucion =  $inputs['institucion'];
-            $object->direccion =  $inputs['direccion'];
-            $object->responsable =  $inputs['responsable'];
-            $object->telefono =  $inputs['telefono'];
-            $object->correo =  $inputs['correo'];
-            $object->municipios_id =  $inputs['municipios_id'];
+            $object->proceso =  $inputs['proceso'];
+            $object->triage_colores_id =  $inputs['triage_colores_id'];
+            $object->subcategorias_cie10_id =  $inputs['subcategorias_cie10_id'];
+            $object->valoraciones_pacientes_id =  $inputs['valoraciones_pacientes_id'];
+            $object->estados_pacientes_id =  $inputs['estados_pacientes_id'];
             $object->id =  $inputs['id'];
 
             $object->save();
@@ -175,7 +159,7 @@ class DirectorioApoyoController extends Controller
     public function destroy($id)
     {
        try {
-			$object = DirectorioApoyos::destroy($id);
+			$object = BaseConocimientos::destroy($id);
 			return Response::json(['data'=>$object],200);
 		} catch (Exception $e) {
 		   return Response::json(['error' => $e->getMessage()], HttpResponse::HTTP_CONFLICT);

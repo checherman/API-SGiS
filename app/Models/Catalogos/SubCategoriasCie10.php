@@ -22,4 +22,9 @@ class SubCategoriasCie10 extends Model
     {
         return $this->belongsTo(CategoriasCie10::class, 'categorias_cie10_id','id');
     }
+
+    public function baseConocimiento()
+    {
+        return $this->hasMany(SubCategoriasCie10::class);
+    }
 }

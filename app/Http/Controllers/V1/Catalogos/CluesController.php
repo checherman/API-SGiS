@@ -65,7 +65,7 @@ class CluesController extends Controller
             });
 
         } else {
-            $data =  Clues::getModel();
+            $data =  Clues::getModel()->with('jurisdiccion');
         }
 
         if(isset($parametros['page'])){

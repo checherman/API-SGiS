@@ -290,7 +290,7 @@ class CarteraServicioController extends Controller
                         $value = (object) $value;
 
                     //comprobar que el dato que se envio no exista o este borrado, si existe y esta borrado poner en activo nuevamente
-                    DB::select("update items set deleted_at = null where cartera_servicios_id = '$data->id' and nombre = '$value->nombre' ");
+                    DB::update("update items set deleted_at = null where cartera_servicios_id = $data->id and nombre = '$value->nombre' ");
                     //si existe el elemento actualizar
                     $items = Items::where("cartera_servicios_id", $data->id)->where("nombre", $value->nombre)->first();
                     //si no existe crear

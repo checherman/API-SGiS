@@ -252,7 +252,7 @@ class GrupoCie10Controller extends Controller
                         $value = (object) $value;
 
                     //comprobar que el dato que se envio no exista o este borrado, si existe y esta borrado poner en activo nuevamente
-                    DB::select("update categorias_cie10 set deleted_at = null where grupos_cie10_id = '$data->id' and nombre = '$value->nombre' ");
+                    DB::update("update categorias_cie10 set deleted_at = null where grupos_cie10_id = $data->id and nombre = '$value->nombre' ");
                     //si existe el elemento actualizar
                     $categoria = CategoriasCie10::where("grupos_cie10_id", $data->id)->where("nombre", $value->nombre)->first();
                     //si no existe crear
@@ -280,7 +280,7 @@ class GrupoCie10Controller extends Controller
                                         $val = (object) $val;
 
                                     //comprobar que el dato que se envio no exista o este borrado, si existe y esta borrado poner en activo nuevamente
-                                    DB::select("update subcategorias_cie10 set deleted_at = null where categorias_cie10_id = '$categoria->id' and nombre = '$val->nombre' ");
+                                    DB::update("update subcategorias_cie10 set deleted_at = null where categorias_cie10_id = $categoria->id and nombre = '$val->nombre' ");
                                     //si existe el elemento actualizar
                                     $subCategoria = SubCategoriasCie10::where("categorias_cie10_id", $categoria->id)->where("nombre", $val->nombre)->first();
                                     //si no existe crear

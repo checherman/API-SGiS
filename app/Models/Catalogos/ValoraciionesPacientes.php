@@ -19,4 +19,8 @@ class ValoraciionesPacientes extends BaseModel
     protected $table = "valoraciones_pacientes";
     protected $fillable = ["id", "nombre", "descripcion"];
 
+    public function baseConocimiento()
+    {
+        return $this->hasMany(ValoraciionesPacientes::class);
+    }
 }
