@@ -23,4 +23,9 @@ class TriageColores extends Model
         return $this->belongsToMany(TriageSintomas::class, 'triage_color_triage_sintoma', 'triage_colores_id', 'triage_sintomas_id')
             ->withPivot('nombre');
     }
+
+    public function baseConocimiento()
+    {
+        return $this->hasMany(TriageColores::class);
+    }
 }
