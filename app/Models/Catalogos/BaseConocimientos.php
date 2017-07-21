@@ -20,7 +20,7 @@ class BaseConocimientos extends BaseModel
 
     public function triageColor()
     {
-        return $this->belongsTo(CategoriasCie10::class, 'triage_colores_id','id');
+        return $this->belongsTo(TriageColores::class, 'triage_colores_id','id');
     }
 
     public function valoracionPaciente()
