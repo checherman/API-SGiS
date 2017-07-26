@@ -4,6 +4,7 @@ namespace App\Http\Controllers\V1\Transacciones;
 
 use App\Http\Controllers\Controller;
 
+use App\Models\Catalogos\ApoyoDirectorioApoyo;
 use App\Models\Catalogos\DirectorioApoyos;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response as HttpResponse;
@@ -54,40 +55,42 @@ class DirectorioApoyoController extends Controller
      */
     public function store(Request $request)
     {
-        $mensajes = [
-            
-            'required'      => "required",
-            'email'         => "email",
-            'unique'        => "unique"
-        ];
 
-        $reglas = [
-            'institucion'       => 'required',
-            'direccion'         => 'required',
-            'responsable'       => 'required',
-            'telefono'          => 'required',
-            'correo'            => 'required|email'
-        ];
+        $datos = Input::json()->all();
 
-        $inputs = Input::only('id','servidor_id','institucion', 'direccion', 'responsable', 'telefono', 'correo', 'municipios_id','apoyos');
-
-        $v = Validator::make($inputs, $reglas, $mensajes);
-
-        if ($v->fails()) {
-            return Response::json(['error' => $v->errors()], HttpResponse::HTTP_CONFLICT);
-        }
+        $errors_main = array();
+        DB::beginTransaction();
 
         try {
-            $inputs['servidor_id'] = env("SERVIDOR_ID");
-            $data = DirectorioApoyos::create($inputs);
+            $validacion = $this->ValidarParametros("", NULL, $datos);
+            if ($validacion != "") {
+                return Response::json(['error' => $validacion], HttpResponse::HTTP_CONFLICT);
+            }
 
-            $data->apoyos()->sync($inputs['apoyos']);
+            $data = new DirectorioApoyos;
+            $data->institucion = $datos['institucion'];
+            $data->responsable = $datos['responsable'];
+            $data->direccion = $datos['direccion'];
+            $data->correo = $datos['correo'];
+            $data->telefono = $datos['telefono'];
+            $data->municipios_id = $datos['municipios_id'];
 
-            return Response::json([ 'data' => $data ],200);
+            if ($data->save()) {
+                $datos = (object)$datos;
+                $success = $this->AgregarDatos($datos, $data);
+            }
 
-        } catch (\Exception $e) {
-            return Response::json(['error' => $e->getMessage()], HttpResponse::HTTP_CONFLICT);
-        } 
+        } catch (\Exception $e){
+            return Response::json($e->getMessage(), 500);
+        }
+
+        if ($success){
+            DB::commit();
+            return Response::json(array("status" => 201,"messages" => "Creado","data" => $data), 201);
+        } else{
+            DB::rollback();
+            return Response::json(array("status" => 409,"messages" => "Conflicto"), 409);
+        }
     }
 
     /**
@@ -98,15 +101,20 @@ class DirectorioApoyoController extends Controller
      */
     public function show($id)
     {
-        $object = DirectorioApoyos::find($id);
+        $data = DirectorioApoyos::find($id);
 
-        if(!$object ){
+        if(!$data ){
 
             return Response::json(['error' => "No se encuentra el recurso que esta buscando."], HttpResponse::HTTP_NOT_FOUND);
         }
-        $object->apoyos;
 
-        return Response::json([ 'data' => $object ], HttpResponse::HTTP_OK);
+        $apoyos = ApoyoDirectorioApoyo::where("directorio_apoyos_id", $id)
+            ->join('apoyos', 'apoyos.id', '=', 'apoyo_directorio_apoyo.apoyos_id')
+            ->get();
+
+        $data->apoyos = $apoyos;
+
+        return Response::json([ 'data' => $data ], HttpResponse::HTTP_OK);
     }
 
     /**
@@ -118,51 +126,46 @@ class DirectorioApoyoController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $mensajes = [
+        $datos = Request::json()->all();
 
-            'required'      => "required",
-            'email'         => "email",
-            'unique'        => "unique"
-        ];
-
-        $reglas = [
-            'institucion'       => 'required',
-            'direccion'         => 'required',
-            'responsable'       => 'required',
-            'telefono'          => 'required',
-            'correo'            => 'required|email'
-        ];
-
-        $object = DirectorioApoyos::find($id);
-
-        if(!$object){
-            return Response::json(['error' => "No se encuentra el recurso que esta buscando."], HttpResponse::HTTP_NOT_FOUND);
+        $validacion = $this->ValidarParametros("", $id, $datos);
+        if($validacion != ""){
+            return Response::json(['error' => $validacion], HttpResponse::HTTP_CONFLICT);
         }
 
-        $inputs = Input::only('id','servidor_id','nombre', 'paterno', 'materno', 'celular', 'cargos_id');
+        if(is_array($datos))
+            $datos = (object) $datos;
 
-        $v = Validator::make($inputs, $reglas, $mensajes);
+        $success = false;
 
-        if ($v->fails()) {
-            return Response::json(['error' => $v->errors()], HttpResponse::HTTP_CONFLICT);
+        DB::beginTransaction();
+        try{
+            $data = DirectorioApoyos::find($id);
+            $data->institucion = $datos->institucion;
+            $data->responsable = $datos->responsable;
+            $data->direccion = $datos->direccion;
+            $data->correo = $datos->correo;
+            $data->telefono = $datos->telefono;
+            $data->municipios_id = $datos->municipios_id;
+
+
+            if ($data->save()) {
+                $datos = (object)$datos;
+                $success = $this->AgregarDatos($datos, $data);
+            }
+        }
+        catch (\Exception $e){
+            return Response::json($e->getMessage(), 500);
         }
 
-        try {
-            $object->institucion =  $inputs['institucion'];
-            $object->direccion =  $inputs['direccion'];
-            $object->responsable =  $inputs['responsable'];
-            $object->telefono =  $inputs['telefono'];
-            $object->correo =  $inputs['correo'];
-            $object->municipios_id =  $inputs['municipios_id'];
-            $object->id =  $inputs['id'];
-
-            $object->save();
-
-            return Response::json([ 'data' => $object ],200);
-
-        } catch (\Exception $e) {
-            return Response::json(['error' => $e->getMessage()], HttpResponse::HTTP_CONFLICT);
-        } 
+        if ($success){
+            DB::commit();
+            return Response::json(array("status" => 200, "messages" => "Operación realizada con exito", "data" => $data), 200);
+        }
+        else {
+            DB::rollback();
+            return Response::json(array("status" => 304, "messages" => "No modificado"),304);
+        }
 
     }
 
@@ -180,5 +183,84 @@ class DirectorioApoyoController extends Controller
 		} catch (Exception $e) {
 		   return Response::json(['error' => $e->getMessage()], HttpResponse::HTTP_CONFLICT);
 		}
+    }
+
+    /**
+     * Validad los parametros recibidos, Esto no tiene ruta de acceso es un metodo privado del controlador.
+     *
+     * @param  Request  $request que corresponde a los parametros enviados por el cliente
+     *
+     * @return Response
+     * <code> Respuesta Error json con los errores encontrados </code>
+     */
+    private function ValidarParametros($key, $id, $request){
+
+        $messages = [
+            'required' => 'required',
+            'email'         => "email",
+            'unique' => 'unique'
+        ];
+
+        $rules = [
+            'responsable' => 'required',
+            'direccion' => 'required',
+            'correo'        => 'required|email',
+        ];
+        //dd($rules);
+        $v = Validator::make($request, $rules, $messages);
+
+        if ($v->fails()){
+            $mensages_validacion = array();
+            foreach ($v->errors()->messages() as $indice => $item) { // todos los mensajes de todos los campos
+                $msg_validacion = array();
+                foreach ($item as $msg) {
+                    array_push($msg_validacion, $msg);
+                }
+                array_push($mensages_validacion, array($indice.''.$key => $msg_validacion));
+            }
+            return $mensages_validacion;
+        }else{
+            return ;
+        }
+    }
+
+    private function AgregarDatos($datos, $data){
+
+        $success = false;
+        //verificar si existe items, en caso de que exista proceder a guardarlo
+        if(property_exists($datos, "apoyos")){
+            //limpiar el arreglo de posibles nullos
+            $detalle = array_filter($datos->apoyos, function($v){return $v !== null;});
+
+            //recorrer cada elemento del arreglo
+            foreach ($detalle as $key => $value) {
+                //validar que el valor no sea null
+                if($value != null){
+                    //comprobar si el value es un array, si es convertirlo a object mas facil para manejar.
+                    if(is_array($value))
+                        $value = (object) $value;
+
+                    //borrar los datos previos de articulo para no duplicar información
+                    ApoyoDirectorioApoyo::where("apoyos_id", $data->id)->delete();
+
+                    //si existe actualizar
+                    $apoyos = ApoyoDirectorioApoyo::where("directorio_apoyos_id", $data->id)->where("apoyos_id", $value->id)->first();
+
+                    //si no existe crear
+                    if(!$apoyos)
+                        $apoyos = new ApoyoDirectorioApoyo;
+
+                    $apoyos->directorio_apoyos_id 	= $data->id;
+                    $apoyos->apoyos_id              = $value->id;
+
+                    if($apoyos->save()){
+                        $success = true;
+                    }
+                }
+            }
+        }
+
+        return $success;
+
     }
 }

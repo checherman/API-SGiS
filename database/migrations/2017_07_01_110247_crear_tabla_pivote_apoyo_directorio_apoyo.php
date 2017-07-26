@@ -20,6 +20,9 @@ class CrearTablaPivoteApoyoDirectorioApoyo extends Migration
             $table->integer('apoyos_id')->unsigned();
             $table->string('directorio_apoyos_id');
 
+            $table->timestamps();
+            $table->softDeletes();
+
             $table->foreign('apoyos_id')
                 ->references('id')->on('apoyos')
                 ->onDelete('cascade');

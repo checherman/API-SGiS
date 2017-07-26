@@ -112,7 +112,7 @@ class NivelConeController extends Controller
             return Response::json(['error' => "No se encuentra el recurso que esta buscando."], HttpResponse::HTTP_NOT_FOUND);
         }
 
-        $clues = Clues::where("nivel_cone_id", $id)
+        $clues = Clues::with('jurisdiccion')->where("nivel_cone_id", $id)
             ->get();
 
         $data->clues = $clues;
@@ -130,33 +130,35 @@ class NivelConeController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $mensajes = [
+        $datos = Input::json()->all();
 
-            'required'      => "required",
-            'unique'        => "unique"
-        ];
-
-        $reglas = [
-            'nombre'        => 'required',
-        ];
-
-        $inputs = Input::only('nombre');
-
-        $v = Validator::make($inputs, $reglas, $mensajes);
-
-        if ($v->fails()) {
-            return Response::json(['error' => $v->errors()], HttpResponse::HTTP_CONFLICT);
-        }
+        $success = false;
+        DB::beginTransaction();
 
         try {
+
+            $validacion = $this->ValidarParametros("", NULL, $datos);
+            if($validacion != ""){
+                return Response::json(['error' => $validacion], HttpResponse::HTTP_CONFLICT);
+            }
             $data = NivelesCones::find($id);
-            $data->nombre =  $inputs['nombre'];
+            $data->nombre = $datos['nombre'];
 
-            $data->save();
-            return Response::json([ 'data' => $data ],200);
+            if ($data->save())
+                $datos = (object) $datos;
+            $this->AgregarDatos($datos, $data);
+            $success = true;
 
-        } catch (\Exception $e) {
-            return Response::json(['error' => $e->getMessage()], HttpResponse::HTTP_CONFLICT);
+        } catch (\Exception $e){
+            return Response::json($e->getMessage(), 500);
+        }
+
+        if ($success){
+            DB::commit();
+            return Response::json(array("status" => 201,"messages" => "Creado","data" => $data), 201);
+        } else{
+            DB::rollback();
+            return Response::json(array("status" => 409,"messages" => "Conflicto"), 409);
         }
     }
 
@@ -191,15 +193,8 @@ class NivelConeController extends Controller
             'unique' => 'unique'
         ];
 
-        /*
-        if($request['nivel_cone']) {
-            $nivel_cone = $request['nivel_cone'];
-        } else {
-            $nivel_cone = NULL;
-        }
-        */
         $rules = [
-            'nombre' => 'required|min:3|max:250|unique:niveles_cones',
+            'nombre' => 'required|min:3|max:250',
         ];
 
         $v = Validator::make($request, $rules, $messages);

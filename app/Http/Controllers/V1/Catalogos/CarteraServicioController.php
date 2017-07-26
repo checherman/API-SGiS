@@ -310,4 +310,28 @@ class CarteraServicioController extends Controller
 
         return $success;
     }
+
+
+    /**
+     * Devuelve la información del registro especificado.
+     *
+     * @param  int  $id que corresponde al identificador del recurso a mostrar
+     *
+     * @return Response
+     * <code style="color:green"> Respuesta Ok json(array("status": 200, "messages": "Operación realizada con exito", "data": array(resultado)),status) </code>
+     * <code> Respuesta Error json(array("status": 404, "messages": "No hay resultados"),status) </code>
+     */
+    public function showEstadoFuerza(){
+
+        $nivelCone = Input::only('nivel-cone');
+
+        $data = CarteraServicioNivelCone::where('niveles_cones_id', '=', $nivelCone)->with("carteraServicio")->get();
+
+        if(!$data ){
+
+            return Response::json(['error' => "No se encuentra el recurso que esta buscando."], HttpResponse::HTTP_NOT_FOUND);
+        }
+
+        return Response::json([ 'data' => $data ], HttpResponse::HTTP_OK);
+    }
 }
