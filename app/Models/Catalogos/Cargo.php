@@ -18,6 +18,7 @@ class Cargo extends Model
 
     protected $table = "cargos";
     protected $fillable = ["id", "nombre", "descripcion"];
+    protected $hidden = ["created_at", "updated_at", "deleted_at"];
 
     public function usuario()
     {

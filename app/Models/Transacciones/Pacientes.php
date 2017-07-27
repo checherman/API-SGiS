@@ -10,5 +10,6 @@ class Pacientes extends Personas
 
     protected $table = "pacientes";
     protected $fillable = ["id", "servidor_id", "domicilio", "personas_id"];
+    protected $hidden = ["created_at", "updated_at", "deleted_at"];
 
 }

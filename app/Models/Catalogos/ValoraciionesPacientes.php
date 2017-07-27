@@ -18,6 +18,8 @@ class ValoraciionesPacientes extends BaseModel
 
     protected $table = "valoraciones_pacientes";
     protected $fillable = ["id", "nombre", "descripcion"];
+    protected $hidden = ["created_at", "updated_at", "deleted_at"];
+
 
     public function baseConocimiento()
     {

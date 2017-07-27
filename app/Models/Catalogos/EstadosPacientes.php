@@ -17,6 +17,7 @@ class EstadosPacientes extends Model
 
     protected $table = "estados_pacientes";
     protected $fillable = ["id","nombre"];
+    protected $hidden = ["created_at", "updated_at", "deleted_at"];
 
     public function baseConocimiento()
     {

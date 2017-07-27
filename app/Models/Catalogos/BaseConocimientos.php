@@ -17,6 +17,7 @@ class BaseConocimientos extends BaseModel
 
     protected $table = "base_conocimientos";
     protected $fillable = ["id", "servidor_id", "procesos", "triage_colores_id", "subcategorias_cie10_id", "valoraciones_pacientes_id", "estados_pacientes_id"];
+    protected $hidden = ["created_at", "updated_at", "deleted_at"];
 
     public function triageColor()
     {

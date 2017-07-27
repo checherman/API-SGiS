@@ -17,6 +17,7 @@ class DirectorioApoyos extends BaseModel
 
     protected $table = "directorio_apoyos";
     protected $fillable = ["id", "servidor_id", "institucion", "direccion", "responsable", "telefono", "correo", "municipios_id"];
+    protected $hidden = ["created_at", "updated_at", "deleted_at"];
 
     public function apoyos()
     {

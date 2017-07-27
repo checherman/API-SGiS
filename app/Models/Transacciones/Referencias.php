@@ -16,4 +16,5 @@ class Referencias extends BaseModel
 
     protected $table = "referencias";
     protected $fillable = ["id", "servidor_id", "incidencias_id", "medico_refiere_id", "diagnostico"];
+    protected $hidden = ["created_at", "updated_at", "deleted_at"];
 }

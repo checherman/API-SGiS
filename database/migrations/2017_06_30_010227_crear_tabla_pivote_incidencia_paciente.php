@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CrearTablaPivotePacienteTicket extends Migration
+class CrearTablaPivoteIncidenciaPaciente extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CrearTablaPivotePacienteTicket extends Migration
      */
     public function up()
     {
-        Schema::create('paciente_ticket', function (Blueprint $table) {
+        Schema::create('incidencia_paciente', function (Blueprint $table) {
 
             $table->engine = 'InnoDB';
 
@@ -42,6 +42,6 @@ class CrearTablaPivotePacienteTicket extends Migration
      */
     public function down()
     {
-        Schema::drop('paciente_ticket');
+        Schema::drop('incidencia_paciente');
     }
 }

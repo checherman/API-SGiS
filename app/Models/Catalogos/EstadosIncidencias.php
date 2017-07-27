@@ -17,4 +17,6 @@ class EstadosIncidencias extends Model
 
     protected $table = "estados_incidencias";
     protected $fillable = ["id","nombre"];
+    protected $hidden = ["created_at", "updated_at", "deleted_at"];
+
 }

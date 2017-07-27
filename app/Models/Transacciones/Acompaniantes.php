@@ -10,4 +10,5 @@ class Acompaniantes extends Personas
 
     protected $table = "acompaniantes";
     protected $fillable = ["id", "servidor_id", "personas_id", "parentescos_id"];
+    protected $hidden = ["created_at", "updated_at", "deleted_at"];
 }

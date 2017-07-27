@@ -17,5 +17,7 @@ class Turnos extends Model
 
     protected $table = "turnos";
     protected $fillable = ["id", "nombre", "descripcion"];
+    protected $hidden = ["created_at", "updated_at", "deleted_at"];
+
 
 }

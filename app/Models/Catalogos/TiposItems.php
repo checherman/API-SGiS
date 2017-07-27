@@ -17,4 +17,6 @@ class TiposItems extends Model
 
     protected $table = "tipos_items";
     protected $fillable = ["id","nombre"];
+    protected $hidden = ["created_at", "updated_at", "deleted_at"];
+
 }

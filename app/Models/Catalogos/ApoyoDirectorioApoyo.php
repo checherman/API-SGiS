@@ -9,6 +9,7 @@ class ApoyoDirectorioApoyo extends Model
 {
     protected $table = "apoyo_directorio_apoyo";
     protected $fillable = ["directorio_apoyos_id", "apoyos_id"];
+    protected $hidden = ["created_at", "updated_at", "deleted_at"];
 
     public function directorioApoyo()
     {

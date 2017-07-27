@@ -17,4 +17,6 @@ class Parentesco extends Model
 
     protected $table = "parentescos";
     protected $fillable = ["id","nombre"];
+    protected $hidden = ["created_at", "updated_at", "deleted_at"];
+
 }

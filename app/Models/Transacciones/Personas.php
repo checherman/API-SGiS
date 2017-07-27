@@ -17,4 +17,5 @@ class Personas extends BaseModel
 
     protected $table = "personas";
     protected $fillable = ["id", "servidor_id", "nombre", "paterno", "materno", "fecha_nacimiento", "telefono"];
+    protected $hidden = ["created_at", "updated_at", "deleted_at"];
 }

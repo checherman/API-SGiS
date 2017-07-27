@@ -17,6 +17,8 @@ class TriageColores extends Model
 
     protected $table = "triage_colores";
     protected $fillable = ["id", "nombre", "descripcion", "tiempo_minimo", "tiempo_maximo"];
+    protected $hidden = ["created_at", "updated_at", "deleted_at"];
+
 
     public function triageSintomas()
     {

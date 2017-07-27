@@ -17,6 +17,7 @@ class Apoyos extends BaseModel
 
     protected $table = "apoyos";
     protected $fillable = ["id", "nombre", "descripcion"];
+    protected $hidden = ["created_at", "updated_at", "deleted_at"];
 
     public function directorio(){
         return $this->belongsToMany(DirectorioApoyos::class, 'apoyo_directorio_apoyo', 'apoyos_id', 'directorio_apoyos_id');
