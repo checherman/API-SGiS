@@ -19,6 +19,7 @@ class CrearTablaTiposItems extends Migration
 
             $table->increments('id')->unique();
             $table->string('nombre', 255);
+            $table->string('descripcion', 255)->nullable();
 
             $table->timestamps();
             $table->softDeletes();

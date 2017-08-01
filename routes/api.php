@@ -64,6 +64,7 @@ Route::middleware('jwt')->group(function () {
         Route::resource('directorio',           'V1\Transacciones\DirectorioController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
         Route::resource('directorio-apoyos',    'V1\Transacciones\DirectorioApoyoController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
         Route::resource('incidencias',          'V1\Transacciones\IncidenciaController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
+        Route::resource('censo-personas',       'V1\Transacciones\CensoPersonaController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
 
         //Funcionalidad
         Route::get('estado-fuerza',                'V1\Catalogos\CarteraServicioController@showEstadoFuerza');

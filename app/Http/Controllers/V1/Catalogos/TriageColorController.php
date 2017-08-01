@@ -71,7 +71,6 @@ class TriageColorController extends ApiController
 
         $reglas = [
             'nombre'        => 'required|unique:triage_colores',
-            'descripcion'   => 'required',
             'tiempo_minimo' => 'required',
             'tiempo_maximo' => 'required',
         ];
@@ -129,7 +128,6 @@ class TriageColorController extends ApiController
 
         $reglas = [
             'nombre'        => 'required',
-            'descripcion'   => 'required',
             'tiempo_minimo' => 'required',
             'tiempo_maximo' => 'required',
         ];

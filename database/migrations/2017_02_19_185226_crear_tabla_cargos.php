@@ -19,7 +19,7 @@ class CrearTablaCargos extends Migration
 
             $table->increments('id');
             $table->string('nombre');
-            $table->string('descripcion');
+            $table->string('descripcion')->nullable();
 
             $table->timestamps();
             $table->softDeletes();

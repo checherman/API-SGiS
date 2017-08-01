@@ -38,7 +38,8 @@ class DerechohabienteController extends ApiController
         if ($parametros['q']) {
             $data =  Derechohabientes::where(function($query) use ($parametros) {
                 $query->where('id','LIKE',"%".$parametros['q']."%")
-                    ->orWhere('nombre','LIKE',"%".$parametros['q']."%");
+                    ->orWhere('nombre','LIKE',"%".$parametros['q']."%")
+                    ->orWhere('descripcion','LIKE',"%".$parametros['q']."%");
             });
         } else {
             $data =  Derechohabientes::where("id","!=", "");
@@ -71,8 +72,7 @@ class DerechohabienteController extends ApiController
         ];
 
         $reglas = [
-            'nombre'        => 'required|unique:estados_incidencias',
-            'descripcion'        => 'required',
+            'nombre'        => 'required|unique:derechohabientes',
 
         ];
 
@@ -129,7 +129,6 @@ class DerechohabienteController extends ApiController
 
         $reglas = [
             'nombre'        => 'required',
-            'descripcion'   => 'required',
         ];
 
         $inputs = Input::only('nombre','descripcion');

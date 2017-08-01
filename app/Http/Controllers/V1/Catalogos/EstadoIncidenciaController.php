@@ -36,7 +36,8 @@ class EstadoIncidenciaController extends ApiController
         if ($parametros['q']) {
             $data =  EstadosIncidencias::where(function($query) use ($parametros) {
                 $query->where('id','LIKE',"%".$parametros['q']."%")
-                    ->orWhere('nombre','LIKE',"%".$parametros['q']."%");
+                    ->orWhere('nombre','LIKE',"%".$parametros['q']."%")
+                    ->orWhere('descripcion','LIKE',"%".$parametros['q']."%");
             });
         } else {
             $data =  EstadosIncidencias::where("id","!=", "");
@@ -72,7 +73,7 @@ class EstadoIncidenciaController extends ApiController
             'nombre'        => 'required|unique:estados_incidencias',
         ];
 
-        $inputs = Input::only('nombre');
+        $inputs = Input::only('nombre','descripcion');
 
         $v = Validator::make($inputs, $reglas, $mensajes);
 
@@ -127,7 +128,7 @@ class EstadoIncidenciaController extends ApiController
             'nombre'        => 'required',
         ];
 
-        $inputs = Input::only('nombre');
+        $inputs = Input::only('nombre','descripcion');
 
         $v = Validator::make($inputs, $reglas, $mensajes);
 
@@ -138,6 +139,7 @@ class EstadoIncidenciaController extends ApiController
         try {
             $data = EstadosIncidencias::find($id);
             $data->nombre =  $inputs['nombre'];
+            $data->descripcion =  $inputs['descripcion'];
 
             $data->save();
             return $this->respuestaVerUno($data);

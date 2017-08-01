@@ -71,8 +71,7 @@ class EstadoEmbarazoController extends ApiController
         ];
 
         $reglas = [
-            'nombre'        => 'required|unique:estados_incidencias',
-            'descripcion'        => 'required',
+            'nombre'        => 'required|unique:estados_embarazos',
 
         ];
 
@@ -129,7 +128,6 @@ class EstadoEmbarazoController extends ApiController
 
         $reglas = [
             'nombre'        => 'required',
-            'descripcion'   => 'required',
         ];
 
         $inputs = Input::only('nombre','descripcion');

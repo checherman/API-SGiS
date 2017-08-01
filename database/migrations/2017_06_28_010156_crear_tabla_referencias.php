@@ -23,6 +23,7 @@ class CrearTablaReferencias extends Migration
             $table->string('incidencias_id');
             $table->string('medico_refiere_id');
             $table->string('diagnostico');
+            $table->string('resumen_clinico');
             $table->string('clues_origen');
             $table->string('clues_destino');
             $table->boolean('esContrareferencia')->nullable();

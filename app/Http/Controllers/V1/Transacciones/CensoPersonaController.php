@@ -1,30 +1,29 @@
 <?php
 
-namespace App\Http\Controllers\V1\Catalogos;
+namespace App\Http\Controllers\V1\Transacciones;
 
 use App\Http\Controllers\ApiController;
+use App\Models\Transacciones\Personas;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response as HttpResponse;
 
 use App\Http\Requests;
-use App\Models\Catalogos\EstadosPacientes;
 
 use Illuminate\Support\Facades\Input;
 use \Validator,\Hash, \Response;
 
-
 /**
- * Controlador EstadoPaciente
+ * Controlador CensoPersona
  *
  * @package    UGUS API
  * @subpackage Controlador
  * @author     Luis Alberto Valdez Lescieur <luisvl13@gmail.com>
- * @created    2017-06-14
+ * @created    2017-03-22
  *
- * Controlador `EstadoPaciente`: Controlador  para el manejo de estados de pacientes
+ * Controlador `CensoPersona`: Controlador  para el manejo de censo de personas
  *
  */
-class EstadoPacienteController extends ApiController
+class CensoPersonaController extends ApiController
 {
     /**
      * Display a listing of the resource.
@@ -35,13 +34,16 @@ class EstadoPacienteController extends ApiController
     {
         $parametros = Input::only('q','page','per_page');
         if ($parametros['q']) {
-            $data =  EstadosPacientes::where(function($query) use ($parametros) {
+            $data =  Personas::where(function($query) use ($parametros) {
                 $query->where('id','LIKE',"%".$parametros['q']."%")
                     ->orWhere('nombre','LIKE',"%".$parametros['q']."%")
-                    ->orWhere('descripcion','LIKE',"%".$parametros['q']."%");
+                    ->orWhere('paterno','LIKE',"%".$parametros['q']."%")
+                    ->orWhere('materno','LIKE',"%".$parametros['q']."%")
+                    ->orWhere('telefono','LIKE',"%".$parametros['q']."%")
+                    ->orWhere('domicilio','LIKE',"%".$parametros['q']."%");
             });
         } else {
-            $data =  EstadosPacientes::where("id","!=", "");
+            $data =  Personas::where("id","!=", "");
         }
 
 
@@ -65,16 +67,21 @@ class EstadoPacienteController extends ApiController
     public function store(Request $request)
     {
         $mensajes = [
-
             'required'      => "required",
             'unique'        => "unique"
         ];
 
         $reglas = [
-            'nombre'        => 'required|unique:estados_pacientes',
+            'id'            => 'required|unique:personas',
+            'nombre'        => 'required',
+            'paterno'       => 'required',
+            'materno'       => 'required',
+            'telefono'      => 'required',
+            'domicilio'     => 'required',
+
         ];
 
-        $inputs = Input::only('nombre', 'descripcion');
+        $inputs = Input::only('id','nombre','paterno','materno','fecha_nacimiento','telefono','domicilio','estados_embarazos_id','derechohabientes_id');
 
         $v = Validator::make($inputs, $reglas, $mensajes);
 
@@ -84,9 +91,9 @@ class EstadoPacienteController extends ApiController
 
         try {
 
-            $data = EstadosPacientes::create($inputs);
+            $data = Personas::create($inputs);
 
-            return $this->respuestaVerUno($data,201);
+            return Response::json([ 'data' => $data ],200);
 
         } catch (\Exception $e) {
             return $this->respuestaError($e->getMessage(), 409);
@@ -101,7 +108,7 @@ class EstadoPacienteController extends ApiController
      */
     public function show($id)
     {
-        $data = EstadosPacientes::find($id);
+        $data = Personas::find($id);
 
         if(!$data){
             return Response::json(['error' => "No se encuentra el recurso que esta buscando."], HttpResponse::HTTP_NOT_FOUND);
@@ -126,10 +133,15 @@ class EstadoPacienteController extends ApiController
         ];
 
         $reglas = [
-            'nombre'        => 'required',
+            'id'        => 'required',
+            'nombre'    => 'required',
+            'paterno'   => 'required',
+            'materno'   => 'required',
+            'telefono'  => 'required',
+            'domicilio' => 'required',
         ];
 
-        $inputs = Input::only('nombre', 'descripcion');
+        $inputs = Input::only('nombre','paterno','materno','fecha_nacimiento','telefono','domicilio','estados_embarazos_id','derechohabientes_id');
 
         $v = Validator::make($inputs, $reglas, $mensajes);
 
@@ -138,9 +150,15 @@ class EstadoPacienteController extends ApiController
         }
 
         try {
-            $data = EstadosPacientes::find($id);
+            $data = Personas::find($id);
             $data->nombre =  $inputs['nombre'];
-            $data->descripcion =  $inputs['descripcion'];
+            $data->paterno =  $inputs['paterno'];
+            $data->materno =  $inputs['materno'];
+            $data->fecha_nacimiento =  $inputs['fecha_nacimiento'];
+            $data->telefono =  $inputs['telefono'];
+            $data->domicilio =  $inputs['domicilio'];
+            $data->estados_embarazos_id =  $inputs['estados_embarazos_id'];
+            $data->derechohabientes_id =  $inputs['derechohabientes_id'];
 
             $data->save();
             return $this->respuestaVerUno($data);
@@ -159,7 +177,7 @@ class EstadoPacienteController extends ApiController
     public function destroy($id)
     {
         try {
-            $data = EstadosPacientes::destroy($id);
+            $data = Personas::destroy($id);
             return $this->respuestaVerTodo($data);
         } catch (Exception $e) {
             return $this->respuestaError($e->getMessage(), 409);

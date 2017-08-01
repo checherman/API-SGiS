@@ -19,7 +19,7 @@ class CrearTablaTriageColores extends Migration
 
             $table->increments('id');
             $table->string('nombre');
-            $table->string('descripcion');
+            $table->string('descripcion')->nullable();
             $table->time('tiempo_minimo');
             $table->time('tiempo_maximo');
 

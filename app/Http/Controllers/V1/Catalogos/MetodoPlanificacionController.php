@@ -37,7 +37,8 @@ class MetodoPlanificacionController extends ApiController
         if ($parametros['q']) {
             $data =  MetodoPlanificacion::where(function($query) use ($parametros) {
                 $query->where('id','LIKE',"%".$parametros['q']."%")
-                    ->orWhere('nombre','LIKE',"%".$parametros['q']."%");
+                    ->orWhere('nombre','LIKE',"%".$parametros['q']."%")
+                    ->orWhere('descripcion','LIKE',"%".$parametros['q']."%");
             });
         } else {
             $data =  MetodoPlanificacion::where("id","!=", "");
@@ -70,10 +71,10 @@ class MetodoPlanificacionController extends ApiController
         ];
 
         $reglas = [
-            'nombre'        => 'required|unique:estados_incidencias',
+            'nombre'        => 'required|unique:metodos_planificacion',
         ];
 
-        $inputs = Input::only('nombre');
+        $inputs = Input::only('nombre', 'descripcion');
 
         $v = Validator::make($inputs, $reglas, $mensajes);
 
@@ -128,7 +129,7 @@ class MetodoPlanificacionController extends ApiController
             'nombre'        => 'required',
         ];
 
-        $inputs = Input::only('nombre');
+        $inputs = Input::only('nombre','descripcion');
 
         $v = Validator::make($inputs, $reglas, $mensajes);
 
@@ -139,6 +140,7 @@ class MetodoPlanificacionController extends ApiController
         try {
             $data = MetodoPlanificacion::find($id);
             $data->nombre =  $inputs['nombre'];
+            $data->descripcion =  $inputs['descripcion'];
 
             $data->save();
             return $this->respuestaVerUno($data);

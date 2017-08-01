@@ -36,7 +36,8 @@ class TipoItemController extends ApiController
         if ($parametros['q']) {
             $data =  TiposItems::where(function($query) use ($parametros) {
                 $query->where('id','LIKE',"%".$parametros['q']."%")
-                    ->orWhere('nombre','LIKE',"%".$parametros['q']."%");
+                    ->orWhere('nombre','LIKE',"%".$parametros['q']."%")
+                    ->orWhere('descripcion','LIKE',"%".$parametros['q']."%");
             });
         } else {
             $data =  TiposItems::where("id","!=", "");
@@ -72,7 +73,7 @@ class TipoItemController extends ApiController
             'nombre'        => 'required|unique:tipos_items',
         ];
 
-        $inputs = Input::only('nombre');
+        $inputs = Input::only('nombre', 'descripcion');
 
         $v = Validator::make($inputs, $reglas, $mensajes);
 
@@ -127,7 +128,7 @@ class TipoItemController extends ApiController
             'nombre'        => 'required',
         ];
 
-        $inputs = Input::only('nombre');
+        $inputs = Input::only('nombre', 'descripcion');
 
         $v = Validator::make($inputs, $reglas, $mensajes);
 
@@ -137,7 +138,8 @@ class TipoItemController extends ApiController
 
         try {
             $data = TiposItems::find($id);
-            $data->nombre =  $inputs['nombre'];
+            $data->nombre       =  $inputs['nombre'];
+            $data->descripcion  =  $inputs['descripcion'];
 
             $data->save();
             return $this->respuestaVerUno($data);

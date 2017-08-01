@@ -17,7 +17,7 @@ class CrearTablaEstadosEmbarazos extends Migration
 
             $table->increments('id');
             $table->string('nombre', 255);
-            $table->string('descripcion', 255);
+            $table->string('descripcion', 255)->nullable();
 
             $table->timestamps();
             $table->softDeletes();

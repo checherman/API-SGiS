@@ -16,7 +16,7 @@ class MetodoPlanificacion extends Model
     public $incrementing = true;
 
     protected $table = "metodos_planificacion";
-    protected $fillable = ["id","nombre"];
+    protected $fillable = ["id","nombre","descripcion"];
     protected $hidden = ["created_at", "updated_at", "deleted_at"];
 
 }

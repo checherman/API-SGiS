@@ -91,8 +91,7 @@ class CargoController extends ApiController
         ];
 
         $reglas = [
-            'nombre'        => 'required|unique:turnos',
-            'descripcion'   => 'required',
+            'nombre'        => 'required|unique:cargos',
         ];
 
         $inputs = Input::only('nombre', 'descripcion');
@@ -147,7 +146,6 @@ class CargoController extends ApiController
 
         $reglas = [
             'nombre'        => 'required',
-            'descripcion'   => 'required',
         ];
 
         $inputs = Input::only('nombre','descripcion');

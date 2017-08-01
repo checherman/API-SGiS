@@ -16,7 +16,7 @@ class EstadosPacientes extends Model
     public $incrementing = true;
 
     protected $table = "estados_pacientes";
-    protected $fillable = ["id","nombre"];
+    protected $fillable = ["id","nombre","descripcion"];
     protected $hidden = ["created_at", "updated_at", "deleted_at"];
 
     public function baseConocimiento()

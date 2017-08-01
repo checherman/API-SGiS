@@ -16,7 +16,7 @@ class CrearTablaNivelesCones extends Migration
         Schema::create('niveles_cones', function (Blueprint $table) {
 
             $table->increments('id');
-            $table->string('nombre', 255)->nullable()->default(null);
+            $table->string('nombre', 255);
 
             $table->timestamps();
             $table->softDeletes();

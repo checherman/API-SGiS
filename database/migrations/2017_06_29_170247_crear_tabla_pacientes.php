@@ -20,7 +20,6 @@ class CrearTablaPacientes extends Migration
             $table->string('id');
             $table->string('servidor_id',4);
             $table->integer('incremento');
-            $table->string('domicilio');
             $table->string('personas_id');
             $table->string('responsables_id')->nullable();
 

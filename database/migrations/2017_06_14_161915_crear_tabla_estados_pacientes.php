@@ -16,7 +16,8 @@ class CrearTablaEstadosPacientes extends Migration
         Schema::create('estados_pacientes', function (Blueprint $table) {
 
             $table->increments('id');
-            $table->string('nombre', 255)->nullable()->default(null);
+            $table->string('nombre', 255);
+            $table->string('descripcion', 255)->nullable();
 
             $table->timestamps();
             $table->softDeletes();
