@@ -161,7 +161,7 @@ class ValoracionPacienteController extends ApiController
     {
         try {
             $data = ValoraciionesPacientes::destroy($id);
-            return $this->respuestaVerUno($data);
+            return $this->respuestaVerTodo($data);
         } catch (Exception $e) {
             return $this->respuestaError($e->getMessage(), 409);
         }

@@ -157,7 +157,7 @@ class TipoItemController extends ApiController
     {
         try {
             $data = TiposItems::destroy($id);
-            return $this->respuestaVerUno($data);
+            return $this->respuestaVerTodo($data);
         } catch (Exception $e) {
             return $this->respuestaError($e->getMessage(), 409);
         }

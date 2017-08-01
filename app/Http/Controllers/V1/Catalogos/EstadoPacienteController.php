@@ -158,7 +158,7 @@ class EstadoPacienteController extends ApiController
     {
         try {
             $data = EstadosPacientes::destroy($id);
-            return $this->respuestaVerUno($data);
+            return $this->respuestaVerTodo($data);
         } catch (Exception $e) {
             return $this->respuestaError($e->getMessage(), 409);
         }

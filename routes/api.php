@@ -37,6 +37,8 @@ Route::middleware('jwt')->group(function () {
         Route::resource('jurisdicciones',           'V1\Catalogos\JurisdiccionController', ['only' => ['index']]);
         Route::resource('municipios',               'V1\Catalogos\MunicipioController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
         Route::resource('estados-incidencias',      'V1\Catalogos\EstadoIncidenciaController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
+        Route::resource('derechohabientes',         'V1\Catalogos\DerechohabienteController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
+        Route::resource('estados-embarazos',        'V1\Catalogos\EstadoEmbarazoController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
         Route::resource('estados-pacientes',        'V1\Catalogos\EstadoPacienteController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
         Route::resource('valoraciones-pacientes',   'V1\Catalogos\ValoracionPacienteController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
         Route::resource('parentescos',              'V1\Catalogos\ParentescoController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);

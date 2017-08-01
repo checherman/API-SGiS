@@ -181,7 +181,7 @@ class ApoyoController extends ApiController
     {
         try {
             $data = Apoyos::destroy($id);
-            return $this->respuestaVerUno($data);
+            return $this->respuestaVerTodo($data);
         } catch (Exception $e) {
             return $this->respuestaError($e->getMessage(), 409);
         }

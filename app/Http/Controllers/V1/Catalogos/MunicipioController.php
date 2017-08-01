@@ -184,7 +184,7 @@ class MunicipioController extends ApiController
     {
         try {
             $data = Municipios::destroy($id);
-            return $this->respuestaVerUno($data);
+            return $this->respuestaVerTodo($data);
         } catch (Exception $e) {
             return $this->respuestaError($e->getMessage(), 409);
         }
