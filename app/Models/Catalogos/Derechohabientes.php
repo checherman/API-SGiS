@@ -4,6 +4,7 @@ namespace App;
 
 namespace App\Models\Catalogos;
 use App\Models\BaseModel;
+use App\Models\Transacciones\Personas;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Derechohabientes extends BaseModel
@@ -19,5 +20,10 @@ class Derechohabientes extends BaseModel
     protected $fillable = ["id","nombre","descripcion"];
 
     protected $hidden = ["created_at", "updated_at", "deleted_at"];
+
+    public function personas()
+    {
+        return $this->hasMany(Personas::class);
+    }
 
 }

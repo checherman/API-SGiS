@@ -219,7 +219,7 @@ class TriageController extends Controller
 
         $rules = [
             'nombre' => 'required|min:3|max:250|unique:triage,nombre,'.$id.',id,deleted_at,NULL',
-            'descripcion' => 'required',
+            //'descripcion' => 'required',
         ];
 
         $v = Validator::make($request, $rules, $messages);

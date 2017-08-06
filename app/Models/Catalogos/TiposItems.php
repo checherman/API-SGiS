@@ -3,10 +3,10 @@
 namespace App;
 
 namespace App\Models\Catalogos;
-use Illuminate\Database\Eloquent\Model;
+use App\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class TiposItems extends Model
+class TiposItems extends BaseModel
 {
     use SoftDeletes;
 
@@ -18,5 +18,10 @@ class TiposItems extends Model
     protected $table = "tipos_items";
     protected $fillable = ["id","nombre","descripcion"];
     protected $hidden = ["created_at", "updated_at", "deleted_at"];
+
+    public function items()
+    {
+        return $this->hasMany(Items::class);
+    }
 
 }

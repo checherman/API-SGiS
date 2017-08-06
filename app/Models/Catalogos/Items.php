@@ -18,8 +18,15 @@ class Items extends Model
     protected $table = "items";
     protected $fillable = ["id", "nombre", "cartera_servicios_id"];
 
+    protected $hidden = ['created_at', 'updated_at', 'deleted_at'];
+
     public function carteraServicio()
     {
-        return $this->belongsTo(CarteraServicios::class,'cartera_servicios_id','id');
+        return $this->belongsTo(CarteraServicios::class);
+    }
+
+    public function tipoItem()
+    {
+        return $this->belongsTo(TiposItems::class);
     }
 }

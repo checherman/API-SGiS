@@ -18,9 +18,11 @@ class CarteraServicios extends Model
     protected $table = "cartera_servicios";
     protected $fillable = ["id","nombre"];
 
+    protected $hidden = ['pivot', 'created_at', 'updated_at', 'deleted_at'];
+
     public function items()
     {
-        return $this->hasMany(Items::class,'cartera_servicios_id','id');
+        return $this->hasMany(Items::class);
     }
 
     public function nivelesCones()

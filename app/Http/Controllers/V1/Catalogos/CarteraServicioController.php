@@ -5,6 +5,7 @@ namespace App\Http\Controllers\V1\Catalogos;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Models\Catalogos\CarteraServicioNivelCone;
+use App\Models\Catalogos\NivelesCones;
 use Illuminate\Http\Response as HttpResponse;
 
 use Request;
@@ -315,23 +316,22 @@ class CarteraServicioController extends Controller
     /**
      * Devuelve la información del registro especificado.
      *
-     * @param  int  $id que corresponde al identificador del recurso a mostrar
-     *
-     * @return Response
+     * @param NivelesCones $nivelesCones
+     * @return Response <code style="color:green"> Respuesta Ok json(array("status": 200, "messages": "Operación realizada con exito", "data": array(resultado)),status) </code>
      * <code style="color:green"> Respuesta Ok json(array("status": 200, "messages": "Operación realizada con exito", "data": array(resultado)),status) </code>
      * <code> Respuesta Error json(array("status": 404, "messages": "No hay resultados"),status) </code>
+     * @internal param int $id que corresponde al identificador del recurso a mostrar
+     *
      */
-    public function showEstadoFuerza(){
+    public function showEstadoFuerza(NivelesCones $nivelesCones){
 
-        $nivelCone = Input::only('nivel-cone');
+        $estadoFuerza = $nivelesCones->carteraServicio()->with("items")->get();
 
-        $data = CarteraServicioNivelCone::where('niveles_cones_id', '=', $nivelCone)->with("carteraServicio")->get();
-
-        if(!$data ){
+        if(!$estadoFuerza ){
 
             return Response::json(['error' => "No se encuentra el recurso que esta buscando."], HttpResponse::HTTP_NOT_FOUND);
         }
 
-        return Response::json([ 'data' => $data ], HttpResponse::HTTP_OK);
+        return Response::json([ 'data' => $estadoFuerza ], HttpResponse::HTTP_OK);
     }
 }

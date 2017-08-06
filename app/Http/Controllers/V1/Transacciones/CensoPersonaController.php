@@ -43,9 +43,8 @@ class CensoPersonaController extends ApiController
                     ->orWhere('domicilio','LIKE',"%".$parametros['q']."%");
             });
         } else {
-            $data =  Personas::where("id","!=", "");
+            $data =  Personas::with('derechohabientes')->with('estados_embarazos');
         }
-
 
         if(isset($parametros['page'])){
 
@@ -141,7 +140,7 @@ class CensoPersonaController extends ApiController
             'domicilio' => 'required',
         ];
 
-        $inputs = Input::only('nombre','paterno','materno','fecha_nacimiento','telefono','domicilio','estados_embarazos_id','derechohabientes_id');
+        $inputs = Input::only('id','nombre','paterno','materno','fecha_nacimiento','telefono','domicilio','estados_embarazos_id','derechohabientes_id');
 
         $v = Validator::make($inputs, $reglas, $mensajes);
 

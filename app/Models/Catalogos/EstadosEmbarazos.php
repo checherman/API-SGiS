@@ -20,4 +20,8 @@ class EstadosEmbarazos extends BaseModel
 
     protected $hidden = ["created_at", "updated_at", "deleted_at"];
 
+    public function personas()
+    {
+        return $this->hasMany(Personas::class);
+    }
 }
