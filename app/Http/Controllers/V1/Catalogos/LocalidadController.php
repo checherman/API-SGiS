@@ -4,24 +4,25 @@ namespace App\Http\Controllers\V1\Catalogos;
 
 use App\Http\Controllers\Controller;
 
-use App\Models\Catalogos\Clues;
+use App\Models\Catalogos\Jurisdicciones;
 
 use App\Http\Requests;
+use App\Models\Catalogos\Localidades;
 use Illuminate\Support\Facades\Input;
 use \Validator,\Hash, \Response, \DB;
 
 /**
- * Controlador Clues
+ * Controlador Localidad
  *
  * @package    UGUS API
  * @subpackage Controlador
  * @author     Luis Alberto Valdez Lescieur <luisvl13@gmail.com>
  * @created    2017-03-22
  *
- * Controlador `Clues`: Controlador  para el manejo de clues
+ * Controlador `Localidad`: Controlador  para el manejo de localidades
  *
  */
-class CluesController extends Controller
+class LocalidadController extends Controller
 {
 
     /**
@@ -54,18 +55,13 @@ class CluesController extends Controller
     {
         $parametros = Input::only('q','page','per_page');
         if ($parametros['q']) {
-            $data =  Clues::where(function($query) use ($parametros){
-                $query->where('clues','LIKE',"%".$parametros['q']."%")
-                    ->orWhere('nombre','LIKE',"%".$parametros['q']."%")
-                    ->orWhere('entidad','LIKE',"%".$parametros['q']."%")
-                    ->orWhere('institucion','LIKE',"%".$parametros['q']."%")
-                    ->orWhere('jurisdiccion','LIKE',"%".$parametros['q']."%")
-                    ->orWhere('localidad','LIKE',"%".$parametros['q']."%")
-                    ->orWhere('municipio','LIKE',"%".$parametros['q']."%");
+            $data =  Localidades::where(function($query) use ($parametros){
+                $query->where('clave','LIKE',"%".$parametros['q']."%")
+                    ->orWhere('nombre','LIKE',"%".$parametros['q']."%");
             });
 
         } else {
-            $data =  Clues::getModel()->with('jurisdiccion');
+            $data =  Localidades::getModel();
         }
 
         if(isset($parametros['page'])){
@@ -76,21 +72,5 @@ class CluesController extends Controller
         }
 
         return Response::json([ 'data' => $data],200);
-    }
-
-    /**
-     * @param Clues $clues
-     * @return mixed
-     */
-    public function show($clues)
-    {
-        $data = Clues::where('clues', $clues)
-                    ->with('jurisdiccion')
-                    ->with('municipios')
-                    ->get();
-
-        //dd($data);
-
-        return Response::json([ 'data' => $data], 200);
     }
 }

@@ -23,6 +23,7 @@ class CrearTablaUsuarios extends Migration
             $table->string('celular');
             $table->integer('cargos_id')->nullable()->unsigned();
             $table->string('avatar')->nullable();
+            $table->string('clues');
             $table->boolean('su')->default(false);
             $table->timestamps();
             $table->softDeletes();

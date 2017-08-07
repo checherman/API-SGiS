@@ -14,10 +14,10 @@ class MovimientosIncidencias extends BaseModel
 {
     use SoftDeletes;
 
-    protected $generarID = false;
+    protected $generarID = true;
     protected $guardarIDServidor = true;
     protected $guardarIDUsuario = false;
-    public $incrementing = true;
+    public $incrementing = false;
 
     protected $table = "movimientos_incidencias";
     protected $fillable = [

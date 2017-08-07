@@ -26,11 +26,11 @@ class Incidencias extends BaseModel
 
     public function pacientes()
     {
-        return $this->belongsToMany(Pacientes::class);
+        return $this->belongsToMany(Pacientes::class, 'incidencia_paciente', 'incidencias_id', 'pacientes_id');
     }
 
     public function movimientos_incidencias()
     {
-        return $this->hasMany(MovimientosIncidencias::class);
+        return $this->hasMany(MovimientosIncidencias::class)->with("estados_incidencias")->with("estados_pacientes")->with("valoraciones_pacientes")->with("triage_colores");
     }
 }

@@ -10,16 +10,16 @@ class Pacientes extends Personas
 
     protected $table = "pacientes";
     protected $fillable = ["id", "servidor_id", "personas_id"];
-    protected $hidden = ["created_at", "updated_at", "deleted_at"];
+    protected $hidden = ["pivot", "created_at", "updated_at", "deleted_at"];
 
     public function incidencias()
     {
-        return $this->belongsToMany(Incidencias::class);
+        return $this->belongsToMany(Incidencias::class, 'incidencia_paciente', 'pacientes_id', 'incidencias_id');
     }
 
     public function acompaniantes()
     {
-        return $this->belongsToMany(Acompaniantes::class);
+        return $this->belongsToMany(Acompaniantes::class, 'acompaniante_paciente', 'pacientes_id', 'acompaniantes_id');
     }
 
     public function personas()

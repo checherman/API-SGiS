@@ -40,6 +40,11 @@ class Personas extends BaseModel
 
     public function pacientes()
     {
-        return $this->hasOne(Pacientes::class);
+        return $this->hasMany(Pacientes::class);
+    }
+
+    public function acompaniantes()
+    {
+        return $this->hasMany(Acompaniantes::class);
     }
 }

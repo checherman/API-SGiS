@@ -18,6 +18,8 @@ class Municipios extends BaseModel
     protected $table = "municipios";
     protected $fillable = ["id", "clave", "nombre", "jurisdicciones_id"];
 
+    protected $hidden = ["created_at", "updated_at", "deleted_at"];
+
     public function jurisdicciones()
     {
         return $this->belongsTo(Jurisdicciones::class);
@@ -26,5 +28,10 @@ class Municipios extends BaseModel
     public function localidades()
     {
         return $this->hasMany(Localidades::class);
+    }
+
+    public function clues()
+    {
+        return $this->hasMany(Clues::class);
     }
 }

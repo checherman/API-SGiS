@@ -4,9 +4,9 @@ namespace App;
 
 namespace App\Models\Catalogos;
 
+use App\Models\Sistema\Usuario;
 use App\Models\Transacciones\Incidencias;
 use Illuminate\Database\Eloquent\Model;
-use App\Turnos;
 
 class Clues extends Model
 {
@@ -20,6 +20,16 @@ class Clues extends Model
     public function jurisdiccion()
     {
         return $this->belongsTo(Jurisdicciones::class,'jurisdicciones_id','id');
+    }
+
+    public function municipios()
+    {
+        return $this->belongsTo(Municipios::class);
+    }
+
+    public function usuarios()
+    {
+        return $this->hasMany(Usuario::class);
     }
 
 }

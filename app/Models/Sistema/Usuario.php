@@ -4,6 +4,7 @@ namespace App\Models\Sistema;
 
 use App\Models\BaseModel;
 use App\Models\Catalogos\Cargo;
+use App\Models\Catalogos\Clues;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Contracts\Auth\Authenticatable;
 
@@ -30,6 +31,11 @@ class Usuario extends BaseModel implements Authenticatable{
     public function cargos()
     {
         return $this->belongsTo(Cargo::class,'cargos_id','id');
+    }
+
+    public function clues()
+    {
+        return $this->belongsTo(Clues::class);
     }
 
 

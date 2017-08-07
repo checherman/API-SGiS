@@ -19,10 +19,11 @@ class CrearTablaMovimientosIncidencias extends Migration
 
             $table->string('id');
             $table->string('servidor_id',4);
+            $table->integer('incremento');
             $table->string('incidencias_id');
             $table->string('medico_reporta_id')->nullable();
-            $table->string('indicaciones');
-            $table->string('reporte_medico');
+            $table->string('indicaciones')->nullable();
+            $table->string('reporte_medico')->nullable();
             $table->string('diagnostico_egreso')->nullable();
             $table->string('observacion_trabajo_social')->nullable();
             $table->integer('metodos_planificacion_id')->unsigned()->nullable();

@@ -31,10 +31,12 @@ Route::middleware('jwt')->group(function () {
 
         //Varios
         Route::get('jurisdiccion-clues',        'AutoCompleteController@jurisdiccion_clues');
+        Route::get('personas',                  'AutoCompleteController@personas');
 
         //Catalogos
-        Route::resource('clues',                    'V1\Catalogos\CluesController', ['only' => ['index']]);
+        Route::resource('clues',                    'V1\Catalogos\CluesController', ['only' => ['index', 'show']]);
         Route::resource('jurisdicciones',           'V1\Catalogos\JurisdiccionController', ['only' => ['index']]);
+        Route::resource('localidades',              'V1\Catalogos\LocalidadController', ['only' => ['index']]);
         Route::resource('municipios',               'V1\Catalogos\MunicipioController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
         Route::resource('estados-incidencias',      'V1\Catalogos\EstadoIncidenciaController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
         Route::resource('derechohabientes',         'V1\Catalogos\DerechohabienteController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);

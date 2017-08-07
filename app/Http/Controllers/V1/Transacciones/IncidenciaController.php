@@ -46,7 +46,7 @@ class IncidenciaController extends Controller
                     ->orWhere('nombre','LIKE',"%".$parametros['q']."%");
             });
         } else {
-            $data =  Incidencias::getModel();
+            $data =  Incidencias::getModel()->with("pacientes.personas")->with("pacientes.acompaniantes.personas")->with("movimientos_incidencias");
         }
 
         if(isset($parametros['page'])){
@@ -55,6 +55,7 @@ class IncidenciaController extends Controller
             $data = $data->paginate($resultadosPorPagina);
         } else {
             $data = $data->get();
+            //dd($data);
         }
 
         return Response::json([ 'data' => $data],200);
@@ -109,14 +110,12 @@ class IncidenciaController extends Controller
      * <code> Respuesta Error json(array("status": 404, "messages": "No hay resultados"),status) </code>
      */
     public function show($id){
-        $data = Incidencias::find($id);
-
-        $triageSintomas = TriageSintomas::where("triage_id", $id)
-            ->with('triageColorTriageSintoma')
+        $data = Incidencias::find($id)
+            ->with("pacientes.personas")
+            ->with("pacientes.acompaniantes.personas")
+            ->with("movimientos_incidencias")
             ->get();
-
-        $data->triage_sintomas = $triageSintomas;
-
+        
         if(!$data){
             return Response::json(array("status" => 204,"messages" => "No hay resultados"), 204);
         }
@@ -284,6 +283,7 @@ class IncidenciaController extends Controller
 
                                 if($paciente->save()){
                                     DB::select("insert into incidencia_clue (incidencias_id, clues) VALUE ('$data->id', '$datos->clues')");
+                                    DB::select("insert into incidencia_paciente (incidencias_id, pacientes_id) VALUE ('$data->id', '$paciente->id')");
                                 }
                             }
                     }
@@ -347,9 +347,6 @@ class IncidenciaController extends Controller
 
                         $movientos_incidencias->servidor_id 	                = env("SERVIDOR_ID");
                         $movientos_incidencias->incidencias_id                  = $data->id;
-                        $movientos_incidencias->medico_reporta_id               = 'MED1';
-                        $movientos_incidencias->indicaciones                    = $detalleResponsable->indicaciones;
-                        $movientos_incidencias->reporte_medico                  = $detalleResponsable->reporte_medico;
                         $movientos_incidencias->estados_incidencias_id          = $detalleResponsable->estados_incidencias_id;
                         $movientos_incidencias->valoraciones_pacientes_id       = $detalleResponsable->valoraciones_pacientes_id;
                         $movientos_incidencias->estados_pacientes_id            = $detalleResponsable->estados_pacientes_id;

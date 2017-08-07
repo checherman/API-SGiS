@@ -19,7 +19,6 @@ class CrearTablaPivoteIncidenciaPaciente extends Migration
 
             $table->string('pacientes_id');
             $table->string('incidencias_id');
-            $table->string('acompaniantes_id')->nullable();
 
             $table->foreign('pacientes_id')
                 ->references('id')->on('pacientes')
@@ -27,10 +26,6 @@ class CrearTablaPivoteIncidenciaPaciente extends Migration
 
             $table->foreign('incidencias_id')
                 ->references('id')->on('incidencias')
-                ->onDelete('cascade');
-
-            $table->foreign('acompaniantes_id')
-                ->references('id')->on('acompaniantes')
                 ->onDelete('cascade');
         });
     }
