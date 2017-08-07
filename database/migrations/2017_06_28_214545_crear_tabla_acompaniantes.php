@@ -22,6 +22,7 @@ class CrearTablaAcompaniantes extends Migration
             $table->integer('incremento');
             $table->string('personas_id');
             $table->integer('parentescos_id')->unsigned();
+            $table->boolean('esResponsable');
 
             $table->timestamps();
             $table->softDeletes();

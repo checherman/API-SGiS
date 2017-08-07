@@ -25,4 +25,9 @@ class ValoraciionesPacientes extends BaseModel
     {
         return $this->hasMany(ValoraciionesPacientes::class);
     }
+
+    public function movimientos_incidencias()
+    {
+        return $this->hasMany(MovimientosIncidencias::class);
+    }
 }

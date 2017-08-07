@@ -26,6 +26,7 @@ class CrearTablaReferencias extends Migration
             $table->string('resumen_clinico');
             $table->string('clues_origen');
             $table->string('clues_destino');
+            $table->string('imagen');
             $table->boolean('esContrareferencia')->nullable();
 
             $table->timestamps();

@@ -23,4 +23,9 @@ class EstadosPacientes extends Model
     {
         return $this->hasMany(EstadosPacientes::class);
     }
+
+    public function movimientos_incidencias()
+    {
+        return $this->hasMany(MovimientosIncidencias::class);
+    }
 }

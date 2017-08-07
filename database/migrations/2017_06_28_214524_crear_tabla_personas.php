@@ -25,8 +25,9 @@ class CrearTablaPersonas extends Migration
             $table->string('domicilio');
             $table->date('fecha_nacimiento')->nullable();
             $table->string('telefono',10);
-            $table->integer('estados_embarazos_id')->unsigned();
-            $table->integer('derechohabientes_id')->unsigned();
+            $table->integer('estados_embarazos_id')->unsigned()->nullable();
+            $table->integer('derechohabientes_id')->unsigned()->nullable();
+            $table->integer('localidades_id')->unsigned()->nullable();
 
             $table->timestamps();
             $table->softDeletes();
@@ -38,6 +39,10 @@ class CrearTablaPersonas extends Migration
                 ->onUpdate('cascade');
 
             $table->foreign('derechohabientes_id')->references('id')->on('derechohabientes')
+                ->onDelete('cascade')
+                ->onUpdate('cascade');
+
+            $table->foreign('localidades_id')->references('id')->on('localidades')
                 ->onDelete('cascade')
                 ->onUpdate('cascade');
         });

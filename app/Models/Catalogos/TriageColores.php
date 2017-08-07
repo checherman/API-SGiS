@@ -3,6 +3,7 @@
 namespace App;
 
 namespace App\Models\Catalogos;
+use App\Models\Transacciones\MovimientosIncidencias;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -29,5 +30,10 @@ class TriageColores extends Model
     public function baseConocimiento()
     {
         return $this->hasMany(TriageColores::class);
+    }
+
+    public function movimientos_incidencias()
+    {
+        return $this->hasMany(MovimientosIncidencias::class);
     }
 }

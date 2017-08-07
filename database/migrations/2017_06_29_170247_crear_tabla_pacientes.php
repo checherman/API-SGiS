@@ -21,7 +21,6 @@ class CrearTablaPacientes extends Migration
             $table->string('servidor_id',4);
             $table->integer('incremento');
             $table->string('personas_id');
-            $table->string('responsables_id')->nullable();
 
             $table->timestamps();
             $table->softDeletes();
@@ -29,10 +28,6 @@ class CrearTablaPacientes extends Migration
             $table->primary('id');
 
             $table->foreign('personas_id')->references('id')->on('personas')
-                ->onDelete('cascade')
-                ->onUpdate('cascade');
-
-            $table->foreign('responsables_id')->references('id')->on('responsables')
                 ->onDelete('cascade')
                 ->onUpdate('cascade');
         });

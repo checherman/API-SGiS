@@ -214,6 +214,7 @@ class IncidenciaController extends Controller
         ];
 
         $rules = [
+            'id' => 'required|unique:incidencias,id,'.$id.',id,deleted_at,NULL',
             'motivo_ingreso' => 'required',
             'impresion_diagnostica' => 'required',
         ];
@@ -246,147 +247,66 @@ class IncidenciaController extends Controller
         if ($data->save()){
             $datos = (object) $datos;
 
-            //verificar si existe referencias, en caso de que exista proceder a guardarlo
-            if(property_exists($datos, "referencia")){
-                //limpiar el arreglo de posibles nullos
-                $detalleReferencia = array_filter($datos->referencia, function($v){return $v !== null;});
-                //borrar los datos previos de articulo para no duplicar información
-                //Referencias::where("triage_id", $data->id)->delete();
-                //recorrer cada elemento del arreglo
-                foreach ($detalleReferencia as $key => $value) {
-                    //validar que el valor no sea null
-                    if($value != null){
-                        //comprobar si el value es un array, si es convertirlo a object mas facil para manejar.
-                        if(is_array($value))
-                            $value = (object) $value;
 
-                        $referencia = new Referencias;
-
-                        $referencia->servidor_id 	    = env("SERVIDOR_ID");
-                        $referencia->medico_refiere_id 	= $value->medico_refiere_id;
-                        $referencia->diagnostico        = $value->diagnostico;
-                        $referencia->clues_origen       = $value->clues_origen;
-                        $referencia->clues_destino      = $value->clues_destino;
-                        $referencia->incidencias_id     = $data->id;
-
-                        $referencia->save();
-
-                        DB::select("insert into incidencia_clue (incidencias_id, clues) VALUE ('$data->id', '$value->clues_origen')");
-                    }
-                }
-            }
-
-            //verificar si existe paciente, en caso de que exista proceder a guardarlo
-            if(property_exists($datos, "responsable")){
-                //limpiar el arreglo de posibles nullos
-                $detalleResponsable = array_filter($datos->responsable, function($v){return $v !== null;});
-                //borrar los datos previos de articulo para no duplicar información
-                //Referencias::where("personas_id", $data->id)->delete();
-                //recorrer cada elemento del arreglo
-                foreach ($detalleResponsable as $key => $value) {
-                    //validar que el valor no sea null
-                    if($value != null){
-                        //comprobar si el value es un array, si es convertirlo a object mas facil para manejar.
-                        if(is_array($value))
-                            $value = (object) $value;
-
-                        //comprobar que el dato que se envio no exista o este borrado, si existe y esta borrado poner en activo nuevamente
-//                        DB::select("update triage_sintomas set deleted_at = null where triage_id = '$data->id' and nombre = '$value->nombre' ");
-                        //si existe el elemento actualizar
-//                        $sintoma = TriageSintomas::where("triage_id", $data->id)->where("nombre", $value->nombre)->first();
-                        //si no existe crear
-//                        if(!$sintoma)
-                        $persona = new Personas;
-
-                        $persona->servidor_id 	     = env("SERVIDOR_ID");
-                        $persona->id                 = $value->id;
-                        $persona->nombre             = $value->nombre;
-                        $persona->paterno            = $value->paterno;
-                        $persona->materno            = $value->materno;
-                        $persona->telefono           = $value->telefono;
-
-                        if ($persona->save()){
-
-                            $responsable = new Responsables;
-
-                            $responsable->servidor_id 	    = env("SERVIDOR_ID");
-                            $responsable->personas_id       = $persona->id;
-                            $responsable->parentescos_id    = $value->parentescos_id;
-
-                            $responsable->save();
-                        }
-
-                    }
-                }
-            }
-
-            //verificar si existe paciente, en caso de que exista proceder a guardarlo
             if(property_exists($datos, "paciente")){
                 //limpiar el arreglo de posibles nullos
                 $detallePaciente = array_filter($datos->paciente, function($v){return $v !== null;});
-                //borrar los datos previos de articulo para no duplicar información
-                //Referencias::where("triage_id", $data->id)->delete();
-                //recorrer cada elemento del arreglo
-                foreach ($detallePaciente as $key => $value) {
                     //validar que el valor no sea null
-                    if($value != null){
+                    if($detallePaciente != null){
                         //comprobar si el value es un array, si es convertirlo a object mas facil para manejar.
-                        if(is_array($value))
-                            $value = (object) $value;
+                        if(is_array($detallePaciente))
+                            $detallePaciente = (object) $detallePaciente;
 
-                        //comprobar que el dato que se envio no exista o este borrado, si existe y esta borrado poner en activo nuevamente
-//                        DB::select("update triage_sintomas set deleted_at = null where triage_id = '$data->id' and nombre = '$value->nombre' ");
-                        //si existe el elemento actualizar
-//                        $sintoma = TriageSintomas::where("triage_id", $data->id)->where("nombre", $value->nombre)->first();
-                        //si no existe crear
-//                        if(!$sintoma)
-                        $persona = new Personas;
+                            //si existe actualizar
+                            $persona = Personas::where("id", $detallePaciente->id)->first();
 
-                        $persona->servidor_id 	     = env("SERVIDOR_ID");
-                        $persona->id                 = $value->id;
-                        $persona->nombre             = $value->nombre;
-                        $persona->paterno            = $value->paterno;
-                        $persona->materno            = $value->materno;
-                        $persona->fecha_nacimiento   = $value->fecha_nacimiento;
-                        $persona->telefono           = $value->telefono;
+                            //si no existe crear
+                            if(!$persona)
+                                $persona = new Personas;
 
-                        if ($persona->save()){
+                            $persona->id                    = $detallePaciente->id;
+                            $persona->servidor_id 	        = env("SERVIDOR_ID");
+                            $persona->nombre                = $detallePaciente->nombre;
+                            $persona->paterno               = $detallePaciente->paterno;
+                            $persona->materno               = $detallePaciente->materno;
+                            $persona->domicilio             = $detallePaciente->domicilio;
+                            $persona->fecha_nacimiento      = $detallePaciente->fecha_nacimiento;
+                            $persona->telefono              = $detallePaciente->telefono;
+                            $persona->estados_embarazos_id  = $detallePaciente->estados_embarazos_id;
+                            $persona->derechohabientes_id   = $detallePaciente->derechohabientes_id;
+                            $persona->localidades_id        = $detallePaciente->localidades_id;
 
-                            $paciente = new Pacientes;
+                            if ($persona->save()){
+                                $paciente = new Pacientes;
 
-                            $paciente->servidor_id 	     = env("SERVIDOR_ID");
-                            $paciente->domicilio         = $value->domicilio;
-                            $paciente->personas_id       = $persona->id;
-                            $paciente->responsables_id   = $responsable->id;
+                                $paciente->servidor_id 	     = $persona->servidor_id;
+                                $paciente->personas_id       = $persona->id;
 
-                            $paciente->save();
-                        }
-
+                                if($paciente->save()){
+                                    DB::select("insert into incidencia_clue (incidencias_id, clues) VALUE ('$data->id', '$datos->clues')");
+                                }
+                            }
                     }
-                }
             }
 
             //verificar si existe paciente, en caso de que exista proceder a guardarlo
             if(property_exists($datos, "acompaniante")){
                 //limpiar el arreglo de posibles nullos
-                $detalleResponsable = array_filter($datos->acompaniante, function($v){return $v !== null;});
-                //borrar los datos previos de articulo para no duplicar información
-                //Referencias::where("triage_id", $data->id)->delete();
+                $detalleAcompaniante = array_filter($datos->acompaniante, function($v){return $v !== null;});
                 //recorrer cada elemento del arreglo
-                foreach ($detalleResponsable as $key => $value) {
+                foreach ($detalleAcompaniante as $key => $value) {
                     //validar que el valor no sea null
                     if($value != null){
                         //comprobar si el value es un array, si es convertirlo a object mas facil para manejar.
                         if(is_array($value))
                             $value = (object) $value;
 
-                        //comprobar que el dato que se envio no exista o este borrado, si existe y esta borrado poner en activo nuevamente
-//                        DB::select("update triage_sintomas set deleted_at = null where triage_id = '$data->id' and nombre = '$value->nombre' ");
-                        //si existe el elemento actualizar
-//                        $sintoma = TriageSintomas::where("triage_id", $data->id)->where("nombre", $value->nombre)->first();
+                        //si existe actualizar
+                        $persona = Personas::where("id", $value->id)->first();
+
                         //si no existe crear
-//                        if(!$sintoma)
-                        $persona = new Personas;
+                        if(!$persona)
+                            $persona = new Personas;
 
                         $persona->servidor_id 	     = env("SERVIDOR_ID");
                         $persona->id                 = $value->id;
@@ -394,17 +314,18 @@ class IncidenciaController extends Controller
                         $persona->paterno            = $value->paterno;
                         $persona->materno            = $value->materno;
                         $persona->telefono           = $value->telefono;
+                        $persona->domicilio          = $value->domicilio;
 
                         if ($persona->save()){
-
                             $acompaniante = new Acompaniantes;
 
                             $acompaniante->servidor_id 	    = env("SERVIDOR_ID");
                             $acompaniante->personas_id      = $persona->id;
                             $acompaniante->parentescos_id   = $value->parentescos_id;
+                            $acompaniante->esResponsable    = $value->esResponsable;
 
                             if($acompaniante->save()){
-                                DB::select("insert into paciente_ticket (incidencias_id, pacientes_id, acompaniantes_id) VALUE ('$data->id', '$paciente->id', '$acompaniante->id')");
+                                DB::select("insert into acompaniante_paciente (pacientes_id, acompaniantes_id) VALUE ('$paciente->id', '$acompaniante->id')");
                             }
                         }
 
@@ -416,39 +337,29 @@ class IncidenciaController extends Controller
             if(property_exists($datos, "movimientos_incidencias")){
                 //limpiar el arreglo de posibles nullos
                 $detalleResponsable = array_filter($datos->movimientos_incidencias, function($v){return $v !== null;});
-                //borrar los datos previos de articulo para no duplicar información
-                //Referencias::where("triage_id", $data->id)->delete();
-                //recorrer cada elemento del arreglo
-                foreach ($detalleResponsable as $key => $value) {
                     //validar que el valor no sea null
-                    if($value != null){
+                    if($detalleResponsable != null){
                         //comprobar si el value es un array, si es convertirlo a object mas facil para manejar.
-                        if(is_array($value))
-                            $value = (object) $value;
+                        if(is_array($detalleResponsable))
+                            $detalleResponsable = (object) $detalleResponsable;
 
-                        //comprobar que el dato que se envio no exista o este borrado, si existe y esta borrado poner en activo nuevamente
-//                        DB::select("update triage_sintomas set deleted_at = null where triage_id = '$data->id' and nombre = '$value->nombre' ");
-                        //si existe el elemento actualizar
-//                        $sintoma = TriageSintomas::where("triage_id", $data->id)->where("nombre", $value->nombre)->first();
-                        //si no existe crear
-//                        if(!$sintoma)
                         $movientos_incidencias = new MovimientosIncidencias;
 
                         $movientos_incidencias->servidor_id 	                = env("SERVIDOR_ID");
                         $movientos_incidencias->incidencias_id                  = $data->id;
                         $movientos_incidencias->medico_reporta_id               = 'MED1';
-                        $movientos_incidencias->indicaciones                    = $value->indicaciones;
-                        $movientos_incidencias->reporte_medico                  = $value->reporte_medico;
-                        $movientos_incidencias->estados_incidencias_id          = $value->estados_incidencias_id;
-                        $movientos_incidencias->valoraciones_pacientes_id       = $value->valoraciones_pacientes_id;
-                        $movientos_incidencias->estados_pacientes_id            = $value->estados_pacientes_id;
+                        $movientos_incidencias->indicaciones                    = $detalleResponsable->indicaciones;
+                        $movientos_incidencias->reporte_medico                  = $detalleResponsable->reporte_medico;
+                        $movientos_incidencias->estados_incidencias_id          = $detalleResponsable->estados_incidencias_id;
+                        $movientos_incidencias->valoraciones_pacientes_id       = $detalleResponsable->valoraciones_pacientes_id;
+                        $movientos_incidencias->estados_pacientes_id            = $detalleResponsable->estados_pacientes_id;
+                        $movientos_incidencias->triage_colores_id               = $detalleResponsable->triage_colores_id;
 
                         $movientos_incidencias->save();
 
                     }
-                }
-            }
 
+            }
 
         }
     }

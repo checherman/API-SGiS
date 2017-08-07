@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CrearTablaIncidencias extends Migration
+class CrearTablaMunicipios extends Migration
 {
     /**
      * Run the migrations.
@@ -13,19 +13,16 @@ class CrearTablaIncidencias extends Migration
      */
     public function up()
     {
-        Schema::create('incidencias', function (Blueprint $table)
-        {
-            $table->engine = 'InnoDB';
+        Schema::create('municipios', function (Blueprint $table) {
 
-            $table->string('id');
-            $table->string('servidor_id',4);
-            $table->string('motivo_ingreso');
-            $table->string('impresion_diagnostica');
+            $table->increments('id')->unsigned();
+            $table->string('clave');
+            $table->string('nombre');
+            $table->integer('entidades_id')->default(7);
+            $table->integer('jurisdicciones_id');
 
             $table->timestamps();
             $table->softDeletes();
-
-            $table->primary('id');
         });
     }
 
@@ -36,6 +33,6 @@ class CrearTablaIncidencias extends Migration
      */
     public function down()
     {
-        Schema::drop('incidencias');
+        Schema::dropIfExists('municipios');
     }
 }

@@ -23,4 +23,14 @@ class Incidencias extends BaseModel
     {
         return $this->belongsToMany(Clues::class, 'incidencia_clue', 'incidencias_id', 'clues');
     }
+
+    public function pacientes()
+    {
+        return $this->belongsToMany(Pacientes::class);
+    }
+
+    public function movimientos_incidencias()
+    {
+        return $this->hasMany(MovimientosIncidencias::class);
+    }
 }

@@ -6,6 +6,7 @@ namespace App\Models\Transacciones;
 use App\Models\BaseModel;
 use App\Models\Catalogos\Derechohabientes;
 use App\Models\Catalogos\EstadosEmbarazos;
+use App\Models\Catalogos\Localidades;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Personas extends BaseModel
@@ -18,7 +19,7 @@ class Personas extends BaseModel
     public $incrementing = false;
 
     protected $table = "personas";
-    protected $fillable = ["id", "servidor_id", "nombre", "paterno", "materno", "fecha_nacimiento", "telefono", "domicilio", "estados_embarazos_id", "derechohabientes_id"];
+    protected $fillable = ["id", "servidor_id", "nombre", "paterno", "materno", "fecha_nacimiento", "telefono", "domicilio", "estados_embarazos_id", "derechohabientes_id", "localidades_id"];
 
     protected $hidden = ["created_at", "updated_at", "deleted_at"];
 
@@ -30,5 +31,15 @@ class Personas extends BaseModel
     public function estados_embarazos()
     {
         return $this->belongsTo(EstadosEmbarazos::class);
+    }
+
+    public function localidades()
+    {
+        return $this->belongsTo(Localidades::class);
+    }
+
+    public function pacientes()
+    {
+        return $this->hasOne(Pacientes::class);
     }
 }

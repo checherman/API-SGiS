@@ -19,4 +19,8 @@ class EstadosIncidencias extends Model
     protected $fillable = ["id","nombre","descripcion"];
     protected $hidden = ["created_at", "updated_at", "deleted_at"];
 
+    public function movimientos_incidencias()
+    {
+        return $this->hasMany(MovimientosIncidencias::class);
+    }
 }
