@@ -6,6 +6,7 @@ use App\Models\BaseModel;
 use App\Models\Catalogos\Clues;
 use App\Models\Catalogos\EstadosIncidencias;
 use App\Models\Catalogos\EstadosPacientes;
+use App\Models\Catalogos\SubCategoriasCie10;
 use App\Models\Catalogos\TriageColores;
 use App\Models\Catalogos\ValoraciionesPacientes;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -34,6 +35,7 @@ class MovimientosIncidencias extends BaseModel
         "valoraciones_medicas_id",
         "estados_pacientes_id",
         "triage_colores_id",
+        "subcategorias_cie10_id",
     ];
 
     public function incidencias()
@@ -59,6 +61,11 @@ class MovimientosIncidencias extends BaseModel
     public function valoraciones_pacientes()
     {
         return $this->belongsTo(ValoraciionesPacientes::class);
+    }
+
+    public function subcategorias_cie10()
+    {
+        return $this->belongsTo(SubCategoriasCie10::class);
     }
 
 }

@@ -28,7 +28,7 @@ class DirectorioController extends Controller
                  $query->where('id','LIKE',"%".$parametros['q']."%")->orWhere(DB::raw("CONCAT(nombre,' ',paterno,' ',materno)"),'LIKE',"%".$parametros['q']."%");
              });
         } else {
-             $usuarios =  Usuario::where('su',false)->whereNull('password')->with('cargos');
+             $usuarios =  Usuario::where('su',false)->whereNull('password')->with('cargos')->with('clues');
         }
 
         if(isset($parametros['page'])){
@@ -64,7 +64,7 @@ class DirectorioController extends Controller
             'celular'       => 'required'
         ];
 
-        $inputs = Input::only('id','servidor_id','nombre', 'paterno', 'materno', 'celular', 'cargos_id');
+        $inputs = Input::only('id','servidor_id','nombre', 'paterno', 'materno', 'celular', 'cargos_id', 'clues');
 
         $v = Validator::make($inputs, $reglas, $mensajes);
 
@@ -130,7 +130,7 @@ class DirectorioController extends Controller
             return Response::json(['error' => "No se encuentra el recurso que esta buscando."], HttpResponse::HTTP_NOT_FOUND);
         }
 
-        $inputs = Input::only('id','servidor_id','nombre', 'paterno', 'materno', 'celular', 'cargos_id');
+        $inputs = Input::only('id','servidor_id','nombre', 'paterno', 'materno', 'celular', 'cargos_id', 'clues');
 
         $v = Validator::make($inputs, $reglas, $mensajes);
 
@@ -144,6 +144,7 @@ class DirectorioController extends Controller
             $object->materno =  $inputs['materno'];
             $object->celular =  $inputs['celular'];
             $object->cargos_id =  $inputs['cargos_id'];
+            $object->clues =  $inputs['clues'];
             $object->id =  $inputs['id'];
 
             $object->save();

@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Catalogos\Clues;
 
 use App\Http\Requests;
+use App\Models\Sistema\Usuario;
 use Illuminate\Support\Facades\Input;
 use \Validator,\Hash, \Response, \DB;
 
@@ -54,7 +55,7 @@ class CluesController extends Controller
     {
         $parametros = Input::only('q','page','per_page');
         if ($parametros['q']) {
-            $data =  Clues::where(function($query) use ($parametros){
+            $data =  Clues::with('jurisdiccion')->with('municipios')->where(function($query) use ($parametros){
                 $query->where('clues','LIKE',"%".$parametros['q']."%")
                     ->orWhere('nombre','LIKE',"%".$parametros['q']."%")
                     ->orWhere('entidad','LIKE',"%".$parametros['q']."%")
@@ -65,7 +66,7 @@ class CluesController extends Controller
             });
 
         } else {
-            $data =  Clues::getModel()->with('jurisdiccion');
+            $data =  Clues::getModel()->with('jurisdiccion')->with('municipios');
         }
 
         if(isset($parametros['page'])){
@@ -85,11 +86,14 @@ class CluesController extends Controller
     public function show($clues)
     {
         $data = Clues::where('clues', $clues)
-                    ->with('jurisdiccion')
-                    ->with('municipios')
-                    ->get();
+                    ->with('jurisdiccion','municipios')
+                    ->first();
 
-        //dd($data);
+        $usuarios = Usuario::where("cargos_id", "!=", NULL)
+            ->with("cargos")
+            ->get();
+
+        $data->usuarios = $usuarios;
 
         return Response::json([ 'data' => $data], 200);
     }

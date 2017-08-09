@@ -64,11 +64,10 @@ class IncidenciaController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @return HttpResponse
+     * @internal param \Illuminate\Http\Request|Request $request
      */
-    public function store(Request $request)
+    public function store()
     {
         $datos = Input::json()->all();
 
@@ -115,6 +114,7 @@ class IncidenciaController extends Controller
             ->with("pacientes.personas")
             ->with("pacientes.acompaniantes.personas")
             ->with("movimientos_incidencias")
+            ->with("referencias")
             ->get();
 
         if(!$data){
@@ -126,7 +126,7 @@ class IncidenciaController extends Controller
     }
 
     /**
-     * Actualizar el  registro especificado en el la base de datos
+     * Actualizar el  registro especificado en la base de datos
      *
      * <h4>Request</h4>
      * Recibe un Input Request con el json de los datos
@@ -374,12 +374,13 @@ class IncidenciaController extends Controller
                         }else
                             $movimientos_incidencias = new MovimientosIncidencias;
 
-                        $movimientos_incidencias->servidor_id 	                = env("SERVIDOR_ID");
+                        $movimientos_incidencias->servidor_id 	                  = env("SERVIDOR_ID");
                         $movimientos_incidencias->incidencias_id                  = $data->id;
                         $movimientos_incidencias->estados_incidencias_id          = $value->estados_incidencias_id;
                         $movimientos_incidencias->valoraciones_pacientes_id       = $value->valoraciones_pacientes_id;
                         $movimientos_incidencias->estados_pacientes_id            = $value->estados_pacientes_id;
                         $movimientos_incidencias->triage_colores_id               = $value->triage_colores_id;
+                        $movimientos_incidencias->subcategorias_cie10_id          = $value->subcategorias_cie10_id;
 
                         $movimientos_incidencias->save();
 

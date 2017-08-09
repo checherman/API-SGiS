@@ -16,7 +16,8 @@ class CrearTablaGruposCie10 extends Migration
         Schema::create('grupos_cie10', function (Blueprint $table) {
 
             $table->increments('id');
-            $table->string('nombre', 255)->nullable()->default(null);
+            $table->string('codigo', 255);
+            $table->string('nombre', 255);
 
             $table->timestamps();
             $table->softDeletes();

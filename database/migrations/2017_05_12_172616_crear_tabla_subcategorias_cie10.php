@@ -19,7 +19,7 @@ class CrearTablaSubcategoriasCie10 extends Migration
 
             $table->increments('id');
             $table->integer('categorias_cie10_id')->unsigned();
-
+            $table->string('codigo', 255);
             $table->string('nombre');
 
             $table->timestamps();

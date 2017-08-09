@@ -27,7 +27,7 @@ class UsuarioController extends Controller
                  $query->where('id','LIKE',"%".$parametros['q']."%")->orWhere(DB::raw("CONCAT(nombre,' ',paterno,' ',materno)"),'LIKE',"%".$parametros['q']."%");
              });
         } else {
-             $usuarios =  Usuario::where('su',false)->whereNotNull('password');
+             $usuarios =  Usuario::where('su',false)->whereNotNull('password')->with("clues");
         }
 
         if(isset($parametros['page'])){
@@ -64,7 +64,7 @@ class UsuarioController extends Controller
             'celular'       => 'required'
         ];
 
-        $inputs = Input::only('id','servidor_id','password','nombre', 'paterno', 'materno', 'celular', 'avatar','roles');
+        $inputs = Input::only('id','servidor_id','password','nombre', 'paterno', 'materno', 'celular', 'avatar','roles','clues');
 
         $v = Validator::make($inputs, $reglas, $mensajes);
 
@@ -138,7 +138,7 @@ class UsuarioController extends Controller
             return Response::json(['error' => "No se encuentra el recurso que esta buscando."], HttpResponse::HTTP_NOT_FOUND);
         }
 
-        $inputs = Input::only('id','servidor_id', 'password', 'nombre', 'paterno', 'materno', 'celular', 'avatar', 'roles', 'cambiarPassword');
+        $inputs = Input::only('id','servidor_id', 'password', 'nombre', 'paterno', 'materno', 'celular', 'avatar', 'roles', 'cambiarPassword','clues');
 
         $v = Validator::make($inputs, $reglas, $mensajes);
 
@@ -152,6 +152,7 @@ class UsuarioController extends Controller
             $object->materno =  $inputs['materno'];
             $object->celular =  $inputs['celular'];
             $object->avatar =  $inputs['avatar'];
+            $object->clues =  $inputs['clues'];
             $object->id =  $inputs['id'];
             if ($inputs['cambiarPassword'] ){
                 $object->password = Hash::make($inputs['password']);

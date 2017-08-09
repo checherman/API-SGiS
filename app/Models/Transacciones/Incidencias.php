@@ -16,7 +16,7 @@ class Incidencias extends BaseModel
     public $incrementing = false;
 
     protected $table = "incidencias";
-    protected $fillable = ["id", "servidor_id", "motivo_ingreso", "impresion_diagnostica", "estado_paciente_id"];
+    protected $fillable = ["id", "servidor_id", "motivo_ingreso", "impresion_diagnostica"];
     protected $hidden = ["created_at", "updated_at", "deleted_at"];
 
     public function clues()
@@ -31,6 +31,11 @@ class Incidencias extends BaseModel
 
     public function movimientos_incidencias()
     {
-        return $this->hasMany(MovimientosIncidencias::class)->with("estados_incidencias")->with("estados_pacientes")->with("valoraciones_pacientes")->with("triage_colores");
+        return $this->hasMany(MovimientosIncidencias::class)->with("estados_incidencias")->with("estados_pacientes")->with("valoraciones_pacientes")->with("triage_colores")->with("subcategorias_cie10");
+    }
+
+    public function referencias()
+    {
+        return $this->hasMany(Referencias::class);
     }
 }

@@ -3,6 +3,7 @@
 namespace App;
 
 namespace App\Models\Catalogos;
+use App\Models\Transacciones\MovimientosIncidencias;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -16,7 +17,8 @@ class SubCategoriasCie10 extends Model
     public $incrementing = true;
 
     protected $table = "subcategorias_cie10";
-    protected $fillable = ["id","nombre", "categorias_cie10_id"];
+    protected $fillable = ["id","nombre","codigo", "categorias_cie10_id"];
+    protected $hidden = ["created_at", "updated_at", "deleted_at"];
 
     public function categoriaCie10()
     {
@@ -26,5 +28,10 @@ class SubCategoriasCie10 extends Model
     public function baseConocimiento()
     {
         return $this->hasMany(SubCategoriasCie10::class);
+    }
+
+    public function movimientos_incidencias()
+    {
+        return $this->hasMany(MovimientosIncidencias::class);
     }
 }

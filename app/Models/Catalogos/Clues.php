@@ -29,7 +29,7 @@ class Clues extends Model
 
     public function usuarios()
     {
-        return $this->hasMany(Usuario::class);
+        return $this->hasMany(Usuario::class, 'clues','clues');
     }
 
 }

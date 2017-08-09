@@ -31,6 +31,7 @@ class CrearTablaMovimientosIncidencias extends Migration
             $table->integer('valoraciones_pacientes_id')->unsigned();
             $table->integer('estados_pacientes_id')->unsigned();
             $table->integer('triage_colores_id')->unsigned();
+            $table->integer('subcategorias_cie10_id')->unsigned();
 
             $table->timestamps();
             $table->softDeletes();
@@ -54,6 +55,10 @@ class CrearTablaMovimientosIncidencias extends Migration
                 ->onUpdate('cascade');
 
             $table->foreign('triage_colores_id')->references('id')->on('triage_colores')
+                ->onDelete('cascade')
+                ->onUpdate('cascade');
+
+            $table->foreign('subcategorias_cie10_id')->references('id')->on('subcategorias_cie10')
                 ->onDelete('cascade')
                 ->onUpdate('cascade');
         });

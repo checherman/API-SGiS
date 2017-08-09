@@ -37,6 +37,7 @@ class GrupoCie10Controller extends Controller
         if ($parametros['q']) {
             $data =  GruposCie10::where(function($query) use ($parametros) {
                 $query->where('id','LIKE',"%".$parametros['q']."%")
+                    ->orWhere('codigo','LIKE',"%".$parametros['q']."%")
                     ->orWhere('nombre','LIKE',"%".$parametros['q']."%");
             });
         } else {
@@ -77,6 +78,7 @@ class GrupoCie10Controller extends Controller
             $data = new GruposCie10;
 
             $data->nombre = $datos['nombre'];
+            $data->codigo = $datos['codigo'];
 
             if ($data->save())
                 $datos = (object) $datos;
@@ -141,6 +143,7 @@ class GrupoCie10Controller extends Controller
             $data = GruposCie10::find($id);
 
             $data->nombre = $datos['nombre'];
+            $data->codigo = $datos['codigo'];
 
             if ($data->save())
                 $datos = (object) $datos;
@@ -217,6 +220,7 @@ class GrupoCie10Controller extends Controller
         */
         $rules = [
             'nombre' => 'required|min:3|max:250|unique:grupos_cie10,nombre,'.$id.',id,deleted_at,NULL',
+            'codigo' => 'required',
         ];
 
         $v = Validator::make($request, $rules, $messages);
@@ -252,15 +256,16 @@ class GrupoCie10Controller extends Controller
                         $value = (object) $value;
 
                     //comprobar que el dato que se envio no exista o este borrado, si existe y esta borrado poner en activo nuevamente
-                    DB::update("update categorias_cie10 set deleted_at = null where grupos_cie10_id = $data->id and nombre = '$value->nombre' ");
+                    DB::update("update categorias_cie10 set deleted_at = null where grupos_cie10_id = $data->id and nombre = '$value->nombre' and codigo = '$value->codigo' ");
                     //si existe el elemento actualizar
-                    $categoria = CategoriasCie10::where("grupos_cie10_id", $data->id)->where("nombre", $value->nombre)->first();
+                    $categoria = CategoriasCie10::where("grupos_cie10_id", $data->id)->where("nombre", $value->nombre)->where("codigo", $value->codigo)->first();
                     //si no existe crear
                     if(!$categoria)
                         $categoria = new CategoriasCie10;
 
                     $categoria->grupos_cie10_id 	= $data->id;
                     $categoria->nombre              = $value->nombre;
+                    $categoria->codigo              = $value->codigo;
 
                     if ($categoria->save()){
                         if(property_exists($value, "sub_categorias_cie10")){
@@ -280,15 +285,16 @@ class GrupoCie10Controller extends Controller
                                         $val = (object) $val;
 
                                     //comprobar que el dato que se envio no exista o este borrado, si existe y esta borrado poner en activo nuevamente
-                                    DB::update("update subcategorias_cie10 set deleted_at = null where categorias_cie10_id = $categoria->id and nombre = '$val->nombre' ");
+                                    DB::update("update subcategorias_cie10 set deleted_at = null where categorias_cie10_id = $categoria->id and nombre = '$val->nombre' and codigo = '$val->codigo' ");
                                     //si existe el elemento actualizar
-                                    $subCategoria = SubCategoriasCie10::where("categorias_cie10_id", $categoria->id)->where("nombre", $val->nombre)->first();
+                                    $subCategoria = SubCategoriasCie10::where("categorias_cie10_id", $categoria->id)->where("nombre", $val->nombre)->where("codigo", $val->codigo)->first();
                                     //si no existe crear
                                     if(!$subCategoria)
                                         $subCategoria = new SubCategoriasCie10;
 
                                     $subCategoria->categorias_cie10_id 	= $categoria->id;
                                     $subCategoria->nombre               = $val->nombre;
+                                    $subCategoria->codigo               = $val->codigo;
 
                                     $subCategoria->save();
                                 }

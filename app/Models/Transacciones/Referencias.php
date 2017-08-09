@@ -17,4 +17,9 @@ class Referencias extends BaseModel
     protected $table = "referencias";
     protected $fillable = ["id", "servidor_id", "incidencias_id", "medico_refiere_id", "diagnostico", "resumen_clinico", "clues_origen", "clues_destino", "img", "esContrareferencia"];
     protected $hidden = ["created_at", "updated_at", "deleted_at"];
+
+    public function incidencias()
+    {
+        return $this->belongsTo(Incidencias::class);
+    }
 }

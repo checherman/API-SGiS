@@ -16,7 +16,8 @@ class CategoriasCie10 extends Model
     public $incrementing = true;
 
     protected $table = "categorias_cie10";
-    protected $fillable = ["id","nombre", "grupos_cie10_id"];
+    protected $fillable = ["id","codigo","nombre", "grupos_cie10_id"];
+    protected $hidden = ["created_at", "updated_at", "deleted_at"];
 
     public function grupoCie10()
     {
