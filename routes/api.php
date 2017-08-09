@@ -20,7 +20,8 @@ Route::get('check-token',       'V1\Sistema\AutenticacionController@verificar');
 //Autocomplete
 Route::get('grupo-permiso',             'AutoCompleteController@grupo_permiso');
 Route::get('clues-auto',                'AutoCompleteController@clues');
-
+Route::get('jurisdiccion-clues',        'AutoCompleteController@jurisdiccion_clues');
+Route::get('personas-auto',             'AutoCompleteController@personas');
 
 Route::middleware('jwt')->group(function () {
     //Sistema
@@ -28,10 +29,6 @@ Route::middleware('jwt')->group(function () {
         Route::resource('usuarios',     'V1\Sistema\UsuarioController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
         Route::resource('roles',        'V1\Sistema\RolController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
         Route::resource('permisos',     'V1\Sistema\PermisoController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
-
-        //Varios
-        Route::get('jurisdiccion-clues',        'AutoCompleteController@jurisdiccion_clues');
-        Route::get('personas',                  'AutoCompleteController@personas');
 
         //Catalogos
         Route::resource('clues',                    'V1\Catalogos\CluesController', ['only' => ['index', 'show']]);
@@ -46,12 +43,9 @@ Route::middleware('jwt')->group(function () {
         Route::resource('parentescos',              'V1\Catalogos\ParentescoController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
         Route::resource('metodos-planificacion',    'V1\Catalogos\MetodoPlanificacionController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
         Route::resource('tipos-items',              'V1\Catalogos\TipoItemController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
-
-
-        Route::resource('turnos',               'V1\Catalogos\TurnoController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
-        Route::resource('cargos',               'V1\Catalogos\CargoController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
-        Route::resource('apoyos',               'V1\Catalogos\ApoyoController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
-
+        Route::resource('turnos',                   'V1\Catalogos\TurnoController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
+        Route::resource('cargos',                   'V1\Catalogos\CargoController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
+        Route::resource('apoyos',                   'V1\Catalogos\ApoyoController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
 
         Route::resource('rutas',                'V1\Catalogos\RutaController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
         Route::resource('cartera-servicios',    'V1\Catalogos\CarteraServicioController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
@@ -70,6 +64,9 @@ Route::middleware('jwt')->group(function () {
 
         //Funcionalidad
         Route::get('estado-fuerza/{nivelesCones}',                'V1\Catalogos\CarteraServicioController@showEstadoFuerza');
+
+        //movil
+
     });
 
     // Sync
