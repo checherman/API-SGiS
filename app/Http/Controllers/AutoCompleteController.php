@@ -47,7 +47,7 @@ class AutoCompleteController extends ApiController
     {
         $parametros = Input::only('term');
 
-        $data =  Clues::with('jurisdiccion')->where(function($query) use ($parametros) {
+        $data =  Clues::with('jurisdicciones')->where(function($query) use ($parametros) {
             $query->where('clues','LIKE',"%".$parametros['term']."%")
                 ->orWhere('nombre','LIKE',"%".$parametros['term']."%");
         });
@@ -65,7 +65,7 @@ class AutoCompleteController extends ApiController
     {
         $parametros = Input::only('term');
 
-        $data =  Clues::with('jurisdiccion')->where(function($query) use ($parametros) {
+        $data =  Clues::with('jurisdicciones')->where(function($query) use ($parametros) {
             $query->where('jurisdicciones_id',$parametros['term']."%");
         });
 

@@ -2,14 +2,17 @@
 
 namespace App\Http\Controllers\V1\Catalogos;
 
-use App\Http\Controllers\Controller;
 
-use App\Models\Catalogos\Jurisdicciones;
+use App\Models\Catalogos\Localidades;
+use Illuminate\Http\Request;
 
 use App\Http\Requests;
-use App\Models\Catalogos\Localidades;
 use Illuminate\Support\Facades\Input;
-use \Validator,\Hash, \Response, \DB;
+use \Validator,\Hash, \Response;
+
+use App\Http\Controllers\ApiController;
+use App\Models\Catalogos\Municipios;
+
 
 /**
  * Controlador Localidad
@@ -19,14 +22,13 @@ use \Validator,\Hash, \Response, \DB;
  * @author     Luis Alberto Valdez Lescieur <luisvl13@gmail.com>
  * @created    2017-03-22
  *
- * Controlador `Localidad`: Controlador  para el manejo de localidades
+ * Controlador `Localidad`: Controlador  para el manejo de catalogo Localidades
  *
  */
-class LocalidadController extends Controller
+class LocalidadController extends ApiController
 {
-
     /**
-     * Muestra una lista de los recurso según los parametros a procesar en la petición.
+     * Muestra una lista de los recursos según los parametros a procesar en la petición.
      *
      * <h3>Lista de parametros Request:</h3>
      * <Ul>Paginación
@@ -35,10 +37,10 @@ class LocalidadController extends Controller
      * </Ul>
      * <Ul>Busqueda
      * <Li> <code>$valor</code> string con el valor para hacer la busqueda</ li>
-     * <Li> <code>$order</code> campo de la base de datos por la que se debe ordenar la información. Por Defaul es ASC, pero si se antepone el signo - es de manera DESC</ li>
+     * <Li> <code>$order</code> campo de la base de data por la que se debe ordenar la información. Por Defaul es ASC</ li>
      * </Ul>
      *
-     * Clues ordenamiento con respecto a id:
+     * Conceptos ordenamiento con respecto a id:
      * <code>
      * http://url?pagina=1&limite=5&order=id ASC
      * </code>
@@ -55,22 +57,24 @@ class LocalidadController extends Controller
     {
         $parametros = Input::only('q','page','per_page');
         if ($parametros['q']) {
-            $data =  Localidades::where(function($query) use ($parametros){
-                $query->where('clave','LIKE',"%".$parametros['q']."%")
-                    ->orWhere('nombre','LIKE',"%".$parametros['q']."%");
+            $data =  Localidades::with('municipios')->where(function($query) use ($parametros) {
+                $query->where('id','LIKE',"%".$parametros['q']."%")
+                    ->orWhere('nombre','LIKE',"%".$parametros['q']."%")
+                    ->orWhere('clave','LIKE',"%".$parametros['q']."%");
             });
-
         } else {
-            $data =  Localidades::getModel();
+            $data =  Localidades::getModel()->with('municipios');
         }
 
         if(isset($parametros['page'])){
-            $resultadosPorPagina = isset($parametros["per_page"])? $parametros["per_page"] : 20;
+
+            $resultadosPorPagina = isset($parametros["per_page"]) ? $parametros["per_page"] : 20;
             $data = $data->paginate($resultadosPorPagina);
         } else {
             $data = $data->get();
         }
 
-        return Response::json([ 'data' => $data],200);
+        return $this->respuestaVerTodo($data);
     }
+
 }

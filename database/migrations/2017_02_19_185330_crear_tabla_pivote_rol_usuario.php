@@ -18,6 +18,9 @@ class CrearTablaPivoteRolUsuario extends Migration
             $table->integer('rol_id')->unsigned();
             $table->string('usuario_id');
 
+            $table->timestamps();
+            $table->softDeletes();
+
             $table->foreign('rol_id')
                 ->references('id')->on('roles')
                 ->onDelete('cascade');

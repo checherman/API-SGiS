@@ -18,6 +18,7 @@ class Localidades extends BaseModel
 
     protected $table = "localidades";
     protected $fillable = ["id", "clave", "nombre", "numeroLatitud", "numeroLongitud", "numeroAltitud", "claveCarta", "municipios_id"];
+    protected $hidden = ["created_at", "updated_at", "deleted_at"];
 
     public function jurisdicciones()
     {

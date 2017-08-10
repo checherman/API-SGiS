@@ -10,7 +10,6 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response as HttpResponse;
 
 use App\Http\Requests;
-use App\Models\Sistema\Usuario;
 use Illuminate\Support\Facades\Input;
 use \Validator,\Hash, \Response, \DB;
 
@@ -55,7 +54,6 @@ class DirectorioApoyoController extends Controller
      */
     public function store(Request $request)
     {
-
         $datos = Input::json()->all();
 
         $errors_main = array();

@@ -4,7 +4,8 @@ namespace App\Http\Controllers\V1\Sistema;
 
 use App\Http\Controllers\Controller;
 
-use Illuminate\Http\Request;
+use App\Models\Catalogos\RolUsuario;
+use Request;
 use Illuminate\Http\Response as HttpResponse;
 
 use App\Http\Requests;
@@ -48,42 +49,45 @@ class UsuarioController extends Controller
      */
     public function store(Request $request)
     {
-        $mensajes = [
-            
-            'required'      => "required",
-            'email'         => "email",
-            'unique'        => "unique"
-        ];
-
-        $reglas = [
-            'id'            => 'required|email|unique:usuarios',
-            'password'      => 'required',
-            'nombre'        => 'required',
-            'paterno'       => 'required',
-            'materno'       => 'required',
-            'celular'       => 'required'
-        ];
-
-        $inputs = Input::only('id','servidor_id','password','nombre', 'paterno', 'materno', 'celular', 'avatar','roles','clues');
-
-        $v = Validator::make($inputs, $reglas, $mensajes);
-
-        if ($v->fails()) {
-            return Response::json(['error' => $v->errors()], HttpResponse::HTTP_CONFLICT);
-        }
+        $datos = Input::json()->all();
+        //dd($datos);
+        $errors_main = array();
+        DB::beginTransaction();
 
         try {
-            $inputs['servidor_id'] = env("SERVIDOR_ID");
-            $inputs['password'] = Hash::make($inputs['password']);
-            $usuario = Usuario::create($inputs);
+            $validacion = $this->ValidarParametros("", NULL, $datos);
+            if ($validacion != "") {
+                return Response::json(['error' => $validacion], HttpResponse::HTTP_CONFLICT);
+            }
 
-            $usuario->roles()->sync($inputs['roles']);
+            $data = new Usuario;
+            $data->id = $datos['id'];
+            $data->servidor_id = env("SERVIDOR_ID");
+            $data->password = $datos['password'];
+            $data->nombre = $datos['nombre'];
+            $data->paterno = $datos['paterno'];
+            $data->materno = $datos['materno'];
+            $data->celular = $datos['celular'];
+            $data->avatar = $datos['avatar'];
+            $data->clues = $datos['clues'];
+            $data->password = Hash::make($datos['password']);
 
-            return Response::json([ 'data' => $usuario ],200);
+            $data->save();
+            $datos = (object)$datos;
+            $this->AgregarDatos($datos, $data);
+            $success = true;
 
-        } catch (\Exception $e) {
-            return Response::json(['error' => $e->getMessage()], HttpResponse::HTTP_CONFLICT);
-        } 
+        } catch (\Exception $e){
+            return Response::json($e->getMessage(), 500);
+        }
+
+        if ($success){
+            DB::commit();
+            return Response::json(array("status" => 201,"messages" => "Creado","data" => $data), 201);
+        } else{
+            DB::rollback();
+            return Response::json(array("status" => 409,"messages" => "Conflicto"), 409);
+        }
     }
 
     /**
@@ -94,79 +98,75 @@ class UsuarioController extends Controller
      */
     public function show($id)
     {
-        $object = Usuario::find($id);
+        $data = Usuario::find($id);
 
-        
-        
-        if(!$object ){
-            
+        if(!$data ){
+
             return Response::json(['error' => "No se encuentra el recurso que esta buscando."], HttpResponse::HTTP_NOT_FOUND);
         }
-        unset($object->password);
-        $object->roles;
+        unset($data->password);
 
-        return Response::json([ 'data' => $object ], HttpResponse::HTTP_OK);
+        $roles = RolUsuario::select("rol_usuario.rol_id as id","roles.nombre")->where("usuario_id", $id)
+            ->join('roles', 'roles.id', '=', 'rol_usuario.rol_id')
+            ->get();
+
+        $data->roles = $roles;
+
+        return Response::json([ 'data' => $data ], HttpResponse::HTTP_OK);
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @param  int $id
+     * @return HttpResponse
      */
     public function update(Request $request, $id)
     {
-        $mensajes = [
-            
-            'required'      => "required",
-            'email'         => "email",
-            'unique'        => "unique"
-        ];
+        $datos = Request::json()->all();
 
-        $reglas = [
-            'id'            => 'required|email|unique:usuarios,id,'.$id,
-            'password'      => 'required_with:cambiarPassword',
-            'nombre'        => 'required',
-            'paterno'       => 'required',
-            'materno'       => 'required',
-            'celular'       => 'required'
-        ];
-        $object = Usuario::find($id);
-
-        if(!$object){
-            return Response::json(['error' => "No se encuentra el recurso que esta buscando."], HttpResponse::HTTP_NOT_FOUND);
+        $validacion = $this->ValidarParametros("", $id, $datos);
+        if($validacion != ""){
+            return Response::json(['error' => $validacion], HttpResponse::HTTP_CONFLICT);
         }
 
-        $inputs = Input::only('id','servidor_id', 'password', 'nombre', 'paterno', 'materno', 'celular', 'avatar', 'roles', 'cambiarPassword','clues');
+        if(is_array($datos))
+            $datos = (object) $datos;
 
-        $v = Validator::make($inputs, $reglas, $mensajes);
+        DB::beginTransaction();
+        try{
+            $data = Usuario::find($id);
+            $data->id = $datos->id;
+            $data->servidor_id = env("SERVIDOR_ID");
+            $data->password = $datos->password;
+            $data->nombre = $datos->nombre;
+            $data->paterno = $datos->paterno;
+            $data->materno = $datos->materno;
+            $data->celular = $datos->celular;
+            $data->avatar = $datos->avatar;
+            $data->clues = $datos->clues;
 
-        if ($v->fails()) {
-            return Response::json(['error' => $v->errors()], HttpResponse::HTTP_CONFLICT);
-        }
-
-        try {
-            $object->nombre =  $inputs['nombre'];
-            $object->paterno =  $inputs['paterno'];
-            $object->materno =  $inputs['materno'];
-            $object->celular =  $inputs['celular'];
-            $object->avatar =  $inputs['avatar'];
-            $object->clues =  $inputs['clues'];
-            $object->id =  $inputs['id'];
-            if ($inputs['cambiarPassword'] ){
-                $object->password = Hash::make($inputs['password']);
+            if ( $datos->password ){
+                $data->password = Hash::make($datos->password);
             }
-            $object->save();
-            $object->roles()->sync($inputs['roles']);
-            $object->roles;
-            unset($object->password); 
-            return Response::json([ 'data' => $object ],200);
 
-        } catch (\Exception $e) {
-            return Response::json(['error' => $e->getMessage()], HttpResponse::HTTP_CONFLICT);
-        } 
+            $data->save();
+            $this->AgregarDatos($datos, $data);
+            $success = true;
+        }
+        catch (\Exception $e){
+            return Response::json($e->getMessage(), 500);
+        }
 
+        if ($success){
+            DB::commit();
+            return Response::json(array("status" => 200, "messages" => "Operación realizada con exito", "data" => $data), 200);
+        }
+        else {
+            DB::rollback();
+            return Response::json(array("status" => 304, "messages" => "No modificado"),304);
+        }
     }
 
     /**
@@ -177,11 +177,89 @@ class UsuarioController extends Controller
      */
     public function destroy($id)
     {
-       try {
-			$object = Usuario::destroy($id);
-			return Response::json(['data'=>$object],200);
-		} catch (Exception $e) {
-		   return Response::json(['error' => $e->getMessage()], HttpResponse::HTTP_CONFLICT);
-		}
+        try {
+            $object = Usuario::destroy($id);
+            return Response::json(['data'=>$object],200);
+        } catch (Exception $e) {
+            return Response::json(['error' => $e->getMessage()], HttpResponse::HTTP_CONFLICT);
+        }
+    }
+
+    /**
+     * Validad los parametros recibidos, Esto no tiene ruta de acceso es un metodo privado del controlador.
+     *
+     * @param $key
+     * @param $id
+     * @param  Request $request que corresponde a los parametros enviados por el cliente
+     * @return Response <code> Respuesta Error json con los errores encontrados </code>
+     * <code> Respuesta Error json con los errores encontrados </code>
+     */
+    private function ValidarParametros($key, $id, $request)
+    {
+        $messages = [
+
+            'required'      => "required",
+            'email'         => "email",
+            'unique'        => "unique"
+        ];
+
+        $rules = [
+            'id'            => 'required|email|unique:usuarios,id,'.$id.',id,deleted_at,NULL',
+            'password'      => 'required',
+            'nombre'        => 'required',
+            'paterno'       => 'required',
+            'materno'       => 'required',
+            'celular'       => 'required'
+        ];
+
+        $v = Validator::make($request, $rules, $messages);
+
+        if ($v->fails()){
+            $mensages_validacion = array();
+            foreach ($v->errors()->messages() as $indice => $item) { // todos los mensajes de todos los campos
+                $msg_validacion = array();
+                foreach ($item as $msg) {
+                    array_push($msg_validacion, $msg);
+                }
+                array_push($mensages_validacion, array($indice.''.$key => $msg_validacion));
+            }
+            return $mensages_validacion;
+        }else{
+            return ;
+        }
+    }
+
+    private function AgregarDatos($datos, $data){
+        //verificar si existe items, en caso de que exista proceder a guardarlo
+        if(property_exists($datos, "roles")){
+            //limpiar el arreglo de posibles nullos
+            $detalle = array_filter($datos->roles, function($v){return $v !== null;});
+
+            //recorrer cada elemento del arreglo
+            foreach ($detalle as $key => $value) {
+                //validar que el valor no sea null
+                if($value != null){
+                    //comprobar si el value es un array, si es convertirlo a object mas facil para manejar.
+                    if(is_array($value))
+                        $value = (object) $value;
+
+                    //borrar los datos previos de articulo para no duplicar información
+                    RolUsuario::where("rol_id", $value->id)->where("usuario_id", $data->id)->delete();
+
+                    //si existe actualizar
+                    $roles = RolUsuario::where("usuario_id", $data->id)->where("rol_id", $value->id)->first();
+
+                    //si no existe crear
+                    if(!$roles)
+                        $roles = new RolUsuario;
+
+                    $roles->rol_id 	    = $value->id;
+                    $roles->usuario_id  = $data->id;
+
+                    $roles->save();
+                }
+            }
+        }
+
     }
 }

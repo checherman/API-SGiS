@@ -35,7 +35,7 @@ class GrupoCie10Controller extends Controller
     {
         $parametros = Input::only('q','page','per_page');
         if ($parametros['q']) {
-            $data =  GruposCie10::where(function($query) use ($parametros) {
+            $data =  GruposCie10::with('CategoriasCie10')->where(function($query) use ($parametros) {
                 $query->where('id','LIKE',"%".$parametros['q']."%")
                     ->orWhere('codigo','LIKE',"%".$parametros['q']."%")
                     ->orWhere('nombre','LIKE',"%".$parametros['q']."%");

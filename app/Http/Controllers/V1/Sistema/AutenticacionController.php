@@ -69,6 +69,7 @@ class AutenticacionController extends Controller
                     "materno" => $usuario->materno,
                     "celular" => $usuario->celular,
                     "avatar" => $usuario->avatar,
+                    "clues" => $usuario->clues,
                     "permisos" => $lista_permisos
                 ];
 

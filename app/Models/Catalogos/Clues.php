@@ -11,13 +11,14 @@ use Illuminate\Database\Eloquent\Model;
 class Clues extends Model
 {
     protected $table = "clues";
+    protected $hidden = ["created_at", "updated_at", "deleted_at"];
 
     public function incidencias()
     {
         return $this->belongsToMany(Incidencias::class, 'incidencia_clue', 'clues', 'incidencias_id');
     }
 
-    public function jurisdiccion()
+    public function jurisdicciones()
     {
         return $this->belongsTo(Jurisdicciones::class,'jurisdicciones_id','id');
     }

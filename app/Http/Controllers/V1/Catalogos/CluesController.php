@@ -55,7 +55,7 @@ class CluesController extends Controller
     {
         $parametros = Input::only('q','page','per_page');
         if ($parametros['q']) {
-            $data =  Clues::with('jurisdiccion')->with('municipios')->where(function($query) use ($parametros){
+            $data =  Clues::with('jurisdiccion','municipios')->where(function($query) use ($parametros){
                 $query->where('clues','LIKE',"%".$parametros['q']."%")
                     ->orWhere('nombre','LIKE',"%".$parametros['q']."%")
                     ->orWhere('entidad','LIKE',"%".$parametros['q']."%")
@@ -66,7 +66,8 @@ class CluesController extends Controller
             });
 
         } else {
-            $data =  Clues::getModel()->with('jurisdiccion')->with('municipios');
+            $data =  Clues::with('jurisdicciones')->with('municipios');
+
         }
 
         if(isset($parametros['page'])){
@@ -74,6 +75,14 @@ class CluesController extends Controller
             $data = $data->paginate($resultadosPorPagina);
         } else {
             $data = $data->get();
+        }
+
+        foreach ($data as $key => $value) {
+            $usuarios = Usuario::where("cargos_id", "!=", NULL)->where("clues", $value->clues)
+                ->with("cargos")
+                ->get();
+
+            $value->usuarios = $usuarios;
         }
 
         return Response::json([ 'data' => $data],200);
@@ -86,7 +95,7 @@ class CluesController extends Controller
     public function show($clues)
     {
         $data = Clues::where('clues', $clues)
-                    ->with('jurisdiccion','municipios')
+                    ->with('jurisdicciones','municipios')
                     ->first();
 
         $usuarios = Usuario::where("cargos_id", "!=", NULL)

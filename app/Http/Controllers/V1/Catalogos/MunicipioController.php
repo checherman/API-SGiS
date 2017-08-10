@@ -56,14 +56,13 @@ class MunicipioController extends ApiController
     {
         $parametros = Input::only('q','page','per_page');
         if ($parametros['q']) {
-            $data =  Municipios::where(function($query) use ($parametros) {
+            $data =  Municipios::with('jurisdicciones')->where(function($query) use ($parametros) {
                 $query->where('id','LIKE',"%".$parametros['q']."%")
                     ->orWhere('nombre','LIKE',"%".$parametros['q']."%")
-                    ->orWhere('clave','LIKE',"%".$parametros['q']."%")
-                    ->orWhere('jurisdicciones','LIKE',"%".$parametros['q']."%");
+                    ->orWhere('clave','LIKE',"%".$parametros['q']."%");
             });
         } else {
-            $data =  Municipios::getModel()->with('jurisdiccion');
+            $data =  Municipios::getModel()->with('jurisdicciones');
         }
 
         if(isset($parametros['page'])){
@@ -96,7 +95,7 @@ class MunicipioController extends ApiController
             'nombre'        => 'required|unique:municipios',
         ];
 
-        $inputs = Input::only('clave', 'nombre', 'jurisdicciones_id');
+        $inputs = Input::only('clave', 'nombre', 'jurisdicciones_id', 'entidades_id');
 
         $v = Validator::make($inputs, $reglas, $mensajes);
 
@@ -122,7 +121,7 @@ class MunicipioController extends ApiController
      */
     public function show($id)
     {
-        $data = Municipios::with('jurisdiccion')->find($id);
+        $data = Municipios::find($id);
 
         if(!$data){
             return $this->respuestaError('No se encuentra el recurso que esta buscando.', 404);
@@ -151,7 +150,7 @@ class MunicipioController extends ApiController
             'nombre'        => 'required',
         ];
 
-        $inputs = Input::only('clave', 'nombre', 'jurisdicciones_id');
+        $inputs = Input::only('clave', 'nombre', 'jurisdicciones_id','entidades_id');
 
         $v = Validator::make($inputs, $reglas, $mensajes);
 
