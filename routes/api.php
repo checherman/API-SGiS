@@ -22,6 +22,7 @@ Route::get('grupo-permiso',             'AutoCompleteController@grupo_permiso');
 Route::get('clues-auto',                'AutoCompleteController@clues');
 Route::get('jurisdiccion-clues',        'AutoCompleteController@jurisdiccion_clues');
 Route::get('personas-auto',             'AutoCompleteController@personas');
+Route::get('subcategoriascie10-auto',   'AutoCompleteController@subcategoriascie10');
 
 Route::middleware('jwt')->group(function () {
     //Sistema

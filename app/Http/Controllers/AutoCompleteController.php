@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests;
 use App\Models\Catalogos\Jurisdicciones;
 use App\Models\Catalogos\Clues;
+use App\Models\Catalogos\SubCategoriasCie10;
 use App\Models\Sistema\Permiso;
 
 use App\Models\Transacciones\Personas;
@@ -85,6 +86,23 @@ class AutoCompleteController extends ApiController
 
         $data =  Personas::where(function($query) use ($parametros) {
             $query->where('id','LIKE',"%".$parametros['term']."%");
+        });
+
+        $data = $data->get();
+        return $this->respuestaVerTodo($data);
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function subcategoriascie10()
+    {
+        $parametros = Input::only('term');
+
+        $data =  SubCategoriasCie10::where(function($query) use ($parametros) {
+            $query->where('codigo','LIKE',"%".$parametros['term']."%");
         });
 
         $data = $data->get();
