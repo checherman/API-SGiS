@@ -110,12 +110,12 @@ class IncidenciaController extends Controller
      * <code> Respuesta Error json(array("status": 404, "messages": "No hay resultados"),status) </code>
      */
     public function show($id){
-        $data = Incidencias::find($id)
+        $data = Incidencias::where('id',$id)
             ->with("pacientes.personas")
             ->with("pacientes.acompaniantes.personas")
             ->with("movimientos_incidencias")
             ->with("referencias")
-            ->get();
+            ->first();
 
         if(!$data){
             return Response::json(array("status" => 204,"messages" => "No hay resultados"), 204);
