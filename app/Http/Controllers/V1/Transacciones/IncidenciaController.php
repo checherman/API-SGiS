@@ -5,6 +5,7 @@ namespace App\Http\Controllers\V1\Transacciones;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
+use DateTime;
 use Illuminate\Http\Response as HttpResponse;
 
 
@@ -47,7 +48,10 @@ class IncidenciaController extends Controller
                     ->orWhere('nombre','LIKE',"%".$parametros['q']."%");
             });
         } else {
-            $data =  Incidencias::getModel()->with("pacientes.personas")->with("pacientes.acompaniantes.personas")->with("movimientos_incidencias");
+            $data =  Incidencias::with("pacientes.personas")
+                                ->with("pacientes.acompaniantes.personas")
+                                ->with("movimientos_incidencias")
+                                ->with("referencias");
         }
 
         if(isset($parametros['page'])){
@@ -56,7 +60,15 @@ class IncidenciaController extends Controller
             $data = $data->paginate($resultadosPorPagina);
         } else {
             $data = $data->get();
-            //dd($data);
+        }
+
+        foreach ($data as $key => $value) {
+            $ahora = new DateTime("Now");
+            $created_at = $value->created_at;
+            $diff = $created_at->diff($ahora);
+            $antiguedad = $this->obtenerAntiguedad($diff);
+
+            $value->antiguedad = $antiguedad;
         }
 
         return Response::json([ 'data' => $data],200);
@@ -121,6 +133,15 @@ class IncidenciaController extends Controller
             return Response::json(array("status" => 204,"messages" => "No hay resultados"), 204);
         }
         else{
+            foreach ($data->movimientos_incidencias as $key => $value) {
+                $ahora = new DateTime("Now");
+                $created_at = $value->created_at;
+                $diff = $created_at->diff($ahora);
+                $antiguedad = $this->obtenerAntiguedad($diff);
+
+                $value->antiguedad = $antiguedad;
+            }
+
             return Response::json(array("status" => 200,"messages" => "Operación realizada con exito","data" => $data), 200);
         }
     }
@@ -232,6 +253,30 @@ class IncidenciaController extends Controller
         }else{
             return ;
         }
+    }
+
+    private function obtenerAntiguedad($df) {
+
+        $str = '';
+        $str .= ($df->invert == 1) ? ' - ' : '';
+        if ($df->y > 0) {
+            // years
+            $str .= ($df->y > 1) ? $df->y . 'Y ' : $df->y . 'Y ';
+        } if ($df->m > 0) {
+            // month
+            $str .= ($df->m > 1) ? $df->m . 'M ' : $df->m . 'M ';
+        } if ($df->d > 0) {
+            // days
+            $str .= ($df->d > 1) ? $df->d . 'D ' : $df->d . 'D ';
+        } if ($df->h > 0) {
+            // hours
+            $str .= ($df->h > 1) ? $df->h . 'hrs ' : $df->h . 'hrs ';
+        } if ($df->i > 0) {
+            // minutes
+            $str .= ($df->i > 1) ? $df->i . 'mins ' : $df->i . 'mins ';
+        }
+
+        return $str;
     }
 
     private function AgregarDatos($datos, $data){
@@ -424,7 +469,7 @@ class IncidenciaController extends Controller
                         $referencia->resumen_clinico                = $value->resumen_clinico;
                         $referencia->clues_origen                   = $value->clues_origen;
                         $referencia->clues_destino                  = $value->clues_destino;
-                        $referencia->img                            = $value->img;
+                        $referencia->img                            = $this->convertir_imagen($value->img, 'referencias', $data->id);
                         $referencia->esContrareferencia             = $value->esContrareferencia;
 
                         $referencia->save();
@@ -433,6 +478,40 @@ class IncidenciaController extends Controller
             }
 
 
+        }
+    }
+
+    /**
+     * Actualizar el  registro especificado en el la base de datos
+     *
+     * <h4>Request</h4>
+     * Recibe un Input Request con el json de los datos
+     *
+     * @param  int  $id que corresponde al identificador del dato a actualizar
+     * @return Response
+     * <code style="color:green"> Respuesta Ok json(array("status": 200, "messages": "Operación realizada con exito", "data": array(resultado)),status) </code>
+     * <code> Respuesta Error json(array("status": 304, "messages": "No modificado"),status) </code>
+     */
+    public function convertir_imagen($data, $nombre, $i){
+        try{
+            $data = base64_decode($data);
+
+            $im = imagecreatefromstring($data);
+
+            if ($im !== false) {
+                $time = time().rand(11111, 99999);
+                $name = $nombre.$i."_".$time.".jpeg";
+                header('Content-Type: image/pjpeg');
+                imagejpeg($im, public_path() ."/adjunto/".$nombre."/".$name);
+                imagedestroy($im);
+                return $name;
+            }
+            else {
+                return null;
+            }
+        }catch (\Exception $e) {
+
+            return \Response::json(["error" => $e->getMessage(), "nombre" => $nombre], 400);
         }
     }
 }

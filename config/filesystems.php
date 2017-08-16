@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'default' => 'local',
+    'default' => 'images',
 
     /*
     |--------------------------------------------------------------------------
@@ -42,6 +42,12 @@ return [
     */
 
     'disks' => [
+
+        'images' => [
+            'driver' => 'local',
+            'root' => public_path('img'),
+            'visibility' => 'public',
+        ],
 
         'local' => [
             'driver' => 'local',

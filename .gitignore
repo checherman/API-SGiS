@@ -7,3 +7,4 @@ Homestead.json
 /public/.htaccess
 /config/databases.php
 .idea/
+.gitignore
