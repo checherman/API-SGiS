@@ -21,7 +21,7 @@ class CrearTablaReferencias extends Migration
             $table->string('servidor_id',4);
             $table->integer('incremento');
             $table->string('incidencias_id');
-            $table->string('medico_refiere_id');
+            $table->string('medico_refiere_id')->nullable();
             $table->string('diagnostico');
             $table->string('resumen_clinico');
             $table->string('clues_origen');

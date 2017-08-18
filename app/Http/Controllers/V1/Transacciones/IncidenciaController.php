@@ -63,6 +63,12 @@ class IncidenciaController extends Controller
         }
 
         foreach ($data as $key => $value) {
+            $clues = DB::table('incidencia_clue')->where('incidencias_id', $value->id)->first();
+            $value->clues = $clues->clues;
+
+        }
+
+        foreach ($data as $key => $value) {
             $ahora = new DateTime("Now");
             $created_at = $value->created_at;
             $diff = $created_at->diff($ahora);
@@ -133,6 +139,10 @@ class IncidenciaController extends Controller
             return Response::json(array("status" => 204,"messages" => "No hay resultados"), 204);
         }
         else{
+
+            $clues = DB::table('incidencia_clue')->where('incidencias_id', $id)->first();
+            $data->clues = $clues->clues;
+
             foreach ($data->movimientos_incidencias as $key => $value) {
                 $ahora = new DateTime("Now");
                 $created_at = $value->created_at;
@@ -291,98 +301,119 @@ class IncidenciaController extends Controller
             $datos = (object) $datos;
 
             //verificar si existe paciente, en caso de que exista proceder a guardarlo
-            if(property_exists($datos, "paciente")){
+            if(property_exists($datos, "pacientes")){
                 //limpiar el arreglo de posibles nullos
-                $detallePaciente = array_filter($datos->paciente, function($v){return $v !== null;});
-                    //validar que el valor no sea null
-                    if($detallePaciente != null){
-                        //comprobar si el value es un array, si es convertirlo a object mas facil para manejar.
-                        if(is_array($detallePaciente))
-                            $detallePaciente = (object) $detallePaciente;
+                $detallePacientes = array_filter($datos->pacientes, function($v){return $v !== null;});
+                    //recorrer cada elemento del arreglo
+                    foreach ($detallePacientes as $key => $valuePaciente) {
+                        //validar que el valor no sea null
+                        if ($valuePaciente != null) {
+                            //comprobar si el value es un array, si es convertirlo a object mas facil para manejar.
+                            if (is_array($valuePaciente))
+                                $valuePaciente = (object)$valuePaciente;
                             //si existe actualizar
-                            $persona = Personas::where("id", $detallePaciente->personas_id)->first();
-                            //si no existe crear
-                            if(!$persona)
-                                $persona = new Personas;
+                            $persona = Personas::where("id", $valuePaciente->personas_id)->first();
 
-                            $persona->id                    = $detallePaciente->personas_id;
-                            $persona->servidor_id 	        = env("SERVIDOR_ID");
-                            $persona->nombre                = $detallePaciente->nombre;
-                            $persona->paterno               = $detallePaciente->paterno;
-                            $persona->materno               = $detallePaciente->materno;
-                            $persona->domicilio             = $detallePaciente->domicilio;
-                            $persona->fecha_nacimiento      = $detallePaciente->fecha_nacimiento;
-                            $persona->telefono              = $detallePaciente->telefono;
-                            $persona->estados_embarazos_id  = $detallePaciente->estados_embarazos_id;
-                            $persona->derechohabientes_id   = $detallePaciente->derechohabientes_id;
-                            $persona->localidades_id        = $detallePaciente->localidades_id;
+                            if(property_exists($valuePaciente, "personas")){
+                                //limpiar el arreglo de posibles nullos
+                                $detallePersonas = array_filter($valuePaciente->personas, function($v){return $v !== null;});
+                                if (is_array($detallePersonas))
+                                    $detallePersonas = (object)$detallePersonas;
 
-                            if ($persona->save()){
-                                //si existe actualizar
-                                if(property_exists($detallePaciente, "id")) {
-                                    $paciente = Pacientes::where("id", $detallePaciente->id)->first();
-                                }else
-                                    $paciente = new Pacientes;
+                                //si no existe crear
+                                if (!$persona)
+                                    $persona = new Personas;
 
-                                $paciente->servidor_id 	     = $persona->servidor_id;
-                                $paciente->personas_id       = $persona->id;
+                                $persona->id = $valuePaciente->personas_id;
+                                $persona->servidor_id = env("SERVIDOR_ID");
+                                $persona->nombre = $detallePersonas->nombre;
+                                $persona->paterno = $detallePersonas->paterno;
+                                $persona->materno = $detallePersonas->materno;
+                                $persona->domicilio = $detallePersonas->domicilio;
+                                $persona->fecha_nacimiento = $detallePersonas->fecha_nacimiento;
+                                $persona->telefono = $detallePersonas->telefono;
+                                $persona->estados_embarazos_id = $detallePersonas->estados_embarazos_id;
+                                $persona->derechohabientes_id = $detallePersonas->derechohabientes_id;
+                                $persona->localidades_id = $detallePersonas->localidades_id;
 
-                                if($paciente->save()){
-                                    if(!property_exists($detallePaciente, "id")){
-                                        DB::insert("insert into incidencia_clue (incidencias_id, clues) VALUE ('$data->id', '$datos->clues')");
-                                        DB::insert("insert into incidencia_paciente (incidencias_id, pacientes_id) VALUE ('$data->id', '$paciente->id')");
+                                if ($persona->save()) {
+                                    //si existe actualizar
+                                    if (property_exists($detallePersonas, "id")) {
+                                        $paciente = Pacientes::where("id", $valuePaciente->id)->first();
+                                    } else
+                                        $paciente = new Pacientes;
+
+                                    $paciente->servidor_id = env("SERVIDOR_ID");
+                                    $paciente->personas_id = $persona->id;
+
+                                    if ($paciente->save()) {
+                                        if (!property_exists($detallePersonas, "id")) {
+                                            DB::insert("insert into incidencia_clue (incidencias_id, clues) VALUE ('$data->id', '$datos->clues')");
+                                            DB::insert("insert into incidencia_paciente (incidencias_id, pacientes_id) VALUE ('$data->id', '$paciente->id')");
+                                        }
                                     }
                                 }
                             }
-                    }
-            }
 
-            //verificar si existe acompaniante, en caso de que exista proceder a guardarlo
-            if(property_exists($datos, "acompaniante")){
-                //limpiar el arreglo de posibles nullos
-                $detalleAcompaniante = array_filter($datos->acompaniante, function($v){return $v !== null;});
-                //recorrer cada elemento del arreglo
-                foreach ($detalleAcompaniante as $key => $value) {
-                    //validar que el valor no sea null
-                    if($value != null){
-                        //comprobar si el value es un array, si es convertirlo a object mas facil para manejar.
-                        if(is_array($value))
-                            $value = (object) $value;
-                        //si existe actualizar
-                        $persona = Personas::where("id", $value->personas_id)->first();
-                        //si no existe crear
-                        if(!$persona)
-                            $persona = new Personas;
 
-                        $persona->servidor_id 	     = env("SERVIDOR_ID");
-                        $persona->id                 = $value->personas_id;
-                        $persona->nombre             = $value->nombre;
-                        $persona->paterno            = $value->paterno;
-                        $persona->materno            = $value->materno;
-                        $persona->telefono           = $value->telefono;
-                        $persona->domicilio          = $value->domicilio;
+                            if(property_exists($valuePaciente, "acompaniantes")){
+                                //limpiar el arreglo de posibles nullos
+                                $detalleAcompaniantes = array_filter($valuePaciente->acompaniantes, function($v){return $v !== null;});
+                                //recorrer cada elemento del arreglo
+                                foreach ($detalleAcompaniantes as $key => $valueAcompaniante) {
+                                    //validar que el valor no sea null
+                                    if($valueAcompaniante != null){
+                                        //comprobar si el value es un array, si es convertirlo a object mas facil para manejar.
+                                        if(is_array($valueAcompaniante))
+                                            $valueAcompaniante = (object) $valueAcompaniante;
 
-                        if ($persona->save()){
-                            //si existe actualizar
-                            if(property_exists($value, "id")) {
-                                $acompaniante = Acompaniantes::where("id", $value->id)->first();
-                            }else
-                                $acompaniante = new Acompaniantes;
+                                        //si existe actualizar
+                                        $personaA = Personas::where('id', $valueAcompaniante->personas_id)->first();
 
-                            $acompaniante->servidor_id 	    = env("SERVIDOR_ID");
-                            $acompaniante->personas_id      = $persona->id;
-                            $acompaniante->parentescos_id   = $value->parentescos_id;
-                            $acompaniante->esResponsable    = $value->esResponsable;
+                                        if(property_exists($valueAcompaniante, "personas")){
+                                            //limpiar el arreglo de posibles nullos
+                                            $detallePersonaA = array_filter($valueAcompaniante->personas, function($v){return $v !== null;});
 
-                            if($acompaniante->save()){
-                                if(!property_exists($value, "id")){
-                                    DB::insert("insert into acompaniante_paciente (pacientes_id, acompaniantes_id) VALUE ('$paciente->id', '$acompaniante->id')");
+                                            if (is_array($detallePersonaA))
+                                                $detallePersonaA = (object)$detallePersonaA;
+                                            //si no existe crear
+                                            if(!$personaA)
+                                                $personaA = new Personas;
+
+                                            $personaA->servidor_id 	     = env("SERVIDOR_ID");
+                                            $personaA->id                 = $valueAcompaniante->personas_id;
+                                            $personaA->nombre             = $detallePersonaA->nombre;
+                                            $personaA->paterno            = $detallePersonaA->paterno;
+                                            $personaA->materno            = $detallePersonaA->materno;
+                                            $personaA->telefono           = $detallePersonaA->telefono;
+                                            $personaA->domicilio          = $detallePersonaA->domicilio;
+
+                                            if ($personaA->save()){
+                                                //si existe actualizar
+                                                if(property_exists($valueAcompaniante, "id")) {
+                                                    $acompaniante = Acompaniantes::where("id", $valueAcompaniante->id)->first();
+                                                }else
+                                                    $acompaniante = new Acompaniantes;
+
+                                                $acompaniante->servidor_id 	    = env("SERVIDOR_ID");
+                                                $acompaniante->personas_id      = $personaA->id;
+                                                $acompaniante->parentescos_id   = $valueAcompaniante->parentescos_id;
+                                                $acompaniante->esResponsable    = $valueAcompaniante->esResponsable;
+
+                                                if($acompaniante->save()){
+                                                    if(!property_exists($valueAcompaniante, "id")){
+                                                        DB::insert("insert into acompaniante_paciente (pacientes_id, acompaniantes_id) VALUE ('$paciente->id', '$acompaniante->id')");
+                                                    }
+                                                }
+                                            }
+                                        }
+
+
+                                    }
                                 }
                             }
                         }
-
                     }
-                }
             }
 
             //verificar si existe movimientos_incidencias, en caso de que exista proceder a guardarlo
@@ -403,24 +434,24 @@ class IncidenciaController extends Controller
                         //comprobar si el value es un array, si es convertirlo a object mas facil para manejar.
                         if(is_array($value))
                             $value = (object) $value;
-
                         //comprobar que el dato que se envio no exista o este borrado, si existe y esta borrado poner en activo nuevamente
                         if(property_exists($value, "id")){
                             DB::update("update movimientos_incidencias set deleted_at = null where id = '$value->id' and incidencias_id = '$data->id' ");
                             //si existe actualizar
                             $movimientos_incidencias = MovimientosIncidencias::where("id", $value->id)->where("incidencias_id", $data->id)->first();
-
-                            $movimientos_incidencias->medico_reporta_id               = $value->medico_reporta_id;
-                            $movimientos_incidencias->indicaciones                    = $value->indicaciones;
-                            $movimientos_incidencias->reporte_medico                  = $value->reporte_medico;
-                            $movimientos_incidencias->diagnostico_egreso              = $value->diagnostico_egreso;
-                            $movimientos_incidencias->observacion_trabajo_social      = $value->observacion_trabajo_social;
-                            $movimientos_incidencias->metodos_planificacion_id        = $value->metodos_planificacion_id;
                         }else
                             $movimientos_incidencias = new MovimientosIncidencias;
 
                         $movimientos_incidencias->servidor_id 	                  = env("SERVIDOR_ID");
                         $movimientos_incidencias->incidencias_id                  = $data->id;
+
+                        $movimientos_incidencias->medico_reporta_id               = $value->medico_reporta_id;
+                        $movimientos_incidencias->indicaciones                    = $value->indicaciones;
+                        $movimientos_incidencias->reporte_medico                  = $value->reporte_medico;
+                        $movimientos_incidencias->diagnostico_egreso              = $value->diagnostico_egreso;
+                        $movimientos_incidencias->observacion_trabajo_social      = $value->observacion_trabajo_social;
+                        $movimientos_incidencias->metodos_planificacion_id        = $value->metodos_planificacion_id;
+
                         $movimientos_incidencias->estados_incidencias_id          = $value->estados_incidencias_id;
                         $movimientos_incidencias->valoraciones_pacientes_id       = $value->valoraciones_pacientes_id;
                         $movimientos_incidencias->estados_pacientes_id            = $value->estados_pacientes_id;

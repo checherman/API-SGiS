@@ -27,11 +27,11 @@ class CrearTablaMovimientosIncidencias extends Migration
             $table->string('diagnostico_egreso')->nullable();
             $table->string('observacion_trabajo_social')->nullable();
             $table->integer('metodos_planificacion_id')->unsigned()->nullable();
-            $table->integer('estados_incidencias_id')->unsigned();
-            $table->integer('valoraciones_pacientes_id')->unsigned();
-            $table->integer('estados_pacientes_id')->unsigned();
-            $table->integer('triage_colores_id')->unsigned();
-            $table->integer('subcategorias_cie10_id')->unsigned();
+            $table->integer('estados_incidencias_id')->unsigned()->nullable();
+            $table->integer('valoraciones_pacientes_id')->unsigned()->nullable();
+            $table->integer('estados_pacientes_id')->unsigned()->nullable();
+            $table->integer('triage_colores_id')->unsigned()->nullable();
+            $table->integer('subcategorias_cie10_id')->unsigned()->nullable();
 
             $table->timestamps();
             $table->softDeletes();
