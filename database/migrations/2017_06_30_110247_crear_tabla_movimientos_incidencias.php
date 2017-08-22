@@ -27,11 +27,11 @@ class CrearTablaMovimientosIncidencias extends Migration
             $table->string('diagnostico_egreso')->nullable();
             $table->string('observacion_trabajo_social')->nullable();
             $table->integer('metodos_planificacion_id')->unsigned()->nullable();
-            $table->integer('estados_incidencias_id')->unsigned()->nullable();
             $table->integer('valoraciones_pacientes_id')->unsigned()->nullable();
             $table->integer('estados_pacientes_id')->unsigned()->nullable();
             $table->integer('triage_colores_id')->unsigned()->nullable();
             $table->integer('subcategorias_cie10_id')->unsigned()->nullable();
+            $table->integer('turnos_id')->unsigned()->nullable();
 
             $table->timestamps();
             $table->softDeletes();
@@ -39,10 +39,6 @@ class CrearTablaMovimientosIncidencias extends Migration
             $table->primary('id');
 
             $table->foreign('metodos_planificacion_id')->references('id')->on('metodos_planificacion')
-                ->onDelete('cascade')
-                ->onUpdate('cascade');
-
-            $table->foreign('estados_incidencias_id')->references('id')->on('estados_incidencias')
                 ->onDelete('cascade')
                 ->onUpdate('cascade');
 
@@ -59,6 +55,10 @@ class CrearTablaMovimientosIncidencias extends Migration
                 ->onUpdate('cascade');
 
             $table->foreign('subcategorias_cie10_id')->references('id')->on('subcategorias_cie10')
+                ->onDelete('cascade')
+                ->onUpdate('cascade');
+
+            $table->foreign('turnos_id')->references('id')->on('turnos')
                 ->onDelete('cascade')
                 ->onUpdate('cascade');
         });

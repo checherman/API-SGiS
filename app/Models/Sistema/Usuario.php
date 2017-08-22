@@ -30,7 +30,7 @@ class Usuario extends BaseModel implements Authenticatable{
 
     public function cargos()
     {
-        return $this->belongsTo(Cargo::class,'cargos_id','id');
+        return $this->belongsTo(Cargo::class);
     }
 
     public function clues()

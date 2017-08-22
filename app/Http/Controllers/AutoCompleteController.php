@@ -8,6 +8,7 @@ use App\Models\Catalogos\Clues;
 use App\Models\Catalogos\SubCategoriasCie10;
 use App\Models\Sistema\Permiso;
 
+use App\Models\Transacciones\Acompaniantes;
 use App\Models\Transacciones\Personas;
 use Illuminate\Support\Facades\Input;
 use \Validator,\Hash, \Response;
@@ -84,7 +85,10 @@ class AutoCompleteController extends ApiController
     {
         $parametros = Input::only('term');
 
-        $data =  Personas::where(function($query) use ($parametros) {
+        $acompaniantes = Acompaniantes::select('personas_id')->get();
+
+        $data =  Personas::whereNotIn('id', $acompaniantes)
+            ->where(function($query) use ($parametros) {
             $query->where('id','LIKE',"%".$parametros['term']."%");
         });
 

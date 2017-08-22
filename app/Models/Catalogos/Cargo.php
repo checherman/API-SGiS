@@ -22,6 +22,6 @@ class Cargo extends Model
 
     public function usuario()
     {
-        return $this->hasMany(Usuario::class,'cargos_id','id');
+        return $this->hasMany(Usuario::class);
     }
 }

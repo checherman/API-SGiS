@@ -23,12 +23,12 @@ class DirectorioController extends Controller
     {
         $parametros = Input::only('q','page','per_page');
         if ($parametros['q']) {
-             $usuarios =  Usuario::where('su',false)->whereNull('password')
+             $usuarios =  Usuario::with('cargos','clues')->where('su',false)->whereNull('password')
                  ->where(function($query) use ($parametros) {
                  $query->where('id','LIKE',"%".$parametros['q']."%")->orWhere(DB::raw("CONCAT(nombre,' ',paterno,' ',materno)"),'LIKE',"%".$parametros['q']."%");
              });
         } else {
-             $usuarios =  Usuario::where('su',false)->whereNull('password')->with('cargos')->with('clues');
+             $usuarios =  Usuario::with('cargos','clues')->where('su',false)->whereNull('password');
         }
 
         if(isset($parametros['page'])){

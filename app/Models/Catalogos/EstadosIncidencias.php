@@ -3,6 +3,7 @@
 namespace App;
 
 namespace App\Models\Catalogos;
+use App\Models\Transacciones\Incidencias;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -19,8 +20,8 @@ class EstadosIncidencias extends Model
     protected $fillable = ["id","nombre","descripcion"];
     protected $hidden = ["created_at", "updated_at", "deleted_at"];
 
-    public function movimientos_incidencias()
+    public function incidencias()
     {
-        return $this->hasMany(MovimientosIncidencias::class);
+        return $this->hasMany(Incidencias::class);
     }
 }

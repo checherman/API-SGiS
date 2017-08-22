@@ -4,6 +4,7 @@ namespace App;
 namespace App\Models\Transacciones;
 use App\Models\BaseModel;
 use App\Models\Catalogos\Clues;
+use App\Models\Catalogos\EstadosIncidencias;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Incidencias extends BaseModel
@@ -16,7 +17,7 @@ class Incidencias extends BaseModel
     public $incrementing = false;
 
     protected $table = "incidencias";
-    protected $fillable = ["id", "servidor_id", "motivo_ingreso", "impresion_diagnostica"];
+    protected $fillable = ["id", "servidor_id", "motivo_ingreso", "impresion_diagnostica","estados_incidencias_id"];
     protected $hidden = ["created_at", "updated_at", "deleted_at"];
 
     public function clues()
@@ -31,11 +32,16 @@ class Incidencias extends BaseModel
 
     public function movimientos_incidencias()
     {
-        return $this->hasMany(MovimientosIncidencias::class)->with("estados_incidencias")->with("estados_pacientes")->with("valoraciones_pacientes")->with("triage_colores")->with("subcategorias_cie10");
+        return $this->hasMany(MovimientosIncidencias::class)->with("estados_pacientes")->with("valoraciones_pacientes")->with("triage_colores")->with("subcategorias_cie10")->with("turnos");
     }
 
     public function referencias()
     {
         return $this->hasMany(Referencias::class);
+    }
+
+    public function estados_incidencias()
+    {
+        return $this->belongsTo(EstadosIncidencias::class);
     }
 }

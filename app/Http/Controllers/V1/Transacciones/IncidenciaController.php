@@ -41,21 +41,82 @@ class IncidenciaController extends Controller
      */
     public function index()
     {
-        $parametros = Input::only('q','page','per_page');
+        $estadosIncidencias  = array();
+
+
+        $parametros = Input::only('q','page','per_page','clues','edo_incidencia');
+
         if ($parametros['q']) {
-            $data =  Incidencias::where(function($query) use ($parametros) {
-                $query->where('id','LIKE',"%".$parametros['q']."%")
-                    ->orWhere('nombre','LIKE',"%".$parametros['q']."%");
-            });
-        } else {
-            $data =  Incidencias::with("pacientes.personas")
-                                ->with("pacientes.acompaniantes.personas")
-                                ->with("movimientos_incidencias")
-                                ->with("referencias");
+            if ($parametros['clues']) {
+                if ($parametros['edo_incidencia']) {//CLUES E INCIDENCIA
+                    $data = Incidencias::select('incidencias.*')
+                        ->join('incidencia_clue', 'incidencia_clue.incidencias_id', '=', 'incidencias.id')
+                        ->where('incidencia_clue.clues', $parametros['clues'])
+                        ->with("pacientes.personas", "pacientes.acompaniantes.personas")
+                        ->with("movimientos_incidencias", "referencias", "estados_incidencias")
+                        ->where('incidencias.estados_incidencias_id', $parametros['edo_incidencia'])
+                        ->where(function ($query) use ($parametros) {
+                            $query->where('id', 'LIKE', "%" . $parametros['q'] . "%")
+                                ->orWhere('nombre', 'LIKE', "%" . $parametros['q'] . "%");
+                        });
+                }else{//CLUES
+                    $data = Incidencias::select('incidencias.*')
+                        ->join('incidencia_clue', 'incidencia_clue.incidencias_id', '=', 'incidencias.id')
+                        ->where('incidencia_clue.clues', $parametros['clues'])
+                        ->with("pacientes.personas", "pacientes.acompaniantes.personas")
+                        ->with("movimientos_incidencias", "referencias", "estados_incidencias")
+                        ->where(function ($query) use ($parametros) {
+                            $query->where('id', 'LIKE', "%" . $parametros['q'] . "%")
+                                ->orWhere('nombre', 'LIKE', "%" . $parametros['q'] . "%");
+                        });
+                }
+            }else{//NOCLUES
+                if ($parametros['edo_incidencia']) {//NOCLUES E INCIDENCIA
+                    $data = Incidencias::with("pacientes.personas", "pacientes.acompaniantes.personas")
+                        ->with("movimientos_incidencias", "referencias", "estados_incidencias")
+                        ->where('incidencias.estados_incidencias_id', $parametros['edo_incidencia'])
+                        ->where(function ($query) use ($parametros) {
+                            $query->where('id', 'LIKE', "%" . $parametros['q'] . "%")
+                                ->orWhere('nombre', 'LIKE', "%" . $parametros['q'] . "%");
+                        });
+                }else{//NO CLUES NO INCIDENCIA
+                    $data = Incidencias::with("pacientes.personas", "pacientes.acompaniantes.personas")
+                        ->with("movimientos_incidencias", "referencias", "estados_incidencias")
+                        ->where(function ($query) use ($parametros) {
+                            $query->where('id', 'LIKE', "%" . $parametros['q'] . "%")
+                                ->orWhere('nombre', 'LIKE', "%" . $parametros['q'] . "%");
+                        });
+                }
+            }
+        } else {//NOquery
+            if ($parametros['clues']) {//CLUES
+                if ($parametros['edo_incidencia']) {//CLUES E INCIDENCIA
+                    $data = Incidencias::select('incidencias.*')
+                        ->join('incidencia_clue', 'incidencia_clue.incidencias_id', '=', 'incidencias.id')
+                        ->where('incidencia_clue.clues', $parametros['clues'])
+                        ->with("pacientes.personas", "pacientes.acompaniantes.personas")
+                        ->with("movimientos_incidencias", "referencias", "estados_incidencias")
+                        ->where('incidencias.estados_incidencias_id', $parametros['edo_incidencia']);
+                }else{//CLUES NOINCIDENCIA
+                    $data = Incidencias::select('incidencias.*')
+                        ->join('incidencia_clue', 'incidencia_clue.incidencias_id', '=', 'incidencias.id')
+                        ->where('incidencia_clue.clues', $parametros['clues'])
+                        ->with("pacientes.personas", "pacientes.acompaniantes.personas")
+                        ->with("movimientos_incidencias", "referencias", "estados_incidencias");
+                }
+            }else{//NOCLUES
+                if ($parametros['edo_incidencia']) {//NOCLUES E INCIDENCIA
+                    $data = Incidencias::with("pacientes.personas", "pacientes.acompaniantes.personas")
+                        ->with("movimientos_incidencias", "referencias", "estados_incidencias")
+                        ->where('incidencias.estados_incidencias_id', $parametros['edo_incidencia']);
+                }else{//NOCLUES NOINCIDENCIA
+                    $data = Incidencias::with("pacientes.personas", "pacientes.acompaniantes.personas")
+                        ->with("movimientos_incidencias", "referencias", "estados_incidencias");
+                }
+            }
         }
 
         if(isset($parametros['page'])){
-
             $resultadosPorPagina = isset($parametros["per_page"])? $parametros["per_page"] : 20;
             $data = $data->paginate($resultadosPorPagina);
         } else {
@@ -65,7 +126,6 @@ class IncidenciaController extends Controller
         foreach ($data as $key => $value) {
             $clues = DB::table('incidencia_clue')->where('incidencias_id', $value->id)->first();
             $value->clues = $clues->clues;
-
         }
 
         foreach ($data as $key => $value) {
@@ -76,6 +136,14 @@ class IncidenciaController extends Controller
 
             $value->antiguedad = $antiguedad;
         }
+
+        foreach($data as $mov) {
+            if (!in_array($mov->estados_incidencias['nombre'], $estadosIncidencias)) {
+                array_push($estadosIncidencias, ['id' => $mov->estados_incidencias['id'], 'nombre' => $mov->estados_incidencias['nombre']]);
+            }
+        }
+
+        $data[count($data)] = array("estados_incidencias" => $estadosIncidencias);
 
         return Response::json([ 'data' => $data],200);
     }
@@ -129,10 +197,10 @@ class IncidenciaController extends Controller
      */
     public function show($id){
         $data = Incidencias::where('id',$id)
-            ->with("pacientes.personas")
-            ->with("pacientes.acompaniantes.personas")
+            ->with("pacientes.personas","pacientes.acompaniantes.personas")
             ->with("movimientos_incidencias")
             ->with("referencias")
+            ->with("estados_incidencias")
             ->first();
 
         if(!$data){
@@ -296,6 +364,7 @@ class IncidenciaController extends Controller
         $data->servidor_id = env("SERVIDOR_ID");
         $data->motivo_ingreso = $datos['motivo_ingreso'];
         $data->impresion_diagnostica = $datos['impresion_diagnostica'];
+        $data->estados_incidencias_id = $datos['estados_incidencias_id'];
 
         if ($data->save()){
             $datos = (object) $datos;
@@ -448,15 +517,16 @@ class IncidenciaController extends Controller
                         $movimientos_incidencias->medico_reporta_id               = $value->medico_reporta_id;
                         $movimientos_incidencias->indicaciones                    = $value->indicaciones;
                         $movimientos_incidencias->reporte_medico                  = $value->reporte_medico;
+
                         $movimientos_incidencias->diagnostico_egreso              = $value->diagnostico_egreso;
                         $movimientos_incidencias->observacion_trabajo_social      = $value->observacion_trabajo_social;
                         $movimientos_incidencias->metodos_planificacion_id        = $value->metodos_planificacion_id;
 
-                        $movimientos_incidencias->estados_incidencias_id          = $value->estados_incidencias_id;
                         $movimientos_incidencias->valoraciones_pacientes_id       = $value->valoraciones_pacientes_id;
                         $movimientos_incidencias->estados_pacientes_id            = $value->estados_pacientes_id;
                         $movimientos_incidencias->triage_colores_id               = $value->triage_colores_id;
                         $movimientos_incidencias->subcategorias_cie10_id          = $value->subcategorias_cie10_id;
+                        $movimientos_incidencias->turnos_id                       = $value->turnos_id;
 
                         $movimientos_incidencias->save();
 

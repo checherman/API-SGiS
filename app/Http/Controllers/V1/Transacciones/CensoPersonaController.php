@@ -34,7 +34,7 @@ class CensoPersonaController extends ApiController
     {
         $parametros = Input::only('q','page','per_page');
         if ($parametros['q']) {
-            $data =  Personas::where(function($query) use ($parametros) {
+            $data =  Personas::with('derechohabientes','estados_embarazos','localidades')->where(function($query) use ($parametros) {
                 $query->where('id','LIKE',"%".$parametros['q']."%")
                     ->orWhere('nombre','LIKE',"%".$parametros['q']."%")
                     ->orWhere('paterno','LIKE',"%".$parametros['q']."%")
@@ -43,7 +43,7 @@ class CensoPersonaController extends ApiController
                     ->orWhere('domicilio','LIKE',"%".$parametros['q']."%");
             });
         } else {
-            $data =  Personas::with('derechohabientes')->with('estados_embarazos');
+            $data =  Personas::with('derechohabientes','estados_embarazos','localidades');
         }
 
         if(isset($parametros['page'])){
