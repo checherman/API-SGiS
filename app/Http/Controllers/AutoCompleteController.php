@@ -106,7 +106,8 @@ class AutoCompleteController extends ApiController
         $parametros = Input::only('term');
 
         $data =  SubCategoriasCie10::where(function($query) use ($parametros) {
-            $query->where('codigo','LIKE',"%".$parametros['term']."%");
+            $query->where('codigo','LIKE',"%".$parametros['term']."%")
+                  ->orWhere('nombre','LIKE',"%".$parametros['term']."%");
         });
 
         $data = $data->get();

@@ -5,7 +5,9 @@ namespace App\Http\Controllers\V1\Catalogos;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Models\Catalogos\CarteraServicioNivelCone;
+use App\Models\Catalogos\Clues;
 use App\Models\Catalogos\NivelesCones;
+use App\Models\Transacciones\RespuestasEstadosFuerza;
 use Illuminate\Http\Response as HttpResponse;
 
 use Request;
@@ -333,5 +335,97 @@ class CarteraServicioController extends Controller
         }
 
         return Response::json([ 'data' => $estadoFuerza ], HttpResponse::HTTP_OK);
+    }
+
+    /**
+     * Devuelve la información del registro especificado.
+     *
+     * @param Clues $clues
+     * @return Response <code style="color:green"> Respuesta Ok json(array("status": 200, "messages": "Operación realizada con exito", "data": array(resultado)),status) </code>
+     * <code style="color:green"> Respuesta Ok json(array("status": 200, "messages": "Operación realizada con exito", "data": array(resultado)),status) </code>
+     * <code> Respuesta Error json(array("status": 404, "messages": "No hay resultados"),status) </code>
+     */
+    public function showEstadoFuerzaClues(Clues $clues){
+
+        $estadoFuerza = $clues->carteraServicio()->with("items")->get();
+
+        if(!$estadoFuerza ){
+
+            return Response::json(['error' => "No se encuentra el recurso que esta buscando."], HttpResponse::HTTP_NOT_FOUND);
+        }
+
+        return Response::json([ 'data' => $estadoFuerza ], HttpResponse::HTTP_OK);
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function enviarEstadoFuerza()
+    {
+        $datos = Input::json()->all();
+
+        $errors_main = array();
+        DB::beginTransaction();
+
+        try {
+//            $validacion = $this->ValidarParametros("", NULL, $datos);
+//            if ($validacion != "") {
+//                return Response::json(['error' => $validacion], HttpResponse::HTTP_CONFLICT);
+//            }
+            $data = new RespuestasEstadosFuerza;
+            $success = $this->AgregarDatosRespuesta($datos, $data);
+
+        } catch (\Exception $e){
+            return Response::json($e->getMessage(), 500);
+        }
+
+        if ($success){
+            DB::commit();
+            return Response::json(array("status" => 201,"messages" => "Creado","data" => $data), 201);
+        } else{
+            DB::rollback();
+            return Response::json(array("status" => 409,"messages" => "Conflicto"), 409);
+        }
+    }
+
+    private function AgregarDatosRespuesta($datos, $data){
+        $success = false;
+        $datos = (object)$datos;
+
+        //verificar si existe items, en caso de que exista proceder a guardarlo
+        if(property_exists($datos, "items")){
+            //limpiar el arreglo de posibles nullos
+            $detalleitems = array_filter($datos->items, function($v){return $v !== null;});
+            if(is_array($detalleitems))
+                $detalleitems = (object) $detalleitems;
+
+            //recorrer cada elemento del arreglo
+            foreach ($detalleitems as $key => $value) {
+                //validar que el valor no sea null
+                if($value != null){
+                    //comprobar si el value es un array, si es convertirlo a object mas facil para manejar.
+                    if(is_array($value))
+                        $value = (object) $value;
+
+                    $data->servidor_id 	                   = env("SERVIDOR_ID");
+                    $data->clues                           = $datos->clues;
+                    $data->turnos_id                       = $datos->turnos_id;
+                    $data->items_id                        = $value->items_id;
+                    $data->respuesta_numero                = $value->respuesta_numero;
+                    $data->respuesta_texto                 = $value->respuesta_texto;
+                    $data->respuesta_boolean               = $value->respuesta_boolean;
+
+                    if($data->save()){
+                        $success = true;
+                    }
+
+                }
+            }
+
+        }
+        return $success;
+
     }
 }

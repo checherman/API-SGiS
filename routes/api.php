@@ -65,6 +65,8 @@ Route::middleware('jwt')->group(function () {
 
         //Funcionalidad
         Route::get('estado-fuerza/{nivelesCones}',                'V1\Catalogos\CarteraServicioController@showEstadoFuerza');
+        Route::get('estado-fuerza/{clues}',                'V1\Catalogos\CarteraServicioController@showEstadoFuerzaClues');
+        Route::post('estado-fuerza',                              'V1\Catalogos\CarteraServicioController@enviarEstadoFuerza');
 
         //movil
 

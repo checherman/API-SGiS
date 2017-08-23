@@ -4,6 +4,7 @@ namespace App;
 
 namespace App\Models\Catalogos;
 use App\Models\Transacciones\MovimientosIncidencias;
+use App\Models\Transacciones\RespuestasEstadosFuerza;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -23,5 +24,10 @@ class Turnos extends Model
     public function movimientos_incidencias()
     {
         return $this->hasMany(MovimientosIncidencias::class);
+    }
+
+    public function respuestas_estados_fuerza()
+    {
+        return $this->hasMany(RespuestasEstadosFuerza::class);
     }
 }

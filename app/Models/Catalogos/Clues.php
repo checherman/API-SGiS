@@ -6,6 +6,7 @@ namespace App\Models\Catalogos;
 
 use App\Models\Sistema\Usuario;
 use App\Models\Transacciones\Incidencias;
+use App\Models\Transacciones\RespuestasEstadosFuerza;
 use Illuminate\Database\Eloquent\Model;
 
 class Clues extends Model
@@ -31,6 +32,11 @@ class Clues extends Model
     public function usuarios()
     {
         return $this->hasMany(Usuario::class, 'clues','clues');
+    }
+
+    public function respuestas_estados_fuerza()
+    {
+        return $this->hasMany(RespuestasEstadosFuerza::class, 'clues','clues');
     }
 
 }
