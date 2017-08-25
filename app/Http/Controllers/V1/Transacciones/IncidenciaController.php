@@ -57,7 +57,8 @@ class IncidenciaController extends Controller
                         ->where('incidencias.estados_incidencias_id', $parametros['edo_incidencia'])
                         ->where(function ($query) use ($parametros) {
                             $query->where('id', 'LIKE', "%" . $parametros['q'] . "%")
-                                ->orWhere('nombre', 'LIKE', "%" . $parametros['q'] . "%");
+                                ->orWhere('motivo_ingreso', 'LIKE', "%" . $parametros['q'] . "%")
+                                ->orWhere('impresion_diagnostica', 'LIKE', "%" . $parametros['q'] . "%");
                         });
                 }else{//CLUES
                     $data = Incidencias::select('incidencias.*')
@@ -67,7 +68,8 @@ class IncidenciaController extends Controller
                         ->with("movimientos_incidencias", "referencias", "estados_incidencias")
                         ->where(function ($query) use ($parametros) {
                             $query->where('id', 'LIKE', "%" . $parametros['q'] . "%")
-                                ->orWhere('nombre', 'LIKE', "%" . $parametros['q'] . "%");
+                                ->orWhere('motivo_ingreso', 'LIKE', "%" . $parametros['q'] . "%")
+                                ->orWhere('impresion_diagnostica', 'LIKE', "%" . $parametros['q'] . "%");
                         });
                 }
             }else{//NOCLUES
@@ -77,14 +79,16 @@ class IncidenciaController extends Controller
                         ->where('incidencias.estados_incidencias_id', $parametros['edo_incidencia'])
                         ->where(function ($query) use ($parametros) {
                             $query->where('id', 'LIKE', "%" . $parametros['q'] . "%")
-                                ->orWhere('nombre', 'LIKE', "%" . $parametros['q'] . "%");
+                                ->orWhere('motivo_ingreso', 'LIKE', "%" . $parametros['q'] . "%")
+                                ->orWhere('impresion_diagnostica', 'LIKE', "%" . $parametros['q'] . "%");
                         });
                 }else{//NO CLUES NO INCIDENCIA
                     $data = Incidencias::with("pacientes.personas", "pacientes.acompaniantes.personas")
                         ->with("movimientos_incidencias", "referencias", "estados_incidencias")
                         ->where(function ($query) use ($parametros) {
                             $query->where('id', 'LIKE', "%" . $parametros['q'] . "%")
-                                ->orWhere('nombre', 'LIKE', "%" . $parametros['q'] . "%");
+                                ->orWhere('motivo_ingreso', 'LIKE', "%" . $parametros['q'] . "%")
+                                ->orWhere('impresion_diagnostica', 'LIKE', "%" . $parametros['q'] . "%");
                         });
                 }
             }
