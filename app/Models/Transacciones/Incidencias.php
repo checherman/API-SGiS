@@ -32,12 +32,17 @@ class Incidencias extends BaseModel
 
     public function movimientos_incidencias()
     {
-        return $this->hasMany(MovimientosIncidencias::class)->with("estados_pacientes")->with("valoraciones_pacientes")->with("triage_colores")->with("subcategorias_cie10")->with("turnos");
+        return $this->hasMany(MovimientosIncidencias::class)->orderBy('id', 'DESC')->with("estados_pacientes")->with("valoraciones_pacientes")->with("triage_colores")->with("subcategorias_cie10")->with("turnos");
+    }
+
+    public function altas_incidencias()
+    {
+        return $this->hasMany(AltasIncidencias::class)->orderBy('id', 'DESC')->with("estados_pacientes")->with("metodos_planificacion")->with("turnos");
     }
 
     public function referencias()
     {
-        return $this->hasMany(Referencias::class);
+        return $this->hasMany(Referencias::class)->orderBy('id', 'DESC');
     }
 
     public function estados_incidencias()

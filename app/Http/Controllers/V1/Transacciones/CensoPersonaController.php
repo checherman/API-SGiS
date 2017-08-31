@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\V1\Transacciones;
 
 use App\Http\Controllers\ApiController;
+use App\Models\Transacciones\Acompaniantes;
 use App\Models\Transacciones\Personas;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response as HttpResponse;
@@ -33,8 +34,10 @@ class CensoPersonaController extends ApiController
     public function index()
     {
         $parametros = Input::only('q','page','per_page');
+        $acompaniantes = Acompaniantes::select('personas_id')->get();
+
         if ($parametros['q']) {
-            $data =  Personas::with('derechohabientes','estados_embarazos','localidades')->where(function($query) use ($parametros) {
+            $data =  Personas::whereNotIn('id', $acompaniantes)->with('derechohabientes','estados_embarazos','localidades')->where(function($query) use ($parametros) {
                 $query->where('id','LIKE',"%".$parametros['q']."%")
                     ->orWhere('nombre','LIKE',"%".$parametros['q']."%")
                     ->orWhere('paterno','LIKE',"%".$parametros['q']."%")
@@ -43,7 +46,7 @@ class CensoPersonaController extends ApiController
                     ->orWhere('domicilio','LIKE',"%".$parametros['q']."%");
             });
         } else {
-            $data =  Personas::with('derechohabientes','estados_embarazos','localidades');
+            $data =  Personas::whereNotIn('id', $acompaniantes)->with('derechohabientes','estados_embarazos','localidades');
         }
 
         if(isset($parametros['page'])){

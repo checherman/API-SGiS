@@ -5,6 +5,7 @@ namespace App\Http\Controllers\V1\Transacciones;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
+use App\Models\Transacciones\AltasIncidencias;
 use DateTime;
 use Illuminate\Http\Response as HttpResponse;
 
@@ -53,7 +54,7 @@ class IncidenciaController extends Controller
                         ->join('incidencia_clue', 'incidencia_clue.incidencias_id', '=', 'incidencias.id')
                         ->where('incidencia_clue.clues', $parametros['clues'])
                         ->with("pacientes.personas", "pacientes.acompaniantes.personas")
-                        ->with("movimientos_incidencias", "referencias", "estados_incidencias")
+                        ->with("movimientos_incidencias", "referencias", "altas_incidencias", "estados_incidencias")
                         ->where('incidencias.estados_incidencias_id', $parametros['edo_incidencia'])
                         ->where(function ($query) use ($parametros) {
                             $query->where('id', 'LIKE', "%" . $parametros['q'] . "%")
@@ -65,7 +66,7 @@ class IncidenciaController extends Controller
                         ->join('incidencia_clue', 'incidencia_clue.incidencias_id', '=', 'incidencias.id')
                         ->where('incidencia_clue.clues', $parametros['clues'])
                         ->with("pacientes.personas", "pacientes.acompaniantes.personas")
-                        ->with("movimientos_incidencias", "referencias", "estados_incidencias")
+                        ->with("movimientos_incidencias", "referencias", "altas_incidencias", "estados_incidencias")
                         ->where(function ($query) use ($parametros) {
                             $query->where('id', 'LIKE', "%" . $parametros['q'] . "%")
                                 ->orWhere('motivo_ingreso', 'LIKE', "%" . $parametros['q'] . "%")
@@ -75,7 +76,7 @@ class IncidenciaController extends Controller
             }else{//NOCLUES
                 if ($parametros['edo_incidencia']) {//NOCLUES E INCIDENCIA
                     $data = Incidencias::with("pacientes.personas", "pacientes.acompaniantes.personas")
-                        ->with("movimientos_incidencias", "referencias", "estados_incidencias")
+                        ->with("movimientos_incidencias", "referencias", "altas_incidencias", "estados_incidencias")
                         ->where('incidencias.estados_incidencias_id', $parametros['edo_incidencia'])
                         ->where(function ($query) use ($parametros) {
                             $query->where('id', 'LIKE', "%" . $parametros['q'] . "%")
@@ -99,23 +100,23 @@ class IncidenciaController extends Controller
                         ->join('incidencia_clue', 'incidencia_clue.incidencias_id', '=', 'incidencias.id')
                         ->where('incidencia_clue.clues', $parametros['clues'])
                         ->with("pacientes.personas", "pacientes.acompaniantes.personas")
-                        ->with("movimientos_incidencias", "referencias", "estados_incidencias")
+                        ->with("movimientos_incidencias", "referencias", "altas_incidencias", "estados_incidencias")
                         ->where('incidencias.estados_incidencias_id', $parametros['edo_incidencia']);
                 }else{//CLUES NOINCIDENCIA
                     $data = Incidencias::select('incidencias.*')
                         ->join('incidencia_clue', 'incidencia_clue.incidencias_id', '=', 'incidencias.id')
                         ->where('incidencia_clue.clues', $parametros['clues'])
                         ->with("pacientes.personas", "pacientes.acompaniantes.personas")
-                        ->with("movimientos_incidencias", "referencias", "estados_incidencias");
+                        ->with("movimientos_incidencias", "referencias", "altas_incidencias", "estados_incidencias");
                 }
             }else{//NOCLUES
                 if ($parametros['edo_incidencia']) {//NOCLUES E INCIDENCIA
                     $data = Incidencias::with("pacientes.personas", "pacientes.acompaniantes.personas")
-                        ->with("movimientos_incidencias", "referencias", "estados_incidencias")
+                        ->with("movimientos_incidencias", "referencias", "altas_incidencias", "estados_incidencias")
                         ->where('incidencias.estados_incidencias_id', $parametros['edo_incidencia']);
                 }else{//NOCLUES NOINCIDENCIA
                     $data = Incidencias::with("pacientes.personas", "pacientes.acompaniantes.personas")
-                        ->with("movimientos_incidencias", "referencias", "estados_incidencias");
+                        ->with("movimientos_incidencias", "referencias", "altas_incidencias", "estados_incidencias");
                 }
             }
         }
@@ -204,6 +205,7 @@ class IncidenciaController extends Controller
             ->with("pacientes.personas","pacientes.acompaniantes.personas")
             ->with("movimientos_incidencias")
             ->with("referencias")
+            ->with("altas_incidencias")
             ->with("estados_incidencias")
             ->first();
 
@@ -423,6 +425,8 @@ class IncidenciaController extends Controller
                                     if (!property_exists($detallePersonas, "id")) {
                                         DB::insert("insert into incidencia_clue (incidencias_id, clues) VALUE ('$data->id', '$datos->clues')");
                                         DB::insert("insert into incidencia_paciente (incidencias_id, pacientes_id) VALUE ('$data->id', '$paciente->id')");
+                                    }else{
+                                        //DB::update("update incidencia_clue set clues = '$datos->clues' where incidencias_id = '$data->id' and motivo_ingreso = '$data->motivo_ingreso' and impresion_diagnostica = '$data->impresion_diagnostica' ");
                                     }
                                 }
                             }
@@ -522,10 +526,6 @@ class IncidenciaController extends Controller
                         $movimientos_incidencias->indicaciones                    = $value->indicaciones;
                         $movimientos_incidencias->reporte_medico                  = $value->reporte_medico;
 
-                        $movimientos_incidencias->diagnostico_egreso              = $value->diagnostico_egreso;
-                        $movimientos_incidencias->observacion_trabajo_social      = $value->observacion_trabajo_social;
-                        $movimientos_incidencias->metodos_planificacion_id        = $value->metodos_planificacion_id;
-
                         $movimientos_incidencias->valoraciones_pacientes_id       = $value->valoraciones_pacientes_id;
                         $movimientos_incidencias->estados_pacientes_id            = $value->estados_pacientes_id;
                         $movimientos_incidencias->triage_colores_id               = $value->triage_colores_id;
@@ -533,6 +533,50 @@ class IncidenciaController extends Controller
                         $movimientos_incidencias->turnos_id                       = $value->turnos_id;
 
                         $movimientos_incidencias->save();
+
+                    }
+                }
+
+            }
+
+            //verificar si existe altas_incidencias, en caso de que exista proceder a guardarlo
+            if(property_exists($datos, "altas_incidencias")){
+                //limpiar el arreglo de posibles nullos
+                $detalleAltas = array_filter($datos->altas_incidencias, function($v){return $v !== null;});
+                if(is_array($detalleAltas))
+                    $detalleAltas = (object) $detalleAltas;
+                //borrar los datos previos de articulo para no duplicar información
+                if(property_exists($detalleAltas, "id")){
+                    AltasIncidencias::where("id", $detalleAltas->id)->where("incidencias_id", $data->id)->delete();
+                }
+
+                //recorrer cada elemento del arreglo
+                foreach ($detalleAltas as $key => $value) {
+                    //validar que el valor no sea null
+                    if($value != null){
+                        //comprobar si el value es un array, si es convertirlo a object mas facil para manejar.
+                        if(is_array($value))
+                            $value = (object) $value;
+                        //comprobar que el dato que se envio no exista o este borrado, si existe y esta borrado poner en activo nuevamente
+                        if(property_exists($value, "id")){
+                            DB::update("update altas_incidencias set deleted_at = null where id = '$value->id' and incidencias_id = '$data->id' ");
+                            //si existe actualizar
+                            $altas_incidencias = AltasIncidencias::where("id", $value->id)->where("incidencias_id", $data->id)->first();
+                        }else
+                            $altas_incidencias = new AltasIncidencias;
+
+                        $altas_incidencias->servidor_id 	                  = env("SERVIDOR_ID");
+                        $altas_incidencias->incidencias_id                  = $data->id;
+
+                        $altas_incidencias->medico_reporta_id               = $value->medico_reporta_id;
+                        $altas_incidencias->diagnostico_egreso              = $value->diagnostico_egreso;
+                        $altas_incidencias->observacion_trabajo_social      = $value->observacion_trabajo_social;
+                        $altas_incidencias->metodos_planificacion_id        = $value->metodos_planificacion_id;
+
+                        $altas_incidencias->estados_pacientes_id            = $value->estados_pacientes_id;
+                        $altas_incidencias->turnos_id                       = $value->turnos_id;
+
+                        $altas_incidencias->save();
 
                     }
                 }

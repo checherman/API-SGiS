@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CrearTablaRespuestasEstadosFuerza extends Migration
+class CrearTablaAltasIncidencias extends Migration
 {
     /**
      * Run the migrations.
@@ -13,39 +13,37 @@ class CrearTablaRespuestasEstadosFuerza extends Migration
      */
     public function up()
     {
-        Schema::create('respuestas_estados_fuerza', function (Blueprint $table)
+        Schema::create('altas_incidencias', function (Blueprint $table)
         {
             $table->engine = 'InnoDB';
 
             $table->string('id');
             $table->string('servidor_id',4);
             $table->integer('incremento');
-            $table->string('clues');
-            $table->string('respuesta');
-            $table->integer('cartera_servicios_id')->unsigned();
-            $table->integer('items_id')->unsigned();
-            $table->integer('turnos_id')->unsigned();
-            $table->string('usuarios_id');
+            $table->string('incidencias_id');
 
+            $table->string('medico_reporta_id')->nullable();
+            $table->string('diagnostico_egreso')->nullable();
+            $table->string('observacion_trabajo_social')->nullable();
+            $table->integer('metodos_planificacion_id')->unsigned()->nullable();
+
+            $table->integer('estados_pacientes_id')->unsigned()->nullable();
+            $table->integer('turnos_id')->unsigned()->nullable();
 
             $table->timestamps();
             $table->softDeletes();
 
             $table->primary('id');
 
-            $table->foreign('cartera_servicios_id')->references('id')->on('cartera_servicios')
+            $table->foreign('metodos_planificacion_id')->references('id')->on('metodos_planificacion')
                 ->onDelete('cascade')
                 ->onUpdate('cascade');
 
-            $table->foreign('items_id')->references('id')->on('items')
+            $table->foreign('estados_pacientes_id')->references('id')->on('estados_pacientes')
                 ->onDelete('cascade')
                 ->onUpdate('cascade');
 
             $table->foreign('turnos_id')->references('id')->on('turnos')
-                ->onDelete('cascade')
-                ->onUpdate('cascade');
-
-            $table->foreign('usuarios_id')->references('id')->on('usuarios')
                 ->onDelete('cascade')
                 ->onUpdate('cascade');
         });
@@ -58,6 +56,6 @@ class CrearTablaRespuestasEstadosFuerza extends Migration
      */
     public function down()
     {
-        Schema::drop('respuestas_estados_fuerza');
+        Schema::drop('altas_incidencias');
     }
 }

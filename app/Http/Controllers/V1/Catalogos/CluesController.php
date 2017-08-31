@@ -57,12 +57,7 @@ class CluesController extends Controller
         if ($parametros['q']) {
             $data =  Clues::with('jurisdiccion','municipios')->where(function($query) use ($parametros){
                 $query->where('clues','LIKE',"%".$parametros['q']."%")
-                    ->orWhere('nombre','LIKE',"%".$parametros['q']."%")
-                    ->orWhere('entidad','LIKE',"%".$parametros['q']."%")
-                    ->orWhere('institucion','LIKE',"%".$parametros['q']."%")
-                    ->orWhere('jurisdiccion','LIKE',"%".$parametros['q']."%")
-                    ->orWhere('localidad','LIKE',"%".$parametros['q']."%")
-                    ->orWhere('municipio','LIKE',"%".$parametros['q']."%");
+                    ->orWhere('nombre','LIKE',"%".$parametros['q']."%");
             });
 
         } else {

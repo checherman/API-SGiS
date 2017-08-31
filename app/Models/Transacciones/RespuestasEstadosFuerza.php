@@ -16,7 +16,7 @@ class RespuestasEstadosFuerza extends BaseModel
     public $incrementing = false;
 
     protected $table = "respuestas_estados_fuerza";
-    protected $fillable = ["id", "servidor_id", "clues", "respuesta_numero", "respuesta_texto", "respuesta_boolean", "items_id", "turnos_id"];
+    protected $fillable = ["id", "servidor_id", "clues", "respuesta", "cartera_servicios_id","items_id", "turnos_id"];
     protected $hidden = ["created_at", "updated_at", "deleted_at"];
 
     public function turnos()

@@ -63,10 +63,7 @@ Route::middleware('jwt')->group(function () {
         Route::resource('incidencias',          'V1\Transacciones\IncidenciaController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
         Route::resource('censo-personas',       'V1\Transacciones\CensoPersonaController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
 
-        //Funcionalidad
-        Route::get('estado-fuerza/{nivelesCones}',                'V1\Catalogos\CarteraServicioController@showEstadoFuerza');
-        Route::get('estado-fuerza/{clues}',                'V1\Catalogos\CarteraServicioController@showEstadoFuerzaClues');
-        Route::post('estado-fuerza',                              'V1\Catalogos\CarteraServicioController@enviarEstadoFuerza');
+        Route::resource('estados-fuerza',       'V1\Transacciones\EstadoFuerzaController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
 
         //movil
 

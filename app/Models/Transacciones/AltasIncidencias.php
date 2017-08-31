@@ -6,13 +6,14 @@ use App\Models\BaseModel;
 use App\Models\Catalogos\Clues;
 use App\Models\Catalogos\EstadosIncidencias;
 use App\Models\Catalogos\EstadosPacientes;
+use App\Models\Catalogos\MetodoPlanificacion;
 use App\Models\Catalogos\SubCategoriasCie10;
 use App\Models\Catalogos\TriageColores;
 use App\Models\Catalogos\Turnos;
 use App\Models\Catalogos\ValoraciionesPacientes;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class MovimientosIncidencias extends BaseModel
+class AltasIncidencias extends BaseModel
 {
     use SoftDeletes;
 
@@ -25,14 +26,11 @@ class MovimientosIncidencias extends BaseModel
     protected $fillable = [
         "id",
         "servidor_id",
-        "indicaciones",
-        "reporte_medico",
-        "incidencias_id",
+        "diagnostico_egreso",
+        "observacion_trabajo_social",
         "medico_reporta_id",
-        "valoraciones_medicas_id",
+        "metodos_planificacion_id",
         "estados_pacientes_id",
-        "triage_colores_id",
-        "subcategorias_cie10_id",
         "turnos_id",
     ];
 
@@ -46,24 +44,14 @@ class MovimientosIncidencias extends BaseModel
         return $this->belongsTo(EstadosPacientes::class);
     }
 
-    public function triage_colores()
-    {
-        return $this->belongsTo(TriageColores::class);
-    }
-
-    public function valoraciones_pacientes()
-    {
-        return $this->belongsTo(ValoraciionesPacientes::class);
-    }
-
-    public function subcategorias_cie10()
-    {
-        return $this->belongsTo(SubCategoriasCie10::class);
-    }
-
     public function turnos()
     {
         return $this->belongsTo(Turnos::class);
+    }
+
+    public function metodos_planificacion()
+    {
+        return $this->belongsTo(MetodoPlanificacion::class);
     }
 
 }
