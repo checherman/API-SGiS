@@ -36,25 +36,31 @@ class EstadoFuerzaController extends Controller
     public function index()
     {
         $parametros = Input::only('q','page','per_page', 'clues');
+
         if ($parametros['q']) {
             if ($parametros['clues']) {
-                $data = RespuestasEstadosFuerza::where('respuestas_estados_fuerza.clues', $parametros['clues'])
+                $data = RespuestasEstadosFuerza::with('cartera_servicios','clues','items', 'turnos')
+                    ->where('respuestas_estados_fuerza.clues', $parametros['clues'])
                     ->where(function ($query) use ($parametros) {
                     $query->where('id', 'LIKE', "%" . $parametros['q'] . "%")
                         ->orWhere('clues', 'LIKE', "%" . $parametros['q'] . "%");
                 });
             }else{
-
+                $data = RespuestasEstadosFuerza::with('cartera_servicios','clues','items', 'turnos')
+                    ->where(function ($query) use ($parametros) {
+                        $query->where('id', 'LIKE', "%" . $parametros['q'] . "%")
+                            ->orWhere('clues', 'LIKE', "%" . $parametros['q'] . "%");
+                    });
             }
         } else {
             if ($parametros['clues']) {
                 $data = RespuestasEstadosFuerza::where('respuestas_estados_fuerza.clues', $parametros['clues'])
-                    ->with('clues', 'turnos');
+                    ->with('cartera_servicios','clues','items', 'turnos');
             }else{
-                $data = RespuestasEstadosFuerza::with('clues', 'turnos');
+                $data = RespuestasEstadosFuerza::with('cartera_servicios','clues','items', 'turnos');
             }
         }
-
+        $data->groupBy('created_at');
 
         if(isset($parametros['page'])){
 
@@ -63,6 +69,7 @@ class EstadoFuerzaController extends Controller
         } else {
             $data = $data->get();
         }
+
 
         return Response::json([ 'data' => $data],200);
     }
@@ -185,17 +192,17 @@ class EstadoFuerzaController extends Controller
         $datos = (object)$datos;
 
         //verificar si existe cartera servicios, en caso de que exista proceder a guardarlo
-        if(property_exists($datos, "data")){
-            //limpiar el arreglo de posibles nullos
-            $detalleData = array_filter($datos->data, function($v){return $v !== null;});
-
-            if(is_array($detalleData))
-                $detalleData = (object) $detalleData;
+//        if(property_exists($datos, "data")){
+//            //limpiar el arreglo de posibles nullos
+//            $detalleData = array_filter($datos->data, function($v){return $v !== null;});
+//            dd($detalleData);
+//            if(is_array($detalleData))
+//                $detalleData = (object) $detalleData;
 
                 //verificar si existe cartera servicios, en caso de que exista proceder a guardarlo
-                if (property_exists($detalleData, "cartera_servicios")) {
+                if (property_exists($datos, "cartera_servicios")) {
                     //limpiar el arreglo de posibles nullos
-                    $detalleCartera = array_filter($detalleData->cartera_servicios, function ($v) {return $v !== null;});
+                    $detalleCartera = array_filter($datos->cartera_servicios, function ($v) {return $v !== null;});
 
                     if (is_array($detalleCartera))
                         $detalleCartera = (object)$detalleCartera;
@@ -225,9 +232,9 @@ class EstadoFuerzaController extends Controller
                                             $valueItems = (object)$valueItems;
 
                                         $data->servidor_id = env("SERVIDOR_ID");
-                                        $data->clues                = $datos->data['clues'];
-                                        $data->turnos_id            = $datos->data['turnos_id'];
-                                        $data->usuarios_id          = $datos->data['usuarios_id'];
+                                        $data->clues                = $datos->clues;
+                                        $data->turnos_id            = $datos->turnos_id;
+                                        $data->usuarios_id          = $datos->usuarios_id;
                                         $data->cartera_servicios_id = $valueItems->cartera_servicios_id;
                                         $data->items_id             = $valueItems->tipos_items_id;
                                         $data->respuesta            = $valueItems->respuesta;
@@ -244,7 +251,7 @@ class EstadoFuerzaController extends Controller
 
                     }
                 }
-        }
+        //}
 
         return $success;
     }

@@ -25,6 +25,11 @@ class Items extends Model
         return $this->belongsTo(CarteraServicios::class);
     }
 
+    public function respuestas_estados_fuerza()
+    {
+        return $this->hasMany(RespuestasEstadosFuerza::class);
+    }
+
     public function tipoItem()
     {
         return $this->belongsTo(TiposItems::class);

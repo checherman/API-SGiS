@@ -317,7 +317,7 @@ class IncidenciaController extends Controller
         ];
 
         $rules = [
-            'id' => 'required|unique:incidencias,id,'.$id.',id,deleted_at,NULL',
+            //'id' => 'required|unique:incidencias,id,'.$id.',id,deleted_at,NULL',
             'motivo_ingreso' => 'required',
             'impresion_diagnostica' => 'required',
         ];

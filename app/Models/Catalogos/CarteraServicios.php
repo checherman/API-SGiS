@@ -3,6 +3,7 @@
 namespace App;
 
 namespace App\Models\Catalogos;
+use App\Models\Transacciones\RespuestasEstadosFuerza;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -28,5 +29,10 @@ class CarteraServicios extends Model
     public function nivelesCones()
     {
         return $this->belongsToMany(NivelesCones::class, 'cartera_servicio_nivel_cone', 'cartera_servicios_id', 'niveles_cones_id');
+    }
+
+    public function respuestas_estados_fuerza()
+    {
+        return $this->hasMany(RespuestasEstadosFuerza::class);
     }
 }
