@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\V1\Transacciones;
 
 
+use App\Events\NotificacionEvent;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Models\Transacciones\AltasIncidencias;
@@ -565,7 +566,7 @@ class IncidenciaController extends Controller
                         }else
                             $altas_incidencias = new AltasIncidencias;
 
-                        $altas_incidencias->servidor_id 	                  = env("SERVIDOR_ID");
+                        $altas_incidencias->servidor_id 	                = env("SERVIDOR_ID");
                         $altas_incidencias->incidencias_id                  = $data->id;
 
                         $altas_incidencias->medico_reporta_id               = $value->medico_reporta_id;
@@ -626,7 +627,12 @@ class IncidenciaController extends Controller
                 }
             }
 
-
+//            $mensaje = collect();
+//            $mensaje->put('mensaje', "Tiene una notificacion");
+//            $mensaje->put('movimientos_incidencias', $movimientos_incidencias);
+//            $mensaje->put('referencias', $referencia);
+//            $mensaje->put('alta_incidencias', $altas_incidencias);
+//            event(new NotificacionEvent($mensaje,"uset"));
         }
     }
 
@@ -636,10 +642,13 @@ class IncidenciaController extends Controller
      * <h4>Request</h4>
      * Recibe un Input Request con el json de los datos
      *
-     * @param  int  $id que corresponde al identificador del dato a actualizar
-     * @return Response
+     * @param $data
+     * @param $nombre
+     * @param $i
+     * @return Response <code style="color:green"> Respuesta Ok json(array("status": 200, "messages": "Operación realizada con exito", "data": array(resultado)),status) </code>
      * <code style="color:green"> Respuesta Ok json(array("status": 200, "messages": "Operación realizada con exito", "data": array(resultado)),status) </code>
      * <code> Respuesta Error json(array("status": 304, "messages": "No modificado"),status) </code>
+     * @internal param int $id que corresponde al identificador del dato a actualizar
      */
     public function convertir_imagen($data, $nombre, $i){
         try{

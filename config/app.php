@@ -173,7 +173,7 @@ return [
          */
         App\Providers\AppServiceProvider::class,
         App\Providers\AuthServiceProvider::class,
-        // App\Providers\BroadcastServiceProvider::class,
+        App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
 
@@ -236,7 +236,9 @@ return [
         'View' => Illuminate\Support\Facades\View::class,
 
         'JWTAuth' => 'Tymon\JWTAuth\Facades\JWTAuth',
-        'JWTFactory' => 'Tymon\JWTAuth\Facades\JWTFactory'
+        'JWTFactory' => 'Tymon\JWTAuth\Facades\JWTFactory',
+
+        'Pusher' => Pusher\Pusher::class,
     ],
 
 ];

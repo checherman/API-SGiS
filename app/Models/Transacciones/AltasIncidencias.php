@@ -22,7 +22,7 @@ class AltasIncidencias extends BaseModel
     protected $guardarIDUsuario = false;
     public $incrementing = false;
 
-    protected $table = "movimientos_incidencias";
+    protected $table = "altas_incidencias";
     protected $fillable = [
         "id",
         "servidor_id",

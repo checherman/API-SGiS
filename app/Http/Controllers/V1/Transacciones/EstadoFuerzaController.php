@@ -7,10 +7,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Catalogos\CarteraServicios;
 use App\Models\Catalogos\NivelesCones;
 use App\Models\Transacciones\RespuestasEstadosFuerza;
-use DateTime;
 use Illuminate\Http\Response as HttpResponse;
 
-use PhpParser\Node\Expr\Cast\Object_;
 use Request;
 use \Validator,\Hash, \Response, \DB;
 use Illuminate\Support\Facades\Input;
@@ -57,10 +55,18 @@ class EstadoFuerzaController extends Controller
                 $data = RespuestasEstadosFuerza::where('respuestas_estados_fuerza.clues', $parametros['clues'])
                     ->with('cartera_servicios','clues','items', 'turnos');
             }else{
-                $data = RespuestasEstadosFuerza::with('cartera_servicios','clues','items', 'turnos');
+//                $nivelesCones = NivelesCones::find(2);
+//
+//                $data = collect();
+//                $data->put('clues', "");
+//                $data->put('usuarios_id', "");
+//                $data->put('turnos_id', "");
+//                $data->put('usuario', "");
+//                $carteraServicios = $nivelesCones->carteraServicio()->with("respuestas_estados_fuerza.items")->get();
+//                $data->put('cartera_servicios', $carteraServicios);
+                $data = RespuestasEstadosFuerza::with('cartera_servicios', 'clues', 'items', 'turnos');
             }
         }
-        $data->groupBy('created_at');
 
         if(isset($parametros['page'])){
 

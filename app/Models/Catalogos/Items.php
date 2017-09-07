@@ -3,6 +3,7 @@
 namespace App;
 
 namespace App\Models\Catalogos;
+use App\Models\Transacciones\RespuestasEstadosFuerza;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
