@@ -6,6 +6,7 @@ namespace App\Http\Controllers\V1\Transacciones;
 use App\Events\NotificacionEvent;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
+use App\Models\Sistema\Multimedias;
 use App\Models\Transacciones\AltasIncidencias;
 use DateTime;
 use Illuminate\Http\Response as HttpResponse;
@@ -577,7 +578,20 @@ class IncidenciaController extends Controller
                         $altas_incidencias->estados_pacientes_id            = $value->estados_pacientes_id;
                         $altas_incidencias->turnos_id                       = $value->turnos_id;
 
-                        $altas_incidencias->save();
+                        if($altas_incidencias->save()){
+                            //comprobar que el dato que se envio no exista
+                            if(property_exists($value, "id")) {
+                                //si existe actualizar
+                                $multimedia = Multimedias::where("id", $value->id)->where("refererencias_id", $data->id)->first();
+                            }else
+                                $multimedia = new Multimedias;
+
+                            $multimedia->altas_incidencias_id                   = $altas_incidencias->id;
+                            $multimedia->tipo                                   = "imagen";
+                            $multimedia->url                                    = $this->convertir_imagen($value->img, 'referencias', $data->id);
+
+                            $multimedia->save();
+                        }
 
                     }
                 }
@@ -619,10 +633,21 @@ class IncidenciaController extends Controller
                         $referencia->resumen_clinico                = $value->resumen_clinico;
                         $referencia->clues_origen                   = $value->clues_origen;
                         $referencia->clues_destino                  = $value->clues_destino;
-                        $referencia->img                            = $this->convertir_imagen($value->img, 'referencias', $data->id);
-                        $referencia->esContrareferencia             = $value->esContrareferencia;
 
-                        $referencia->save();
+                        if($referencia->save()){
+                            //comprobar que el dato que se envio no exista
+                            if(property_exists($value, "id")) {
+                                //si existe actualizar
+                                $multimedia = Multimedias::where("id", $value->id)->where("refererencias_id", $data->id)->first();
+                            }else
+                                $multimedia = new Multimedias;
+
+                            $multimedia->referencias_id                   = $referencia->id;
+                            $multimedia->tipo                             = "imagen";
+                            $multimedia->url                              = $this->convertir_imagen($value->img, 'referencias', $data->id);
+
+                            $multimedia->save();
+                        }
                     }
                 }
             }

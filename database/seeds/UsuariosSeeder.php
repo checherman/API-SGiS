@@ -13,9 +13,9 @@ class UsuariosSeeder extends Seeder
     {
         DB::table('usuarios')->insert([
             [
-                'id' => 'root',
+                'id' => 'ugus.sgis@gmail.com',
                 'servidor_id' =>  env("SERVIDOR_ID"),
-                'password' => Hash::make('sumami'),
+                'password' => Hash::make('ugus.sgis'),
                 'nombre' => 'Super',
                 'paterno' => 'Usuario',
                 'materno' => 'Usuario',

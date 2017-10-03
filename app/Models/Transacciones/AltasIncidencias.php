@@ -44,14 +44,19 @@ class AltasIncidencias extends BaseModel
         return $this->belongsTo(EstadosPacientes::class);
     }
 
-    public function turnos()
-    {
-        return $this->belongsTo(Turnos::class);
-    }
-
     public function metodos_planificacion()
     {
         return $this->belongsTo(MetodoPlanificacion::class);
+    }
+
+    public function multimedias()
+    {
+        return $this->hasMany(Multimedias::class);
+    }
+
+    public function turnos()
+    {
+        return $this->belongsTo(Turnos::class);
     }
 
 }

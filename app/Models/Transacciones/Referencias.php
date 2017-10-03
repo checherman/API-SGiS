@@ -3,6 +3,7 @@ namespace App;
 
 namespace App\Models\Transacciones;
 use App\Models\BaseModel;
+use App\Models\Sistema\Multimedias;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Referencias extends BaseModel
@@ -21,5 +22,10 @@ class Referencias extends BaseModel
     public function incidencias()
     {
         return $this->belongsTo(Incidencias::class);
+    }
+
+    public function multimedias()
+    {
+        return $this->hasMany(Multimedias::class);
     }
 }
