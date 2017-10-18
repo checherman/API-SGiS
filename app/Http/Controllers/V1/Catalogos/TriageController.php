@@ -3,13 +3,13 @@
 namespace App\Http\Controllers\V1\Catalogos;
 
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Response as HttpResponse;
 
 use App\Http\Requests;
 use \Validator,\Hash, \Response, \DB;
 use Illuminate\Support\Facades\Input;
 
+use App\Http\Controllers\Controller;
 use App\Models\Catalogos\Triage;
 use App\Models\Catalogos\TriageSintomas;
 use App\Models\Catalogos\TriageColorTriageSintoma;

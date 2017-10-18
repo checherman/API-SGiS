@@ -1,18 +1,22 @@
-<?php
-namespace App\Models\Sistema;
+<?php namespace App\Models\Sistema;
 
 use App\Models\BaseModel;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Notificaciones extends BaseModel{
+/**
+* Modelo Notificaciones
+* 
+* @package    Plataforma API
+* @subpackage Controlador
+* @author     Eliecer Ramirez Esquinca <ramirez.esquinca@gmail.com>
+* @created    2015-07-20
+*
+* Modelo `Notificaciones`: Manejo de los usuarios
+*
+*/
+class Notificaciones extends BaseModel {
 
-    use SoftDeletes;
+    public function NotificacionesUsuarios(){
+      return $this->hasMany('App\Models\Sistema\NotificacionesUsuarios','notificaciones_id');
+    }
 
-    protected $generarID = false;
-    protected $guardarIDServidor = false;
-    protected $guardarIDUsuario = false;
-    public $incrementing = true;
-
-    protected $table = 'notifications';
-    protected $fillable = ["id", "type", "notifiable", "data", "read_at"];
 }

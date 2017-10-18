@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers\V1\Catalogos;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+
+use Illuminate\Support\Facades\Request;
 use Illuminate\Http\Response as HttpResponse;
 
 use App\Http\Requests;
@@ -27,32 +28,91 @@ use App\Models\Catalogos\Clues;
 class NivelConeController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Muestra una lista de los recurso según los parametros a procesar en la petición.
      *
-     * @return \Illuminate\Http\Response
+     * <h3>Lista de parametros Request:</h3>
+     * <Ul>Paginación
+     * <Li> <code>$pagina</code> numero del puntero(offset) para la sentencia limit </ li>
+     * <Li> <code>$limite</code> numero de filas a mostrar por página</ li>
+     * </Ul>
+     * <Ul>Busqueda
+     * <Li> <code>$valor</code> string con el valor para hacer la busqueda</ li>
+     * <Li> <code>$order</code> campo de la base de datos por la que se debe ordenar la información. Por Defaul es ASC, pero si se antepone el signo - es de manera DESC</ li>
+     * </Ul>
+     *
+     * Apoyos ordenamiento con respecto a id:
+     * <code>
+     * http://url?pagina=1&limite=5&order=id ASC
+     * </code>
+     * <code>
+     * http://url?pagina=1&limite=5&order=-id DESC
+     * </code>
+     *
+     * Todo Los parametros son opcionales, pero si existe pagina debe de existir tambien limite
+     * @return Response
+     * <code style="color:green"> Respuesta Ok json(array("status": 200, "messages": "Operación realizada con exito", "data": array(resultado)),status) </code>
+     * <code> Respuesta Error json(array("status": 404, "messages": "No hay resultados"),status) </code>
      */
-    public function index()
-    {
-        $parametros = Input::only('q','page','per_page');
-        if ($parametros['q']) {
-            $data =  NivelesCones::where(function($query) use ($parametros) {
-                $query->where('id','LIKE',"%".$parametros['q']."%")
-                    ->orWhere('nombre','LIKE',"%".$parametros['q']."%");
-            });
-        } else {
-            $data =  NivelesCones::getModel();
+    public function index(){
+        $datos = Request::all();
+
+        // Si existe el paarametro pagina en la url devolver las filas según sea el caso
+        // si no existe parametros en la url devolver todos las filas de la tabla correspondiente
+        // esta opción es para devolver todos los datos cuando la tabla es de tipo catálogo
+        if(array_key_exists('pagina', $datos)){
+            $pagina = $datos['pagina'];
+            if(isset($datos['order'])){
+                $order = $datos['order'];
+                if(strpos(" ".$order,"-"))
+                    $orden = "desc";
+                else
+                    $orden = "asc";
+                $order = str_replace("-", "", $order);
+            }
+            else{
+                $order = "id"; $orden = "asc";
+            }
+
+            if($pagina == 0){
+                $pagina = 1;
+            }
+            if($pagina == 1)
+                $datos["limite"] = $datos["limite"] - 1;
+            // si existe buscar se realiza esta linea para devolver las filas que en el campo que coincidan con el valor que el usuario escribio
+            // si no existe buscar devolver las filas con el limite y la pagina correspondiente a la paginación
+            if(array_key_exists('buscar', $datos)){
+                $columna = $datos['columna'];
+                $valor   = $datos['valor'];
+                $data = NivelesCones::orderBy($order,$orden);
+
+                $search = trim($valor);
+                $keyword = $search;
+                $data = $data->whereNested(function($query) use ($keyword){
+                    $query->where('id','LIKE',"%".$keyword['q']."%")
+                        ->orWhere('nombre','LIKE',"%".$keyword['q']."%");
+                });
+
+                $total = $data->get();
+                $data = $data->skip($pagina-1)->take($datos['limite'])->get();
+            }
+            else{
+                $data = NivelesCones::skip($pagina-1)->take($datos['limite'])->orderBy($order, $orden)->get();
+                $total = NivelesCones::all();
+            }
+
+        }
+        else{
+            $data = NivelesCones::get();
+            $total = $data;
         }
 
-
-        if(isset($parametros['page'])){
-
-            $resultadosPorPagina = isset($parametros["per_page"])? $parametros["per_page"] : 20;
-            $data = $data->paginate($resultadosPorPagina);
-        } else {
-            $data = $data->get();
+        if(!$data){
+            return Response::json(array("status" => 404,"messages" => "No hay resultados"), 404);
         }
+        else{
+            return Response::json(array("status" => 200,"messages" => "Operación realizada con exito","data" => $data,"total" => count($total)), 200);
 
-        return Response::json([ 'data' => $data],200);
+        }
     }
 
     /**
@@ -112,8 +172,7 @@ class NivelConeController extends Controller
             return Response::json(['error' => "No se encuentra el recurso que esta buscando."], HttpResponse::HTTP_NOT_FOUND);
         }
 
-        $clues = Clues::with('jurisdiccion')->where("nivel_cone_id", $id)
-            ->get();
+        $clues = Clues::with('jurisdicciones')->with('municipios')->where('nivel_cone_id', $id)->get();
 
         $data->clues = $clues;
 
@@ -216,7 +275,6 @@ class NivelConeController extends Controller
 
     private function AgregarDatos($datos, $data){
         //verificar si existe resguardos, en caso de que exista proceder a guardarlo
-
         if(property_exists($datos, "clues")){
             //limpiar el arreglo de posibles nullos
             $detalle = array_filter($datos->clues, function($v){return $v !== null;});
@@ -229,16 +287,17 @@ class NivelConeController extends Controller
                         $value = (object) $value;
 
                     //comprobar que el dato que se envio no exista o este borrado, si existe y esta borrado poner en activo nuevamente
-                    DB::select("update clues set nivel_cone_id = '$data->id' where clues = '$value->clues' ");
-                    //si existe el elemento actualizar
-                    $clues = Clues::where("nivel_cone_id", $data->id)->first();
-                    //si no existe crear
-                    if(!$clues)
-                        $clues = new Clues;
+                    DB::update("update clues set nivel_cone_id = '$data->id' where clues = '$value->clues' ");
 
-                    $clues->nivel_cone_id = $data->id;
-
-                    $clues->save();
+//                    //si existe el elemento actualizar
+//                    $clues = Clues::where("nivel_cone_id", $data->id)->first();
+//                    //si no existe crear
+//                    if(!$clues)
+//                        $clues = new Clues;
+//
+//                    $clues->nivel_cone_id = $data->id;
+//
+//                    $clues->save();
 
                 }
             }

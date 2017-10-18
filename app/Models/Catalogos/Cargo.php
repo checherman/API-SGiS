@@ -3,11 +3,11 @@
 namespace App;
 
 namespace App\Models\Catalogos;
+use App\Models\BaseModel;
 use App\Models\Sistema\Usuario;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Cargo extends Model
+class Cargo extends BaseModel
 {
     use SoftDeletes;
 

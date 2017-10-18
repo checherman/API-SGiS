@@ -16,10 +16,17 @@ class CrearTablaMunicipios extends Migration
         Schema::create('municipios', function (Blueprint $table) {
 
             $table->increments('id')->unsigned();
+
+            $table->integer('entidades_id')->default(7);
+            $table->integer('paises_id');
+            $table->integer('jurisdicciones_id');
+
             $table->string('clave');
             $table->string('nombre');
-            $table->integer('entidades_id')->default(7);
-            $table->integer('jurisdicciones_id');
+
+            $table->integer('creado_por');
+            $table->integer('modificado_por');
+            $table->integer('borrado_por');
 
             $table->timestamps();
             $table->softDeletes();

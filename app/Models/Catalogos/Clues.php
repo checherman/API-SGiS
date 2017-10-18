@@ -4,7 +4,8 @@ namespace App;
 
 namespace App\Models\Catalogos;
 
-use App\Models\Sistema\Usuario;
+use App\Models\BaseModel;
+use App\Models\Sistema\SisUsuario;
 use App\Models\Transacciones\Incidencias;
 use App\Models\Transacciones\RespuestasEstadosFuerza;
 use Illuminate\Database\Eloquent\Model;
@@ -12,6 +13,9 @@ use Illuminate\Database\Eloquent\Model;
 class Clues extends Model
 {
     protected $table = "clues";
+    protected $primaryKey = 'clues';
+    public $incrementing = false;
+
     protected $hidden = ["created_at", "updated_at", "deleted_at"];
 
     public function incidencias()
@@ -31,7 +35,7 @@ class Clues extends Model
 
     public function usuarios()
     {
-        return $this->hasMany(Usuario::class, 'clues','clues');
+        return $this->belongsToMany(SisUsuario::class, 'clue_usuario', 'clues', 'sis_usuarios_id');
     }
 
     public function respuestas_estados_fuerza()

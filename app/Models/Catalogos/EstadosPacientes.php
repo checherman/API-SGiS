@@ -3,10 +3,10 @@
 namespace App;
 
 namespace App\Models\Catalogos;
-use Illuminate\Database\Eloquent\Model;
+use App\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class EstadosPacientes extends Model
+class EstadosPacientes extends BaseModel
 {
     use SoftDeletes;
 

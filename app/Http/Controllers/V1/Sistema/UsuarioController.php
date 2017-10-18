@@ -77,7 +77,7 @@ class UsuarioController extends Controller
             $this->AgregarDatos($datos, $data);
             $success = true;
 
-        } catch (\Exception $e){
+        } catch (Exception $e){
             return Response::json($e->getMessage(), 500);
         }
 
@@ -155,7 +155,7 @@ class UsuarioController extends Controller
             $this->AgregarDatos($datos, $data);
             $success = true;
         }
-        catch (\Exception $e){
+        catch(\Exception $e){
             return Response::json($e->getMessage(), 500);
         }
 

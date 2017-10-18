@@ -4,8 +4,6 @@ namespace App\Events;
 
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
@@ -20,12 +18,23 @@ class NotificacionEvent implements ShouldBroadcast
     /**
      * Create a new event instance.
      *
-     * @return void
+     * @param $mensaje
+     * @param $user
      */
     public function __construct($mensaje, $user)
     {
         $this->mensaje = $mensaje;
         $this->user = $user;
+    }
+
+    /**
+     * The event's broadcast name.
+     *
+     * @return string
+     */
+    public function broadcastAs()
+    {
+        return 'my-event';
     }
 
     /**
@@ -35,6 +44,8 @@ class NotificacionEvent implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return new PrivateChannel('notificacion-ugus');
+
+
+        return new Channel(env('PUSHER_APP_CHANNEL'));
     }
 }

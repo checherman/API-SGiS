@@ -132,10 +132,10 @@ class VersionAppController extends Controller {
      *
      * <h4>Request</h4>
      * Recibe un input request tipo json de los datos a almacenar en la tabla correspondiente
-     *
-     * @return Response
+     * @return Response <code style="color:green"> Respuesta Ok json(array("status": 201, "messages": "Creado", "data": array(resultado)),status) </code>
      * <code style="color:green"> Respuesta Ok json(array("status": 201, "messages": "Creado", "data": array(resultado)),status) </code>
      * <code> Respuesta Error json(array("status": 500, "messages": "Error interno del servidor"),status) </code>
+     * @throws \Exception
      */
     public function store()
     {

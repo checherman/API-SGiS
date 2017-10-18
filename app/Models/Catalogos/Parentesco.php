@@ -3,11 +3,11 @@
 namespace App;
 
 namespace App\Models\Catalogos;
+use App\Models\BaseModel;
 use App\Models\Transacciones\Acompaniantes;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Parentesco extends Model
+class Parentesco extends BaseModel
 {
     use SoftDeletes;
 

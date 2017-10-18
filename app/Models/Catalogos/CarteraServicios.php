@@ -3,11 +3,11 @@
 namespace App;
 
 namespace App\Models\Catalogos;
+use App\Models\BaseModel;
 use App\Models\Transacciones\RespuestasEstadosFuerza;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class CarteraServicios extends Model
+class CarteraServicios extends BaseModel
 {
     use SoftDeletes;
 

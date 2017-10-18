@@ -6,13 +6,16 @@ namespace App\Http\Controllers\V1\Transacciones;
 use App\Events\NotificacionEvent;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
+use App\Models\Catalogos\Clues;
 use App\Models\Sistema\Multimedias;
+use App\Models\Sistema\SisUsuario;
 use App\Models\Transacciones\AltasIncidencias;
 use DateTime;
 use Illuminate\Http\Response as HttpResponse;
 
 
 use Request;
+use Tymon\JWTAuth\Facades\JWTAuth;
 use \Validator,\Hash, \Response, \DB;
 use Illuminate\Support\Facades\Input;
 
@@ -367,6 +370,10 @@ class IncidenciaController extends Controller
 
     private function AgregarDatos($datos, $data){
 
+        $movimientos_incidencias = null;
+        $altas_incidencias = null;
+        $referencia = null;
+
         //Informacion de incidencia
         $data->id = $datos['id'];
         $data->servidor_id = env("SERVIDOR_ID");
@@ -652,12 +659,48 @@ class IncidenciaController extends Controller
                 }
             }
 
-//            $mensaje = collect();
-//            $mensaje->put('mensaje', "Tiene una notificacion");
-//            $mensaje->put('movimientos_incidencias', $movimientos_incidencias);
-//            $mensaje->put('referencias', $referencia);
-//            $mensaje->put('alta_incidencias', $altas_incidencias);
-//            event(new NotificacionEvent($mensaje,"uset"));
+            $obj =  JWTAuth::parseToken()->getPayload();
+            $usuario = SisUsuario::where("email", $obj->get('email'))->first();
+
+            $mensaje = collect();
+
+            if(!$movimientos_incidencias == null){
+                $mensaje->put('titulo', "Nueva atencion del paciente ... ");
+                $mensaje->put('mensaje', $usuario->nombre." reporto una atencion del folio ". $data->id. " de (" . $cluesOrigen->clues . ")-" . $cluesOrigen->nombre  . " a (". $cluesOrigen->clues . ")-" . $cluesOrigen->nombre);
+                $mensaje->put('created_at', date('Y-m-d H:i:s'));
+                $mensaje->put('enviado', null);
+                $mensaje->put('leido', null);
+
+                $mensaje->put('usuarios_id', ['ids','ids']);
+                $mensaje->put('movimientos_incidencias', $movimientos_incidencias);
+            }
+
+            if(!$referencia == null){
+                $cluesOrigen = Clues::where("clues", $referencia->clues_origen)->first();
+                $cluesDestino = Clues::where("clues", $referencia->clues_destino)->first();
+
+                $mensaje->put('titulo', "Nueva referencia del paciente ... ");
+                $mensaje->put('mensaje', $usuario->nombre." realizo una referencia del folio ". $data->id. " de (" . $cluesOrigen->clues . ")-" . $cluesOrigen->nombre  . " a (". $cluesOrigen->clues . ")-" . $cluesOrigen->nombre);
+                $mensaje->put('created_at', date('Y-m-d H:i:s'));
+                $mensaje->put('enviado', null);
+                $mensaje->put('leido', null);
+
+                $mensaje->put('usuarios_id', ['ids','ids']);
+                $mensaje->put('referencias', $referencia);
+            }
+
+            if(!$altas_incidencias == null){
+                $mensaje->put('titulo', "Alta del paciente ... ");
+                $mensaje->put('mensaje', $usuario->nombre." reporto una atencion del folio ". $data->id. " de (" . $cluesOrigen->clues . ")-" . $cluesOrigen->nombre  . " a (". $cluesOrigen->clues . ")-" . $cluesOrigen->nombre);
+                $mensaje->put('created_at', date('Y-m-d H:i:s'));
+                $mensaje->put('enviado', null);
+                $mensaje->put('leido', null);
+
+                $mensaje->put('usuarios_id', ['ids','ids']);
+                $mensaje->put('altas_incidencias', $altas_incidencias);
+            }
+
+            event(new NotificacionEvent($mensaje, $usuario));
         }
     }
 

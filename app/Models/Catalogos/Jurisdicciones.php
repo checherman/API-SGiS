@@ -4,9 +4,9 @@ namespace App;
 
 namespace App\Models\Catalogos;
 
-use App\Models\Transacciones\Incidencias;
-use Illuminate\Database\Eloquent\Model;
+use App\Models\BaseModel;
 use App\Turnos;
+use Illuminate\Database\Eloquent\Model;
 
 class Jurisdicciones extends Model
 {

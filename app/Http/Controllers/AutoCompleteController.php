@@ -8,6 +8,7 @@ use App\Models\Catalogos\Clues;
 use App\Models\Catalogos\SubCategoriasCie10;
 use App\Models\Sistema\Permiso;
 
+use App\Models\Sistema\SisUsuario;
 use App\Models\Transacciones\Acompaniantes;
 use App\Models\Transacciones\Personas;
 use Illuminate\Support\Facades\Input;
@@ -108,6 +109,24 @@ class AutoCompleteController extends ApiController
         $data =  SubCategoriasCie10::where(function($query) use ($parametros) {
             $query->where('codigo','LIKE',"%".$parametros['term']."%")
                   ->orWhere('nombre','LIKE',"%".$parametros['term']."%");
+        });
+
+        $data = $data->get();
+        return $this->respuestaVerTodo($data);
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function usuarios()
+    {
+        $parametros = Input::only('term');
+
+        $data =  SisUsuario::where(function($query) use ($parametros) {
+            $query->where('nombre','LIKE',"%".$parametros['term']."%")
+                ->orWhere('username','LIKE',"%".$parametros['term']."%");
         });
 
         $data = $data->get();

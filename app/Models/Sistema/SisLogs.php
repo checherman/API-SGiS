@@ -1,16 +1,11 @@
 <?php
 namespace App\Models\Sistema;
 
-use App\Models\BaseModel;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class SisLogs extends BaseModel{
-
+class SisLogs extends Model{
     use SoftDeletes;
-    protected $generarID = false;
-    protected $guardarIDServidor = false;
-    protected $guardarIDUsuario = false;
-    protected $table = 'sis_logs';
-    protected $fillable = ["id"];
-
+    protected $table = 'sis_logs';  
+    protected $fillable = ['usuarios_id', 'ip', 'mac', 'tipo', 'ruta', 'controlador', 'tabla', 'peticion', 'respuesta', 'info'];    
 }

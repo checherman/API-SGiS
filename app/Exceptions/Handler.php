@@ -63,7 +63,7 @@ class Handler extends ExceptionHandler
         if($exception instanceof ModelNotFoundException)
         {
             $modelo = strtolower(class_basename($exception->getModel()));
-            return $this->errorResponse("No existe ninguna instancia de {$modelo} con el id especificado", 404);
+            return $this->respuestaError("No existe ninguna instancia de {$modelo} con el id especificado", 404);
         }
 
         //No esta auntenticado
@@ -75,25 +75,25 @@ class Handler extends ExceptionHandler
         //Validacion de la Autorizacion para realizar una accion
         if ($exception instanceof AuthorizationException)
         {
-            return $this->errorResponse('No posee permisos para ejecutar esta accion', 403);
+            return $this->respuestaError('No posee permisos para ejecutar esta accion', 403);
         }
 
         //Para acceder a una ruta que no existe
         if ($exception instanceof NotFoundHttpException)
         {
-            return $this->errorResponse('No se encontro la URL especificada', 404);
+            return $this->respuestaError('No se encontro la URL especificada', 404);
         }
 
         //Metodo no permitido, no es el correcto
         if ($exception instanceof MethodNotAllowedHttpException)
         {
-            return $this->errorResponse('El metodo especificado en la peticion no es valido', 404);
+            return $this->respuestaError('El metodo especificado en la peticion no es valido', 404);
         }
 
         //Diferentes Excepciones HTTP
         if ($exception instanceof HttpException)
         {
-            return $this->errorResponse($exception->getMessage(), $exception->getStatusCode());
+            return $this->respuestaError($exception->getMessage(), $exception->getStatusCode());
         }
 
         //Al eliminar recursos anidados a otros
@@ -102,7 +102,7 @@ class Handler extends ExceptionHandler
             $codigo = $exception->errorInfo[1];
 
             if($codigo == 1451){
-                return $this->errorResponse('No se puede eliminar el recurso porque esta relacionado con algun otro.', 409);
+                return $this->respuestaError('No se puede eliminar el recurso porque esta relacionado con algun otro.', 409);
             }
         }
 
@@ -111,7 +111,7 @@ class Handler extends ExceptionHandler
         }
 
         //Error de API
-        return $this->errorResponse('Falla inesperada. Intente luego (API)', 500);
+        return $this->respuestaError('Falla inesperada. Intente luego (API)', 500);
     }
 
     /**

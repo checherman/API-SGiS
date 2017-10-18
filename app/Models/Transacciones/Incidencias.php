@@ -18,7 +18,7 @@ class Incidencias extends BaseModel
 
     protected $table = "incidencias";
     protected $fillable = ["id", "servidor_id", "motivo_ingreso", "impresion_diagnostica","estados_incidencias_id"];
-    protected $hidden = ["created_at", "updated_at", "deleted_at"];
+    protected $hidden = ["updated_at", "deleted_at"];
 
     public function altas_incidencias()
     {
