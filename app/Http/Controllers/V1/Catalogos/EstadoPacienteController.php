@@ -3,22 +3,22 @@
 namespace App\Http\Controllers\V1\Catalogos;
 
 use App\Http\Requests;
+use App\Models\Catalogos\EstadosPacientes;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Input;
 use \Validator,\Hash, \Response;
 
-
 use App\Http\Controllers\ApiController;
-use App\Models\Catalogos\EstadosPacientes;
+use App\Models\Catalogos\ValoraciionesPacientes;
 /**
  * Controlador EstadoPaciente
  *
  * @package    UGUS API
  * @subpackage Controlador
  * @author     Luis Alberto Valdez Lescieur <luisvl13@gmail.com>
- * @created    2017-06-14
+ * @created    2017-03-22
  *
- * Controlador `EstadoPaciente`: Controlador  para el manejo de estados de pacientes
+ * Controlador `EstadoPaciente`: Controlador  para el manejo de catalogo valoraciones de pacientes
  *
  */
 class EstadoPacienteController extends ApiController
@@ -36,7 +36,7 @@ class EstadoPacienteController extends ApiController
      * <Li> <code>$order</code> campo de la base de datos por la que se debe ordenar la información. Por Default es ASC, pero si se antepone el signo - es de manera DESC</ li>
      * </Ul>
      *
-     * EstadosPacientes ordenamiento con respecto a id:
+     * ValoraciionesPacientes ordenamiento con respecto a id:
      * <code>
      * http://url?pagina=1&limite=5&order=id ASC
      * </code>
@@ -127,7 +127,8 @@ class EstadoPacienteController extends ApiController
         ];
 
         $reglas = [
-            'nombre'        => 'required|unique:estados_pacientes',
+            'nombre'        => 'required|unique:valoraciones_pacientes',
+            'descripcion'   => 'required'
         ];
 
         $inputs = Input::only('nombre', 'descripcion');
@@ -182,7 +183,8 @@ class EstadoPacienteController extends ApiController
         ];
 
         $reglas = [
-            'nombre'        => 'required',
+            'nombre'        => 'required|unique:valoraciones_pacientes,nombre,'.$id.',id,deleted_at,NULL',
+            'descripcion'   => 'required',
         ];
 
         $inputs = Input::only('nombre', 'descripcion');
@@ -222,3 +224,4 @@ class EstadoPacienteController extends ApiController
         }
     }
 }
+

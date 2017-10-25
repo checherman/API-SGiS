@@ -24,9 +24,9 @@ class BaseConocimientos extends BaseModel
         return $this->belongsTo(TriageColores::class, 'triage_colores_id','id');
     }
 
-    public function valoracionPaciente()
+    public function estados_pacientes()
     {
-        return $this->belongsTo(ValoraciionesPacientes::class,'valoraciones_pacientes_id','id');
+        return $this->belongsTo(EstadosPacientes::class,'estados_pacientes_id','id');
     }
 
     public function subCategoriaCie10()
@@ -34,8 +34,8 @@ class BaseConocimientos extends BaseModel
         return $this->belongsTo(SubCategoriasCie10::class,'subcategorias_cie10_id','id');
     }
 
-    public function estadoPaciente()
+    public function ubicaciones_pacientes()
     {
-        return $this->belongsTo(EstadosPacientes::class,'estados_pacientes_id','id');
+        return $this->belongsTo(UbicacionesPacientes::class,'ubicaciones_pacientes_id','id');
     }
 }

@@ -8,19 +8,19 @@ use Illuminate\Support\Facades\Input;
 use \Validator,\Hash, \Response;
 
 use App\Http\Controllers\ApiController;
-use App\Models\Catalogos\ValoraciionesPacientes;
+use App\Models\Catalogos\UbicacionesPacientes;
 /**
- * Controlador ValoracionPaciente
+ * Controlador UbicacionPaciente
  *
  * @package    UGUS API
  * @subpackage Controlador
  * @author     Luis Alberto Valdez Lescieur <luisvl13@gmail.com>
- * @created    2017-03-22
+ * @created    2017-06-14
  *
- * Controlador `ValoracionPaciente`: Controlador  para el manejo de catalogo valoraciones de pacientes
+ * Controlador `UbicacionPaciente`: Controlador  para el manejo de estados de pacientes
  *
  */
-class ValoracionPacienteController extends ApiController
+class UbicacionPacienteController extends ApiController
 {
     /**
      * Muestra una lista de los recurso según los parametros a procesar en la petición.
@@ -35,7 +35,7 @@ class ValoracionPacienteController extends ApiController
      * <Li> <code>$order</code> campo de la base de datos por la que se debe ordenar la información. Por Default es ASC, pero si se antepone el signo - es de manera DESC</ li>
      * </Ul>
      *
-     * ValoraciionesPacientes ordenamiento con respecto a id:
+     * EstadosPacientes ordenamiento con respecto a id:
      * <code>
      * http://url?pagina=1&limite=5&order=id ASC
      * </code>
@@ -78,7 +78,7 @@ class ValoracionPacienteController extends ApiController
             if(array_key_exists('buscar', $datos)){
                 $columna = $datos['columna'];
                 $valor   = $datos['valor'];
-                $data = ValoraciionesPacientes::orderBy($order,$orden);
+                $data = UbicacionesPacientes::orderBy($order,$orden);
 
                 $search = trim($valor);
                 $keyword = $search;
@@ -92,13 +92,13 @@ class ValoracionPacienteController extends ApiController
                 $data = $data->skip($pagina-1)->take($datos['limite'])->get();
             }
             else{
-                $data = ValoraciionesPacientes::skip($pagina-1)->take($datos['limite'])->orderBy($order, $orden)->get();
-                $total = ValoraciionesPacientes::all();
+                $data = UbicacionesPacientes::skip($pagina-1)->take($datos['limite'])->orderBy($order, $orden)->get();
+                $total = UbicacionesPacientes::all();
             }
 
         }
         else{
-            $data = ValoraciionesPacientes::get();
+            $data = UbicacionesPacientes::get();
             $total = $data;
         }
 
@@ -126,8 +126,7 @@ class ValoracionPacienteController extends ApiController
         ];
 
         $reglas = [
-            'nombre'        => 'required|unique:valoraciones_pacientes',
-            'descripcion'   => 'required'
+            'nombre'        => 'required|unique:estados_pacientes',
         ];
 
         $inputs = Input::only('nombre', 'descripcion');
@@ -140,7 +139,7 @@ class ValoracionPacienteController extends ApiController
 
         try {
 
-            $data = ValoraciionesPacientes::create($inputs);
+            $data = UbicacionesPacientes::create($inputs);
 
             return $this->respuestaVerUno($data,201);
 
@@ -157,7 +156,7 @@ class ValoracionPacienteController extends ApiController
      */
     public function show($id)
     {
-        $data = ValoraciionesPacientes::find($id);
+        $data = UbicacionesPacientes::find($id);
 
         if(!$data){
             return Response::json(['error' => "No se encuentra el recurso que esta buscando."], HttpResponse::HTTP_NOT_FOUND);
@@ -182,8 +181,7 @@ class ValoracionPacienteController extends ApiController
         ];
 
         $reglas = [
-            'nombre'        => 'required|unique:valoraciones_pacientes,nombre,'.$id.',id,deleted_at,NULL',
-            'descripcion'   => 'required',
+            'nombre'        => 'required',
         ];
 
         $inputs = Input::only('nombre', 'descripcion');
@@ -195,7 +193,7 @@ class ValoracionPacienteController extends ApiController
         }
 
         try {
-            $data = ValoraciionesPacientes::find($id);
+            $data = UbicacionesPacientes::find($id);
             $data->nombre =  $inputs['nombre'];
             $data->descripcion =  $inputs['descripcion'];
 
@@ -216,7 +214,7 @@ class ValoracionPacienteController extends ApiController
     public function destroy($id)
     {
         try {
-            $data = ValoraciionesPacientes::destroy($id);
+            $data = UbicacionesPacientes::destroy($id);
             return $this->respuestaVerTodo($data);
         } catch (Exception $e) {
             return $this->respuestaError($e->getMessage(), 409);

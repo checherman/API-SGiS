@@ -34,9 +34,9 @@ class SisUsuario extends BaseModel {
       ->join('sis_reportes', 'sis_reportes.id', '=', 'sis_usuarios_reportes.sis_reportes_id');
     }
 
-    public function clues()
+    public function SisUsuariosClues()
     {
-        return $this->belongsToMany(Clues::class, 'clue_usuario', 'sis_usuarios_id', 'clues');
+        return $this->belongsToMany(Clues::class, 'clue_usuario', 'sis_usuarios_id', 'clues')->with("jurisdicciones");
     }
 
     public function SisUsuariosRfcs(){

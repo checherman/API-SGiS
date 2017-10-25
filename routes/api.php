@@ -103,7 +103,6 @@ Route::middleware('tokenPermiso')->prefix("v1")->group(function(){
     Route::resource("tipo-medio",         	"v1\Catalogos\TipoMedioController",        ['only' => ['show', 'store','update','destroy']]);
     Route::resource("tipo-red-social", 		"v1\Catalogos\TipoRedSocialController",    ['only' => ['show', 'store','update','destroy']]);
 
-
     Route::resource("paises", 		   	        "v1\Catalogos\PaisController");
     Route::resource("estados",  	   	        "v1\Catalogos\EstadoController");
     Route::resource('clues',                    'V1\Catalogos\CluesController', ['only' => ['index', 'show']]);
@@ -115,7 +114,7 @@ Route::middleware('tokenPermiso')->prefix("v1")->group(function(){
     Route::resource('estados-embarazos',            'V1\Catalogos\EstadoEmbarazoController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
     Route::resource('estados-pacientes',            'V1\Catalogos\EstadoPacienteController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
     Route::resource('derechohabientes',             'V1\Catalogos\DerechohabienteController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
-    Route::resource('valoraciones-pacientes',       'V1\Catalogos\ValoracionPacienteController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
+    Route::resource('ubicaciones-pacientes',        'V1\Catalogos\UbicacionPacienteController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
     Route::resource('parentescos',                  'V1\Catalogos\ParentescoController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
     Route::resource('metodos-planificacion',        'V1\Catalogos\MetodoPlanificacionController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
     Route::resource('tipos-items',                  'V1\Catalogos\TipoItemController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
@@ -140,7 +139,6 @@ Route::middleware('tokenPermiso')->prefix("v1")->group(function(){
     Route::resource('censo-personas',       'V1\Transacciones\CensoPersonaController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
 
     Route::resource('estados-fuerza',       'V1\Transacciones\EstadoFuerzaController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
-
 });
 
 Route::group(array('prefix'=>'v1/subir-archivo' , "middleware" => "token"),function(){

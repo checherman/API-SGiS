@@ -1,10 +1,15 @@
 <?php
 namespace App\Http\Controllers\V1\Catalogos;
 
-use App\Http\Requests;
+use App\Http\Controllers\Controller;
+
 use Illuminate\Support\Facades\Request;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Http\Response as HttpResponse;
+
+use App\Http\Requests;
 use \Validator,\Hash, \Response, \DB;
+use Illuminate\Support\Facades\Input;
+
 
 use App\Models\Catalogos\GruposCie10;
 use App\Models\Catalogos\CategoriasCie10;

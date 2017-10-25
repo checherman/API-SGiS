@@ -5,6 +5,7 @@ namespace App\Http\Controllers\V1\Transacciones;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Models\Catalogos\CarteraServicios;
+use App\Models\Catalogos\Clues;
 use App\Models\Catalogos\NivelesCones;
 use App\Models\Transacciones\RespuestasEstadosFuerza;
 use Illuminate\Http\Response as HttpResponse;
@@ -129,8 +130,11 @@ class EstadoFuerzaController extends Controller
      * <code> Respuesta Error json(array("status": 404, "messages": "No hay resultados"),status) </code>
      */
     public function show($id){
+        $clue = Request::header('clues');
 
-        $nivelesCones = NivelesCones::find($id);
+        $nivelCONE = Clues::where('clues', $clue)->first();
+        $nivelesCones = NivelesCones::find($nivelCONE);
+
         if(!$nivelesCones ){
 
             return Response::json(['error' => "No se encuentra el recurso que esta buscando."], HttpResponse::HTTP_NOT_FOUND);

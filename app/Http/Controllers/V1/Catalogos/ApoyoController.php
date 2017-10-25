@@ -53,7 +53,7 @@ class ApoyoController extends ApiController
     public function index(){
         $datos = Request::all();
 
-        // Si existe el paarametro pagina en la url devolver las filas según sea el caso
+        // Si existe el parametro pagina en la url devolver las filas según sea el caso
         // si no existe parametros en la url devolver todos las filas de la tabla correspondiente
         // esta opción es para devolver todos los datos cuando la tabla es de tipo catálogo
         if(array_key_exists('pagina', $datos)){

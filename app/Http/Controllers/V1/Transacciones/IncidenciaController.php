@@ -2,14 +2,9 @@
 
 namespace App\Http\Controllers\V1\Transacciones;
 
-
 use App\Events\NotificacionEvent;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
-use App\Models\Catalogos\Clues;
-use App\Models\Sistema\Multimedias;
-use App\Models\Sistema\SisUsuario;
-use App\Models\Transacciones\AltasIncidencias;
 use DateTime;
 use Illuminate\Http\Response as HttpResponse;
 
@@ -18,6 +13,11 @@ use Request;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use \Validator,\Hash, \Response, \DB;
 use Illuminate\Support\Facades\Input;
+
+use App\Models\Catalogos\Clues;
+use App\Models\Sistema\Multimedias;
+use App\Models\Sistema\SisUsuario;
+use App\Models\Transacciones\AltasIncidencias;
 
 use App\Models\Transacciones\Incidencias;
 use App\Models\Transacciones\Pacientes;
@@ -48,89 +48,66 @@ class IncidenciaController extends Controller
     public function index()
     {
         $estadosIncidencias  = array();
+        $cl = Request::header('clues');
+        $datos = Request::all();
 
-
-        $parametros = Input::only('q','page','per_page','clues','edo_incidencia');
-
-        if ($parametros['q']) {
-            if ($parametros['clues']) {
-                if ($parametros['edo_incidencia']) {//CLUES E INCIDENCIA
-                    $data = Incidencias::select('incidencias.*')
-                        ->join('incidencia_clue', 'incidencia_clue.incidencias_id', '=', 'incidencias.id')
-                        ->where('incidencia_clue.clues', $parametros['clues'])
-                        ->with("pacientes.personas", "pacientes.acompaniantes.personas")
-                        ->with("movimientos_incidencias", "referencias", "altas_incidencias", "estados_incidencias")
-                        ->where('incidencias.estados_incidencias_id', $parametros['edo_incidencia'])
-                        ->where(function ($query) use ($parametros) {
-                            $query->where('id', 'LIKE', "%" . $parametros['q'] . "%")
-                                ->orWhere('motivo_ingreso', 'LIKE', "%" . $parametros['q'] . "%")
-                                ->orWhere('impresion_diagnostica', 'LIKE', "%" . $parametros['q'] . "%");
-                        });
-                }else{//CLUES
-                    $data = Incidencias::select('incidencias.*')
-                        ->join('incidencia_clue', 'incidencia_clue.incidencias_id', '=', 'incidencias.id')
-                        ->where('incidencia_clue.clues', $parametros['clues'])
-                        ->with("pacientes.personas", "pacientes.acompaniantes.personas")
-                        ->with("movimientos_incidencias", "referencias", "altas_incidencias", "estados_incidencias")
-                        ->where(function ($query) use ($parametros) {
-                            $query->where('id', 'LIKE', "%" . $parametros['q'] . "%")
-                                ->orWhere('motivo_ingreso', 'LIKE', "%" . $parametros['q'] . "%")
-                                ->orWhere('impresion_diagnostica', 'LIKE', "%" . $parametros['q'] . "%");
-                        });
-                }
-            }else{//NOCLUES
-                if ($parametros['edo_incidencia']) {//NOCLUES E INCIDENCIA
-                    $data = Incidencias::with("pacientes.personas", "pacientes.acompaniantes.personas")
-                        ->with("movimientos_incidencias", "referencias", "altas_incidencias", "estados_incidencias")
-                        ->where('incidencias.estados_incidencias_id', $parametros['edo_incidencia'])
-                        ->where(function ($query) use ($parametros) {
-                            $query->where('id', 'LIKE', "%" . $parametros['q'] . "%")
-                                ->orWhere('motivo_ingreso', 'LIKE', "%" . $parametros['q'] . "%")
-                                ->orWhere('impresion_diagnostica', 'LIKE', "%" . $parametros['q'] . "%");
-                        });
-                }else{//NO CLUES NO INCIDENCIA
-                    $data = Incidencias::with("pacientes.personas", "pacientes.acompaniantes.personas")
-                        ->with("movimientos_incidencias", "referencias", "estados_incidencias")
-                        ->where(function ($query) use ($parametros) {
-                            $query->where('id', 'LIKE', "%" . $parametros['q'] . "%")
-                                ->orWhere('motivo_ingreso', 'LIKE', "%" . $parametros['q'] . "%")
-                                ->orWhere('impresion_diagnostica', 'LIKE', "%" . $parametros['q'] . "%");
-                        });
-                }
+        // Si existe el parametro pagina en la url devolver las filas según sea el caso
+        // si no existe parametros en la url devolver todos las filas de la tabla correspondiente
+        // esta opción es para devolver todos los datos cuando la tabla es de tipo catálogo
+        if(array_key_exists('pagina', $datos)){
+            $pagina = $datos['pagina'];
+            if(isset($datos['order'])){
+                $order = $datos['order'];
+                if(strpos(" ".$order,"-"))
+                    $orden = "desc";
+                else
+                    $orden = "asc";
+                $order = str_replace("-", "", $order);
             }
-        } else {//NOquery
-            if ($parametros['clues']) {//CLUES
-                if ($parametros['edo_incidencia']) {//CLUES E INCIDENCIA
-                    $data = Incidencias::select('incidencias.*')
-                        ->join('incidencia_clue', 'incidencia_clue.incidencias_id', '=', 'incidencias.id')
-                        ->where('incidencia_clue.clues', $parametros['clues'])
-                        ->with("pacientes.personas", "pacientes.acompaniantes.personas")
-                        ->with("movimientos_incidencias", "referencias", "altas_incidencias", "estados_incidencias")
-                        ->where('incidencias.estados_incidencias_id', $parametros['edo_incidencia']);
-                }else{//CLUES NOINCIDENCIA
-                    $data = Incidencias::select('incidencias.*')
-                        ->join('incidencia_clue', 'incidencia_clue.incidencias_id', '=', 'incidencias.id')
-                        ->where('incidencia_clue.clues', $parametros['clues'])
-                        ->with("pacientes.personas", "pacientes.acompaniantes.personas")
-                        ->with("movimientos_incidencias", "referencias", "altas_incidencias", "estados_incidencias");
-                }
-            }else{//NOCLUES
-                if ($parametros['edo_incidencia']) {//NOCLUES E INCIDENCIA
-                    $data = Incidencias::with("pacientes.personas", "pacientes.acompaniantes.personas")
-                        ->with("movimientos_incidencias", "referencias", "altas_incidencias", "estados_incidencias")
-                        ->where('incidencias.estados_incidencias_id', $parametros['edo_incidencia']);
-                }else{//NOCLUES NOINCIDENCIA
-                    $data = Incidencias::with("pacientes.personas", "pacientes.acompaniantes.personas")
-                        ->with("movimientos_incidencias", "referencias", "altas_incidencias", "estados_incidencias");
-                }
+            else{
+                $order = "id"; $orden = "asc";
             }
+
+            if($pagina == 0){
+                $pagina = 1;
+            }
+            if($pagina == 1)
+                $datos["limite"] = $datos["limite"] - 1;
+            // si existe buscar se realiza esta linea para devolver las filas que en el campo que coincidan con el valor que el usuario escribio
+            // si no existe buscar devolver las filas con el limite y la pagina correspondiente a la paginación
+            if(array_key_exists('buscar', $datos)){
+                $columna = $datos['columna'];
+                $valor   = $datos['valor'];
+                $data = Incidencias::with("pacientes.personas", "pacientes.acompaniantes.personas")
+                                   ->with("movimientos_incidencias", "referencias", "altas_incidencias", "estados_incidencias")
+                                   ->orderBy($order,$orden);
+
+                $search = trim($valor);
+                $keyword = $search;
+                $data = $data->whereNested(function($query) use ($keyword){
+                    $query->where('id','LIKE',"%".$keyword['q']."%")
+                        ->orWhere('nombre','LIKE',"%".$keyword['q']."%")
+                        ->orWhere('descripcion','LIKE',"%".$keyword['q']."%");
+                });
+
+                $total = $data->get();
+                $data = $data->skip($pagina-1)->take($datos['limite'])->get();
+            }
+            else{
+                $data = Incidencias::with("pacientes.personas", "pacientes.acompaniantes.personas")
+                                   ->with("movimientos_incidencias", "referencias", "altas_incidencias", "estados_incidencias")
+                                   ->skip($pagina-1)->take($datos['limite'])->orderBy($order, $orden)
+                                   ->get();
+
+                $total = Incidencias::all();
+            }
+
         }
-
-        if(isset($parametros['page'])){
-            $resultadosPorPagina = isset($parametros["per_page"])? $parametros["per_page"] : 20;
-            $data = $data->paginate($resultadosPorPagina);
-        } else {
-            $data = $data->get();
+        else{
+            $data = Incidencias::with("pacientes.personas", "pacientes.acompaniantes.personas")
+                               ->with("movimientos_incidencias", "referencias", "altas_incidencias", "estados_incidencias")
+                               ->get();
+            $total = $data;
         }
 
         foreach ($data as $key => $value) {
@@ -155,7 +132,15 @@ class IncidenciaController extends Controller
 
         $data[count($data)] = array("estados_incidencias" => $estadosIncidencias);
 
-        return Response::json([ 'data' => $data],200);
+        if(!$data){
+            return Response::json(array("status" => 404,"messages" => "No hay resultados"), 404);
+        }
+        else{
+            return Response::json(array("status" => 200,"messages" => "Operación realizada con exito","data" => $data,"total" => count($total)), 200);
+
+        }
+
+
     }
 
     /**
@@ -182,7 +167,6 @@ class IncidenciaController extends Controller
 
             $this->AgregarDatos($datos, $data);
             $success = true;
-
         } catch (\Exception $e){
             return Response::json($e->getMessage(), 500);
         }
@@ -348,20 +332,15 @@ class IncidenciaController extends Controller
 
         $str = '';
         $str .= ($df->invert == 1) ? ' - ' : '';
-        if ($df->y > 0) {
-            // years
+        if ($df->y > 0) {   // years
             $str .= ($df->y > 1) ? $df->y . 'Y ' : $df->y . 'Y ';
-        } if ($df->m > 0) {
-            // month
+        } if ($df->m > 0) {  // month
             $str .= ($df->m > 1) ? $df->m . 'M ' : $df->m . 'M ';
-        } if ($df->d > 0) {
-            // days
+        } if ($df->d > 0) {  // days
             $str .= ($df->d > 1) ? $df->d . 'D ' : $df->d . 'D ';
-        } if ($df->h > 0) {
-            // hours
+        } if ($df->h > 0) {  // hours
             $str .= ($df->h > 1) ? $df->h . 'hrs ' : $df->h . 'hrs ';
-        } if ($df->i > 0) {
-            // minutes
+        } if ($df->i > 0) {  // minutes
             $str .= ($df->i > 1) ? $df->i . 'mins ' : $df->i . 'mins ';
         }
 
@@ -376,14 +355,12 @@ class IncidenciaController extends Controller
 
         //Informacion de incidencia
         $data->id = $datos['id'];
-        $data->servidor_id = env("SERVIDOR_ID");
         $data->motivo_ingreso = $datos['motivo_ingreso'];
         $data->impresion_diagnostica = $datos['impresion_diagnostica'];
         $data->estados_incidencias_id = $datos['estados_incidencias_id'];
 
         if ($data->save()){
             $datos = (object) $datos;
-
             //verificar si existe paciente, en caso de que exista proceder a guardarlo
             if(property_exists($datos, "pacientes")){
                 //limpiar el arreglo de posibles nullos
@@ -396,7 +373,7 @@ class IncidenciaController extends Controller
                         if (is_array($valuePaciente))
                             $valuePaciente = (object)$valuePaciente;
                         //si existe actualizar
-                        $persona = Personas::where("id", $valuePaciente->personas_id)->first();
+                        $persona = Personas::find($valuePaciente->personas_id);
 
                         if(property_exists($valuePaciente, "personas")){
                             //limpiar el arreglo de posibles nullos
@@ -408,26 +385,24 @@ class IncidenciaController extends Controller
                             if (!$persona)
                                 $persona = new Personas;
 
-                            $persona->id = $valuePaciente->personas_id;
-                            $persona->servidor_id = env("SERVIDOR_ID");
-                            $persona->nombre = $detallePersonas->nombre;
-                            $persona->paterno = $detallePersonas->paterno;
-                            $persona->materno = $detallePersonas->materno;
-                            $persona->domicilio = $detallePersonas->domicilio;
-                            $persona->fecha_nacimiento = $detallePersonas->fecha_nacimiento;
-                            $persona->telefono = $detallePersonas->telefono;
-                            $persona->estados_embarazos_id = $detallePersonas->estados_embarazos_id;
-                            $persona->derechohabientes_id = $detallePersonas->derechohabientes_id;
-                            $persona->localidades_id = $detallePersonas->localidades_id;
+                            $persona->id                    = $valuePaciente->personas_id;
+                            $persona->nombre                = $detallePersonas->nombre;
+                            $persona->paterno               = $detallePersonas->paterno;
+                            $persona->materno               = $detallePersonas->materno;
+                            $persona->domicilio             = $detallePersonas->domicilio;
+                            $persona->fecha_nacimiento      = $detallePersonas->fecha_nacimiento;
+                            $persona->telefono              = $detallePersonas->telefono;
+                            $persona->estados_embarazos_id  = $detallePersonas->estados_embarazos_id;
+                            $persona->derechohabientes_id   = $detallePersonas->derechohabientes_id;
+                            $persona->localidades_id        = $detallePersonas->localidades_id;
 
                             if ($persona->save()) {
                                 //si existe actualizar
                                 if (property_exists($detallePersonas, "id")) {
-                                    $paciente = Pacientes::where("id", $valuePaciente->id)->first();
+                                    $paciente = Pacientes::find($valuePaciente->id);
                                 } else
                                     $paciente = new Pacientes;
 
-                                $paciente->servidor_id = env("SERVIDOR_ID");
                                 $paciente->personas_id = $persona->id;
 
                                 if ($paciente->save()) {
@@ -453,8 +428,8 @@ class IncidenciaController extends Controller
                                     if(is_array($valueAcompaniante))
                                         $valueAcompaniante = (object) $valueAcompaniante;
 
-                                    //si existe actualizar
-                                    $personaA = Personas::where('id', $valueAcompaniante->personas_id)->first();
+                                    //si existe actualizar esta linea donde pones id le podes poner con find cual es la linea que no guarda
+                                    $personaA = Personas::find($valueAcompaniante->personas_id);
 
                                     if(property_exists($valueAcompaniante, "personas")){
                                         //limpiar el arreglo de posibles nullos
@@ -466,7 +441,6 @@ class IncidenciaController extends Controller
                                         if(!$personaA)
                                             $personaA = new Personas;
 
-                                        $personaA->servidor_id 	     = env("SERVIDOR_ID");
                                         $personaA->id                 = $valueAcompaniante->personas_id;
                                         $personaA->nombre             = $detallePersonaA->nombre;
                                         $personaA->paterno            = $detallePersonaA->paterno;
@@ -477,11 +451,10 @@ class IncidenciaController extends Controller
                                         if ($personaA->save()){
                                             //si existe actualizar
                                             if(property_exists($valueAcompaniante, "id")) {
-                                                $acompaniante = Acompaniantes::where("id", $valueAcompaniante->id)->first();
+                                                $acompaniante = Acompaniantes::find($valueAcompaniante->id);
                                             }else
                                                 $acompaniante = new Acompaniantes;
 
-                                            $acompaniante->servidor_id 	    = env("SERVIDOR_ID");
                                             $acompaniante->personas_id      = $personaA->id;
                                             $acompaniante->parentescos_id   = $valueAcompaniante->parentescos_id;
                                             $acompaniante->esResponsable    = $valueAcompaniante->esResponsable;
@@ -528,15 +501,13 @@ class IncidenciaController extends Controller
                         }else
                             $movimientos_incidencias = new MovimientosIncidencias;
 
-                        $movimientos_incidencias->servidor_id 	                  = env("SERVIDOR_ID");
                         $movimientos_incidencias->incidencias_id                  = $data->id;
-
                         $movimientos_incidencias->medico_reporta_id               = $value->medico_reporta_id;
                         $movimientos_incidencias->indicaciones                    = $value->indicaciones;
                         $movimientos_incidencias->reporte_medico                  = $value->reporte_medico;
 
-                        $movimientos_incidencias->valoraciones_pacientes_id       = $value->valoraciones_pacientes_id;
                         $movimientos_incidencias->estados_pacientes_id            = $value->estados_pacientes_id;
+                        $movimientos_incidencias->ubicaciones_pacientes_id       = $value->ubicaciones_pacientes_id;
                         $movimientos_incidencias->triage_colores_id               = $value->triage_colores_id;
                         $movimientos_incidencias->subcategorias_cie10_id          = $value->subcategorias_cie10_id;
                         $movimientos_incidencias->turnos_id                       = $value->turnos_id;
@@ -574,7 +545,6 @@ class IncidenciaController extends Controller
                         }else
                             $altas_incidencias = new AltasIncidencias;
 
-                        $altas_incidencias->servidor_id 	                = env("SERVIDOR_ID");
                         $altas_incidencias->incidencias_id                  = $data->id;
 
                         $altas_incidencias->medico_reporta_id               = $value->medico_reporta_id;
@@ -582,7 +552,7 @@ class IncidenciaController extends Controller
                         $altas_incidencias->observacion_trabajo_social      = $value->observacion_trabajo_social;
                         $altas_incidencias->metodos_planificacion_id        = $value->metodos_planificacion_id;
 
-                        $altas_incidencias->estados_pacientes_id            = $value->estados_pacientes_id;
+                        $altas_incidencias->ubicaciones_pacientes_id        = $value->ubicaciones_pacientes_id;
                         $altas_incidencias->turnos_id                       = $value->turnos_id;
 
                         if($altas_incidencias->save()){
@@ -633,7 +603,6 @@ class IncidenciaController extends Controller
                         }else
                             $referencia = new Referencias;
 
-                        $referencia->servidor_id 	                = env("SERVIDOR_ID");
                         $referencia->incidencias_id                 = $data->id;
                         $referencia->medico_refiere_id              = $value->medico_refiere_id;
                         $referencia->diagnostico                    = $value->diagnostico;
@@ -666,12 +635,12 @@ class IncidenciaController extends Controller
 
             if(!$movimientos_incidencias == null){
                 $mensaje->put('titulo', "Nueva atencion del paciente ... ");
-                $mensaje->put('mensaje', $usuario->nombre." reporto una atencion del folio ". $data->id. " de (" . $cluesOrigen->clues . ")-" . $cluesOrigen->nombre  . " a (". $cluesOrigen->clues . ")-" . $cluesOrigen->nombre);
+                $mensaje->put('mensaje', $usuario->nombre." reporto una atencion del folio ". $data->id);
                 $mensaje->put('created_at', date('Y-m-d H:i:s'));
                 $mensaje->put('enviado', null);
                 $mensaje->put('leido', null);
 
-                $mensaje->put('usuarios_id', ['ids','ids']);
+                $mensaje->put('sis_usuarios_id', ['ids','ids']);
                 $mensaje->put('movimientos_incidencias', $movimientos_incidencias);
             }
 
@@ -685,7 +654,7 @@ class IncidenciaController extends Controller
                 $mensaje->put('enviado', null);
                 $mensaje->put('leido', null);
 
-                $mensaje->put('usuarios_id', ['ids','ids']);
+                $mensaje->put('sis_usuarios_id', ['ids','ids']);
                 $mensaje->put('referencias', $referencia);
             }
 
@@ -696,7 +665,7 @@ class IncidenciaController extends Controller
                 $mensaje->put('enviado', null);
                 $mensaje->put('leido', null);
 
-                $mensaje->put('usuarios_id', ['ids','ids']);
+                $mensaje->put('sis_usuarios_id', ['ids','ids']);
                 $mensaje->put('altas_incidencias', $altas_incidencias);
             }
 

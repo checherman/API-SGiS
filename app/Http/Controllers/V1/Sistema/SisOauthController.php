@@ -168,7 +168,7 @@ class SisOauthController extends Controller {
             $variable = DB::table('clue_usuario')
                 ->leftJoin("clues","clues.clues","clue_usuario.clues")
                 ->select("clues.clues","clues.nombre")
-                ->where('usuarios_id', $usuario_logueado)->get();
+                ->where('sis_usuarios_id', $usuario_logueado)->get();
 
             $server_info = [
                 "server_datetime_snap" => getdate(),

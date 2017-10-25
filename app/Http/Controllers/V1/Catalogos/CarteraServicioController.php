@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers\V1\Catalogos;
 
-use App\Http\Requests;
-use Illuminate\Support\Facades\Request;
-use Illuminate\Support\Facades\Input;
-use \Validator,\Hash, \Response, \DB;
+use App\Http\Controllers\Controller;
 
+use Illuminate\Support\Facades\Request;
 use Illuminate\Http\Response as HttpResponse;
 
-use App\Http\Controllers\Controller;
+use App\Http\Requests;
+use \Validator,\Hash, \Response, \DB;
+use Illuminate\Support\Facades\Input;
+
 use App\Models\Catalogos\CarteraServicioNivelCone;
 use App\Models\Catalogos\CarteraServicios;
 use App\Models\Catalogos\Items;
@@ -305,6 +306,7 @@ class CarteraServicioController extends Controller
             //limpiar el arreglo de posibles nullos
             $detalle = array_filter($datos->niveles_cones, function($v){return $v !== null;});
 
+
             //recorrer cada elemento del arreglo
             foreach ($detalle as $key => $value) {
                 //validar que el valor no sea null
@@ -315,6 +317,9 @@ class CarteraServicioController extends Controller
 
                     //borrar los datos previos de articulo para no duplicar información
                     CarteraServicioNivelCone::where("cartera_servicios_id", $data->id)->where("niveles_cones_id", $value->id)->delete();
+
+                    //comprobar que el dato que se envio no exista o este borrado, si existe y esta borrado poner en activo nuevamente
+                    DB::update("update cartera_servicio_nivel_cone set deleted_at = null where cartera_servicios_id = $data->id and niveles_cones_id = $value->id");
 
                     //si existe actualizar
                     $nivelCone = CarteraServicioNivelCone::where("cartera_servicios_id", $data->id)->where("niveles_cones_id", $value->id)->first();

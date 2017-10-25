@@ -8,13 +8,7 @@ use App\Models\Catalogos\EstadosIncidencias;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Incidencias extends BaseModel
-{
-    use SoftDeletes;
-
-    protected $generarID = false;
-    protected $guardarIDServidor = true;
-    protected $guardarIDUsuario = false;
-    public $incrementing = false;
+{    public $incrementing = false;
 
     protected $table = "incidencias";
     protected $fillable = ["id", "servidor_id", "motivo_ingreso", "impresion_diagnostica","estados_incidencias_id"];
@@ -37,7 +31,7 @@ class Incidencias extends BaseModel
 
     public function movimientos_incidencias()
     {
-        return $this->hasMany(MovimientosIncidencias::class)->orderBy('id', 'DESC')->with("estados_pacientes")->with("valoraciones_pacientes")->with("triage_colores")->with("subcategorias_cie10")->with("turnos");
+        return $this->hasMany(MovimientosIncidencias::class)->orderBy('id', 'DESC')->with("estados_pacientes")->with("ubicaciones_pacientes")->with("triage_colores")->with("subcategorias_cie10")->with("turnos");
     }
 
     public function pacientes()

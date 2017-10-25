@@ -51,7 +51,7 @@ class tokenPermiso {
             	if(!$data->es_super){
             		$clues = $request->header('clues');
 
-            		$clues = DB::table('clue_usuario')->where('usuarios_id', $data->id)->where('clues', $clues)->get();
+            		$clues = DB::table('clue_usuario')->where('sis_usuarios_id', $data->id)->where('clues', $clues)->get();
             		if(!$clues)
             			return response()->json(['error' => 'autorizacion_invalido'], 401);
             	}

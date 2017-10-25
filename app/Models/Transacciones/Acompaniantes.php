@@ -5,14 +5,15 @@ namespace App;
 namespace App\Models\Transacciones;
 
 use App\Models\Catalogos\Parentesco;
+use App\Models\BaseModel;
 
-class Acompaniantes extends Personas
+class Acompaniantes extends BaseModel
 {
     protected $generarID = true;
 
     protected $table = "acompaniantes";
-    protected $fillable = ["id", "servidor_id", "personas_id", "parentescos_id"];
-    protected $hidden = ["pivot", "created_at", "updated_at", "deleted_at"];
+    //protected $fillable = ["id", "servidor_id", "personas_id", "parentescos_id"];
+    //protected $hidden = ["pivot", "created_at", "updated_at", "deleted_at"];
 
     public function pacientes()
     {

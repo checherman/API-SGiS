@@ -153,7 +153,7 @@ class SisUSuarioController extends Controller {
         } 
         if ($success){
             DB::commit();
-            return Response::json(array("status" => 201,"messages" => "Creado","data" => $data), 201);
+            return Response::json(array("status" => 201,"messages" => "Creado", "data" => $data), 201);
         } 
         else{
             DB::rollback();
@@ -246,12 +246,12 @@ class SisUSuarioController extends Controller {
             	}	
             }
             if(property_exists($datos, "sis_usuarios_clues")){
-            	DB::table('clue_usuario')->where('usuarios_id', $data->id)->delete();
-            	foreach($datos->sis_usuarios_clues as $valor){
-            		if(is_array($valor))
-            			$valor = (object) $valor;
-            		DB::table('clue_usuario')->insert(
-					    ['usuarios_id' => $data->id, 'clues' => $valor->clues]
+                foreach($datos->sis_usuarios_clues as $valor){
+                    if(is_array($valor))
+                        $valor = (object) $valor;
+                    DB::table('clue_usuario')->where('sis_usuarios_id', $data->id)->where('clues', $valor->clues)->delete();
+                    DB::table('clue_usuario')->insert(
+					    ['sis_usuarios_id' => $data->id, 'clues' => $valor->clues]
 					);
             	}
         	}
@@ -284,7 +284,7 @@ class SisUSuarioController extends Controller {
         		foreach ($rfcs as $key => $value) {
         			$value = (object) $value;
         			if($value != null){
-        				DB::update("update sis_usuarios_rfcs set deleted_at = null where sis_usuarios_id = $id and rfc = '$value->rfc' ");
+        				DB::update("update sis_usuarios_rfcs set deleted_at = null where sis_usuarios_id = $data->id and rfc = '$value->rfc' ");
         				$item = SisUsuariosRfcs::where("sis_usuarios_id", $data->id)->where("rfc", $value->rfc)->first();
 
         				if(!$item)
@@ -361,8 +361,8 @@ class SisUSuarioController extends Controller {
 	 * <code> Respuesta Error json(array("status": 404, "messages": "No hay resultados"),status) </code>
 	 */
 	public function show($id){
-		$data = SisUSuario::with("SisUsuariosGrupos","SisUsuariosRfcs", "SisUsuariosContactos")->find($id);			
-		
+		$data = SisUSuario::with("SisUsuariosGrupos","SisUsuariosRfcs", "SisUsuariosContactos", "SisUsuariosClues")->find($id);
+
 		if(!$data){
 			return Response::json(array("status"=> 404,"messages" => "No hay resultados"),404);
 		} 

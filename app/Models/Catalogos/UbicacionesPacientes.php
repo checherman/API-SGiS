@@ -4,18 +4,17 @@ namespace App;
 
 namespace App\Models\Catalogos;
 use App\Models\BaseModel;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
-class EstadosPacientes extends BaseModel
+class UbicacionesPacientes extends BaseModel
 {
-
-    protected $table = "estados_pacientes";
-    protected $fillable = ["id", "nombre", "descripcion"];
+    protected $table = "ubicaciones_pacientes";
+    protected $fillable = ["id","nombre","descripcion"];
     protected $hidden = ["created_at", "updated_at", "deleted_at"];
-
 
     public function baseConocimiento()
     {
-        return $this->hasMany(EstadosPacientes::class);
+        return $this->hasMany(UbicacionesPacientes::class);
     }
 
     public function movimientos_incidencias()

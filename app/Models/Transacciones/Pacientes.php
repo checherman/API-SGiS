@@ -4,13 +4,14 @@ namespace App;
 
 namespace App\Models\Transacciones;
 
-class Pacientes extends Personas
+use App\Models\BaseModel;
+class Pacientes extends BaseModel
 {
-    protected $generarID = true;
+    //protected $generarID = true;
 
     protected $table = "pacientes";
-    protected $fillable = ["id", "servidor_id", "personas_id"];
-    protected $hidden = ["pivot", "created_at", "updated_at", "deleted_at"];
+    //protected $fillable = ["id", "servidor_id", "personas_id"];
+    //protected $hidden = ["pivot", "created_at", "updated_at", "deleted_at"];
 
     public function incidencias()
     {
