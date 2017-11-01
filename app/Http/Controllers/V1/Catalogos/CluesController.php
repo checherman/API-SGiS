@@ -23,7 +23,6 @@ use App\Models\Sistema\Usuario;
  */
 class CluesController extends Controller
 {
-
     /**
      * Muestra una lista de los recurso según los parametros a procesar en la petición.
      *
@@ -85,8 +84,8 @@ class CluesController extends Controller
                 $search = trim($valor);
                 $keyword = $search;
                 $data = $data->whereNested(function($query) use ($keyword){
-                    $query->where('clues','LIKE',"%".$keyword['q']."%")
-                        ->orWhere('nombre','LIKE',"%".$keyword['q']."%");
+                    $query->where("clues", "LIKE", '%'.$keyword.'%')
+                        ->orWhere("nombre", "LIKE", '%'.$keyword.'%');
                 });
 
                 $total = $data->get();

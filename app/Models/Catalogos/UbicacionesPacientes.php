@@ -12,7 +12,7 @@ class UbicacionesPacientes extends BaseModel
     protected $fillable = ["id","nombre","descripcion"];
     protected $hidden = ["created_at", "updated_at", "deleted_at"];
 
-    public function baseConocimiento()
+    public function base_conocimientos()
     {
         return $this->hasMany(UbicacionesPacientes::class);
     }

@@ -323,7 +323,7 @@ class SisUSuarioController extends Controller {
 
             			$item->sis_usuarios_id = $data->id;
             			$item->tipos_medios_id = $value->tipos_medios_id;
-            			$item->valor           = $value->valor;	            			
+            			$item->valor           = $value->valor;
 
             			$item->save();
             		}

@@ -5,41 +5,101 @@ namespace App\Http\Controllers\V1\Transacciones;
 use App\Http\Controllers\Controller;
 
 use App\Models\Catalogos\BaseConocimientos;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response as HttpResponse;
 
 use App\Http\Requests;
 use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Request;
 use \Validator,\Hash, \Response, \DB;
 
 class BaseConocimientoController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Muestra una lista de los recurso según los parametros a procesar en la petición.
      *
-     * @return \Illuminate\Http\Response
+     * <h3>Lista de parametros Request:</h3>
+     * <Ul>Paginación
+     * <Li> <code>$pagina</code> numero del puntero(offset) para la sentencia limit </ li>
+     * <Li> <code>$limite</code> numero de filas a mostrar por página</ li>
+     * </Ul>
+     * <Ul>Busqueda
+     * <Li> <code>$valor</code> string con el valor para hacer la busqueda</ li>
+     * <Li> <code>$order</code> campo de la base de datos por la que se debe ordenar la información. Por Defaul es ASC, pero si se antepone el signo - es de manera DESC</ li>
+     * </Ul>
+     *
+     * Clues ordenamiento con respecto a clues:
+     * <code>
+     * http://url?pagina=1&limite=5&order=id ASC
+     * </code>
+     * <code>
+     * http://url?pagina=1&limite=5&order=-id DESC
+     * </code>
+     *
+     * Todo Los parametros son opcionales, pero si existe pagina debe de existir tambien limite
+     * @return Response
+     * <code style="color:green"> Respuesta Ok json(array("status": 200, "messages": "Operación realizada con exito", "data": array(resultado)),status) </code>
+     * <code> Respuesta Error json(array("status": 404, "messages": "No hay resultados"),status) </code>
      */
-    public function index()
-    {
-        $parametros = Input::only('q','page','per_page');
-        if ($parametros['q']) {
-            $data =  BaseConocimientos::where(function($query) use ($parametros) {
-                $query->where('id','LIKE',"%".$parametros['q']."%")
-                    ->orWhere('procesos','LIKE',"%".$parametros['q']."%");
-            });
-        } else {
-            $data =  BaseConocimientos::getModel()->with('triageColor')->with('valoracionPaciente')->with('subCategoriaCie10')->with('estadoPaciente');
+    public function index(){
+        $datos = Request::all();
+
+        // Si existe el paarametro pagina en la url devolver las filas según sea el caso
+        // si no existe parametros en la url devolver todos las filas de la tabla correspondiente
+        // esta opción es para devolver todos los datos cuando la tabla es de tipo catálogo
+        if(array_key_exists('pagina', $datos)){
+            $pagina = $datos['pagina'];
+            if(isset($datos['order'])){
+                $order = $datos['order'];
+                if(strpos(" ".$order,"-"))
+                    $orden = "desc";
+                else
+                    $orden = "asc";
+                $order = str_replace("-", "", $order);
+            }
+            else{
+                $order = "id"; $orden = "asc";
+            }
+
+            if($pagina == 0){
+                $pagina = 1;
+            }
+            if($pagina == 1)
+                $datos["limite"] = $datos["limite"] - 1;
+            // si existe buscar se realiza esta linea para devolver las filas que en el campo que coincidan con el valor que el usuario escribio
+            // si no existe buscar devolver las filas con el limite y la pagina correspondiente a la paginación
+            if(array_key_exists('buscar', $datos)){
+                $columna = $datos['columna'];
+                $valor   = $datos['valor'];
+                $data = BaseConocimientos::with("triageColor","estados_pacientes","subCategoriaCie10","ubicaciones_pacientes")->orderBy($order,$orden);
+
+                $search = trim($valor);
+                $keyword = $search;
+                $data = $data->whereNested(function($query) use ($keyword){
+                    $query->where("clues", "LIKE", '%'.$keyword.'%')
+                        ->orWhere("nombre", "LIKE", '%'.$keyword.'%');
+                });
+
+                $total = $data->get();
+                $data = $data->skip($pagina-1)->take($datos['limite'])->get();
+            }
+            else{
+                $data = BaseConocimientos::with("triageColor","estados_pacientes","subCategoriaCie10","ubicaciones_pacientes")->skip($pagina-1)->take($datos['limite'])->orderBy($order, $orden)->get();
+                $total = BaseConocimientos::all();
+            }
+
+        }
+        else{
+            $data = BaseConocimientos::with("triageColor","estados_pacientes","subCategoriaCie10","ubicaciones_pacientes")->get();
+            $total = $data;
         }
 
-        if(isset($parametros['page'])){
-
-            $resultadosPorPagina = isset($parametros["per_page"])? $parametros["per_page"] : 20;
-            $data = $data->paginate($resultadosPorPagina);
-        } else {
-            $data = $data->get();
+        if(!$data){
+            return Response::json(array("status" => 404,"messages" => "No hay resultados"), 404);
         }
+        else{
+            return Response::json(array("status" => 200,"messages" => "Operación realizada con exito","data" => $data,"total" => count($total)), 200);
 
-        return Response::json([ 'data' => $data],200);
+        }
     }
 
     /**
@@ -60,7 +120,7 @@ class BaseConocimientoController extends Controller
             'proceso'       => 'required'
         ];
 
-        $inputs = Input::only('id','servidor_id','proceso', 'triage_colores_id', 'subcategorias_cie10_id', 'valoraciones_pacientes_id', 'estados_pacientes_id');
+        $inputs = Input::only('proceso', 'triage_colores_id', 'subcategorias_cie10_id', 'ubicaciones_pacientes_id', 'estados_pacientes_id');
 
         $v = Validator::make($inputs, $reglas, $mensajes);
 
@@ -88,7 +148,7 @@ class BaseConocimientoController extends Controller
      */
     public function show($id)
     {
-        $object = BaseConocimientos::with('triageColor')->with('valoracionPaciente')->with('subCategoriaCie10')->with('estadoPaciente')->find($id);
+        $object = BaseConocimientos::with("triageColor","estados_pacientes","subCategoriaCie10","ubicaciones_pacientes")->find($id);
 
         if(!$object ){
 
@@ -124,7 +184,7 @@ class BaseConocimientoController extends Controller
             return Response::json(['error' => "No se encuentra el recurso que esta buscando."], HttpResponse::HTTP_NOT_FOUND);
         }
 
-        $inputs = Input::only('id','servidor_id','proceso', 'triage_colores_id', 'subcategorias_cie10_id', 'valoraciones_pacientes_id', 'estados_pacientes_id');
+        $inputs = Input::only('proceso', 'triage_colores_id', 'subcategorias_cie10_id', 'ubicaciones_pacientes_id', 'estados_pacientes_id');
 
         $v = Validator::make($inputs, $reglas, $mensajes);
 
@@ -136,9 +196,8 @@ class BaseConocimientoController extends Controller
             $object->proceso =  $inputs['proceso'];
             $object->triage_colores_id =  $inputs['triage_colores_id'];
             $object->subcategorias_cie10_id =  $inputs['subcategorias_cie10_id'];
-            $object->valoraciones_pacientes_id =  $inputs['valoraciones_pacientes_id'];
+            $object->ubicaciones_pacientes_id =  $inputs['ubicaciones_pacientes_id'];
             $object->estados_pacientes_id =  $inputs['estados_pacientes_id'];
-            $object->id =  $inputs['id'];
 
             $object->save();
 

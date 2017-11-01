@@ -13,17 +13,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class MovimientosIncidencias extends BaseModel
 {
-    use SoftDeletes;
-
-    protected $generarID = true;
-    protected $guardarIDServidor = true;
-    protected $guardarIDUsuario = false;
-    public $incrementing = false;
-
     protected $table = "movimientos_incidencias";
     protected $fillable = [
         "id",
-        "servidor_id",
         "indicaciones",
         "reporte_medico",
         "incidencias_id",

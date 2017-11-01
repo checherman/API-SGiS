@@ -8,15 +8,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class DirectorioApoyos extends BaseModel
 {
-    use SoftDeletes;
-
-    protected $generarID = true;
-    protected $guardarIDServidor = true;
-    protected $guardarIDUsuario = false;
-    public $incrementing = false;
-
     protected $table = "directorio_apoyos";
-    protected $fillable = ["id", "servidor_id", "institucion", "direccion", "responsable", "telefono", "correo", "municipios_id"];
+    protected $fillable = ["id", "institucion", "direccion", "responsable", "telefono", "correo", "municipios_id"];
     protected $hidden = ["created_at", "updated_at", "deleted_at"];
 
     public function apoyos()

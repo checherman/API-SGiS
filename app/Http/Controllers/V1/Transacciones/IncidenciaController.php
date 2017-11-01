@@ -85,9 +85,7 @@ class IncidenciaController extends Controller
                 $search = trim($valor);
                 $keyword = $search;
                 $data = $data->whereNested(function($query) use ($keyword){
-                    $query->where('id','LIKE',"%".$keyword['q']."%")
-                        ->orWhere('nombre','LIKE',"%".$keyword['q']."%")
-                        ->orWhere('descripcion','LIKE',"%".$keyword['q']."%");
+                    $query->where("id", "LIKE", '%'.$keyword.'%');
                 });
 
                 $total = $data->get();
@@ -191,7 +189,7 @@ class IncidenciaController extends Controller
      */
     public function show($id){
         $data = Incidencias::where('id',$id)
-            ->with("pacientes.personas","pacientes.acompaniantes.personas")
+            ->with("pacientes.personas", "pacientes.acompaniantes.personas")
             ->with("movimientos_incidencias")
             ->with("referencias")
             ->with("altas_incidencias")
@@ -501,13 +499,14 @@ class IncidenciaController extends Controller
                         }else
                             $movimientos_incidencias = new MovimientosIncidencias;
 
+
                         $movimientos_incidencias->incidencias_id                  = $data->id;
                         $movimientos_incidencias->medico_reporta_id               = $value->medico_reporta_id;
                         $movimientos_incidencias->indicaciones                    = $value->indicaciones;
                         $movimientos_incidencias->reporte_medico                  = $value->reporte_medico;
 
                         $movimientos_incidencias->estados_pacientes_id            = $value->estados_pacientes_id;
-                        $movimientos_incidencias->ubicaciones_pacientes_id       = $value->ubicaciones_pacientes_id;
+                        $movimientos_incidencias->ubicaciones_pacientes_id        = $value->ubicaciones_pacientes_id;
                         $movimientos_incidencias->triage_colores_id               = $value->triage_colores_id;
                         $movimientos_incidencias->subcategorias_cie10_id          = $value->subcategorias_cie10_id;
                         $movimientos_incidencias->turnos_id                       = $value->turnos_id;
@@ -588,41 +587,51 @@ class IncidenciaController extends Controller
                 }
 
                 //recorrer cada elemento del arreglo
-                foreach ($detalleReferencia as $key => $value) {
+                foreach ($detalleReferencia as $key => $valueReferencia) {
                     //validar que el valor no sea null
-                    if($value != null){
+                    if($valueReferencia != null){
                         //comprobar si el value es un array, si es convertirlo a object mas facil para manejar.
-                        if(is_array($value))
-                            $value = (object) $value;
+                        if(is_array($valueReferencia))
+                            $valueReferencia = (object) $valueReferencia;
 
                         //comprobar que el dato que se envio no exista o este borrado, si existe y esta borrado poner en activo nuevamente
-                        if(property_exists($value, "id")) {
-                            DB::update("update referencias set deleted_at = null where id = '$value->id' and incidencias_id = '$data->id' ");
+                        if(property_exists($valueReferencia, "id")) {
+                            DB::update("update referencias set deleted_at = null where id = '$valueReferencia->id' and incidencias_id = '$data->id' ");
                             //si existe actualizar
-                            $referencia = Referencias::where("id", $value->id)->where("incidencias_id", $data->id)->first();
+                            $referencia = Referencias::where("id", $valueReferencia->id)->where("incidencias_id", $data->id)->first();
                         }else
                             $referencia = new Referencias;
 
                         $referencia->incidencias_id                 = $data->id;
-                        $referencia->medico_refiere_id              = $value->medico_refiere_id;
-                        $referencia->diagnostico                    = $value->diagnostico;
-                        $referencia->resumen_clinico                = $value->resumen_clinico;
-                        $referencia->clues_origen                   = $value->clues_origen;
-                        $referencia->clues_destino                  = $value->clues_destino;
+                        $referencia->medico_refiere_id              = $valueReferencia->medico_refiere_id;
+                        $referencia->diagnostico                    = $valueReferencia->diagnostico;
+                        $referencia->resumen_clinico                = $valueReferencia->resumen_clinico;
+                        $referencia->clues_origen                   = $valueReferencia->clues_origen;
+                        $referencia->clues_destino                  = $valueReferencia->clues_destino;
 
                         if($referencia->save()){
-                            //comprobar que el dato que se envio no exista
-                            if(property_exists($value, "id")) {
-                                //si existe actualizar
-                                $multimedia = Multimedias::where("id", $value->id)->where("refererencias_id", $data->id)->first();
-                            }else
-                                $multimedia = new Multimedias;
 
-                            $multimedia->referencias_id                   = $referencia->id;
-                            $multimedia->tipo                             = "imagen";
-                            $multimedia->url                              = $this->convertir_imagen($value->img, 'referencias', $data->id);
+                            if(property_exists($valueReferencia, "multimedias")){
+                                $medios = array_filter($valueReferencia->multimedias, function($v){return $v !== null;});
 
-                            $multimedia->save();
+                                Multimedias::where("id", $value->id)->where("referencias_id", $data->id)->delete();
+                                foreach ($medios as $key => $value) {
+                                    $value = (object) $value;
+                                    if($value != null){
+                                        DB::update("update multimedias set deleted_at = null where sis_usuarios_id = $data->id and valor = '$value->valor' ");
+                                        $multimedia = Multimedias::where("sis_usuarios_id", $data->id)->where("valor", $value->valor)->first();
+
+                                        if(!$multimedia)
+                                            $multimedia = new Multimedias;
+
+                                        $multimedia->referencias_id                   = $referencia->id;
+                                        $multimedia->tipo                             = "imagen";
+                                        $multimedia->url                              = $this->convertir_imagen($value->img, 'referencias', $data->id);
+
+                                        $multimedia->save();
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -660,7 +669,7 @@ class IncidenciaController extends Controller
 
             if(!$altas_incidencias == null){
                 $mensaje->put('titulo', "Alta del paciente ... ");
-                $mensaje->put('mensaje', $usuario->nombre." reporto una atencion del folio ". $data->id. " de (" . $cluesOrigen->clues . ")-" . $cluesOrigen->nombre  . " a (". $cluesOrigen->clues . ")-" . $cluesOrigen->nombre);
+                $mensaje->put('mensaje', $usuario->nombre." reporto una atencion del folio ". $data->id);
                 $mensaje->put('created_at', date('Y-m-d H:i:s'));
                 $mensaje->put('enviado', null);
                 $mensaje->put('leido', null);
