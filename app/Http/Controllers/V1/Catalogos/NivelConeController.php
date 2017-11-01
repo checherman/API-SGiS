@@ -278,6 +278,10 @@ class NivelConeController extends Controller
         if(property_exists($datos, "clues")){
             //limpiar el arreglo de posibles nullos
             $detalle = array_filter($datos->clues, function($v){return $v !== null;});
+
+            //borrar los datos previos de articulo para no duplicar información
+            DB::update("update clues set nivel_cone_id = NULL where nivel_cone_id = '$data->id' ");
+            //dd("ok");
             //recorrer cada elemento del arreglo
             foreach ($detalle as $key => $value) {
                 //validar que el valor no sea null

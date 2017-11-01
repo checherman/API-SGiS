@@ -47,8 +47,8 @@ class SisUsuario extends BaseModel {
         return $this->hasMany('App\Models\Sistema\SisUsuariosContactos', 'sis_usuarios_id');
     }
 
-    public function escalamiento_notificaciones()
-    {
-        return $this->hasMany(EscalamientosNotificaciones::class);
+    public function SisUsuariosNotificaciones(){
+        return $this->hasMany('App\Models\Sistema\SisUsuariosNotificaciones', 'sis_usuarios_id')
+        ->join('tipos_notificaciones', 'tipos_notificaciones.id', '=', 'sis_usuarios_notificaciones.tipos_notificaciones_id');
     }
 }

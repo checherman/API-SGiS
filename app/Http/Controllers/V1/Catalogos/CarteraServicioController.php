@@ -306,6 +306,8 @@ class CarteraServicioController extends Controller
             //limpiar el arreglo de posibles nullos
             $detalle = array_filter($datos->niveles_cones, function($v){return $v !== null;});
 
+            //borrar los datos previos de articulo para no duplicar información
+            CarteraServicioNivelCone::where("cartera_servicios_id", $data->id)->delete();
 
             //recorrer cada elemento del arreglo
             foreach ($detalle as $key => $value) {
@@ -314,9 +316,6 @@ class CarteraServicioController extends Controller
                     //comprobar si el value es un array, si es convertirlo a object mas facil para manejar.
                     if(is_array($value))
                         $value = (object) $value;
-
-                    //borrar los datos previos de articulo para no duplicar información
-                    CarteraServicioNivelCone::where("cartera_servicios_id", $data->id)->where("niveles_cones_id", $value->id)->delete();
 
                     //comprobar que el dato que se envio no exista o este borrado, si existe y esta borrado poner en activo nuevamente
                     DB::update("update cartera_servicio_nivel_cone set deleted_at = null where cartera_servicios_id = $data->id and niveles_cones_id = $value->id");

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\v1\Sistema;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
+use App\Models\Sistema\SisUsuariosNotificaciones;
 use Request;
 use Response;
 use Illuminate\Support\Facades\Input;
@@ -246,10 +247,10 @@ class SisUSuarioController extends Controller {
             	}	
             }
             if(property_exists($datos, "sis_usuarios_clues")){
+                DB::table('clue_usuario')->where('sis_usuarios_id', $data->id)->delete();
                 foreach($datos->sis_usuarios_clues as $valor){
                     if(is_array($valor))
-                        $valor = (object) $valor;
-                    DB::table('clue_usuario')->where('sis_usuarios_id', $data->id)->where('clues', $valor->clues)->delete();
+                    $valor = (object) $valor;
                     DB::table('clue_usuario')->insert(
 					    ['sis_usuarios_id' => $data->id, 'clues' => $valor->clues]
 					);
@@ -329,6 +330,25 @@ class SisUSuarioController extends Controller {
             		}
         		}
         	}
+            if(property_exists($datos, "sis_usuarios_notificaciones")){
+                $notificaciones = array_filter($datos->sis_usuarios_notificaciones, function($v){return $v !== null;});
+                SisUsuariosNotificaciones::where("sis_usuarios_id", $data->id)->delete();
+                foreach ($notificaciones as $key => $value) {
+                    $value = (object) $value;
+                    if($value != null){
+                        DB::update("update sis_usuarios_notificaciones set deleted_at = null where sis_usuarios_id = $data->id and tipos_notificaciones_id = '$value->id' ");
+                        $item = SisUsuariosNotificaciones::where("sis_usuarios_id", $data->id)->where("tipos_notificaciones_id", $value->id)->first();
+
+                        if(!$item)
+                            $item = new SisUsuariosNotificaciones;
+
+                        $item->sis_usuarios_id          = $data->id;
+                        $item->tipos_notificaciones_id  = $value->id;
+
+                        $item->save();
+                    }
+                }
+            }
         	if(property_exists($datos, "user_clients")){
         		$medios = array_filter($datos->user_clients, function($v){return $v !== null;});
         		UsersClients::where("user_id", $data->id)->delete();
@@ -361,7 +381,7 @@ class SisUSuarioController extends Controller {
 	 * <code> Respuesta Error json(array("status": 404, "messages": "No hay resultados"),status) </code>
 	 */
 	public function show($id){
-		$data = SisUSuario::with("SisUsuariosGrupos","SisUsuariosRfcs", "SisUsuariosContactos", "SisUsuariosClues")->find($id);
+		$data = SisUSuario::with("SisUsuariosGrupos","SisUsuariosRfcs", "SisUsuariosContactos", "SisUsuariosClues", "SisUsuariosNotificaciones")->find($id);
 
 		if(!$data){
 			return Response::json(array("status"=> 404,"messages" => "No hay resultados"),404);

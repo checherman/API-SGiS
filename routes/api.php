@@ -87,8 +87,6 @@ Route::middleware('tokenPermiso')->prefix("v1")->group(function(){
     Route::resource("sucursal",                     "v1\Sistema\SucursalController");
     Route::resource("version-app",   		        "v1\Sistema\VersionAppController");
 
-    Route::resource('escalamientos-notificaciones', 'V1\Sistema\EscalamientoNotificacionController');
-
     Route::get("descargar-app",                     "v1\Sistema\VersionAppController@descargarApp");
 
 

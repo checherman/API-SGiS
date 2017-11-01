@@ -132,6 +132,7 @@ class DirectorioApoyoController extends Controller
             $data->correo = $datos['correo'];
             $data->telefono = $datos['telefono'];
             $data->municipios_id = $datos['municipios_id'];
+            $data->localidades_id = $datos['localidades_id'];
 
             if ($data->save()) {
                 $datos = (object)$datos;
@@ -166,7 +167,7 @@ class DirectorioApoyoController extends Controller
             return Response::json(['error' => "No se encuentra el recurso que esta buscando."], HttpResponse::HTTP_NOT_FOUND);
         }
 
-        $apoyos = ApoyoDirectorioApoyo::where("directorio_apoyos_id", $id)
+        $apoyos = ApoyoDirectorioApoyo::select("id","nombre","descripcion")->where("directorio_apoyos_id", $id)
             ->join('apoyos', 'apoyos.id', '=', 'apoyo_directorio_apoyo.apoyos_id')
             ->get();
 
@@ -205,6 +206,7 @@ class DirectorioApoyoController extends Controller
             $data->correo = $datos->correo;
             $data->telefono = $datos->telefono;
             $data->municipios_id = $datos->municipios_id;
+            $data->localidades_id = $datos->localidades_id;
 
 
             if ($data->save()) {
@@ -290,6 +292,9 @@ class DirectorioApoyoController extends Controller
             //limpiar el arreglo de posibles nullos
             $detalle = array_filter($datos->apoyos, function($v){return $v !== null;});
 
+            //borrar los datos previos de articulo para no duplicar información
+            ApoyoDirectorioApoyo::where("directorio_apoyos_id", $data->id)->delete();
+
             //recorrer cada elemento del arreglo
             foreach ($detalle as $key => $value) {
                 //validar que el valor no sea null
@@ -298,8 +303,8 @@ class DirectorioApoyoController extends Controller
                     if(is_array($value))
                         $value = (object) $value;
 
-                    //borrar los datos previos de articulo para no duplicar información
-                    ApoyoDirectorioApoyo::where("apoyos_id", $data->id)->delete();
+                    //comprobar que el dato que se envio no exista o este borrado, si existe y esta borrado poner en activo nuevamente
+                    DB::update("update apoyo_directorio_apoyo set deleted_at = null where directorio_apoyos_id = $data->id and apoyos_id = $value->id");
 
                     //si existe actualizar
                     $apoyos = ApoyoDirectorioApoyo::where("directorio_apoyos_id", $data->id)->where("apoyos_id", $value->id)->first();

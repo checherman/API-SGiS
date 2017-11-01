@@ -3,9 +3,9 @@
 namespace App;
 
 namespace App\Models\Catalogos;
-use Illuminate\Database\Eloquent\Model;
+use App\Models\BaseModel;
 
-class ApoyoDirectorioApoyo extends Model
+class ApoyoDirectorioApoyo extends BaseModel
 {
     protected $table = "apoyo_directorio_apoyo";
     protected $fillable = ["directorio_apoyos_id", "apoyos_id"];
