@@ -10,9 +10,6 @@ use Illuminate\Contracts\Auth\Authenticatable;
 
 class Usuario extends BaseModel implements Authenticatable{
 
-    use SoftDeletes;
-    protected $generarID = false;
-    protected $guardarIDUsuario = false;
     protected $fillable = ["id", "servidor_id", "password", "nombre", "paterno", "materno", "celular", "avatar", "su", "cargos_id", "clues"];
 
     public function scopeObtenerClavesPermisos($query){

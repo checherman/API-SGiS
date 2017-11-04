@@ -27,6 +27,6 @@ class Acompaniantes extends BaseModel
 
     public function personas()
     {
-        return $this->belongsTo(Personas::class);
+        return $this->belongsTo(Personas::class)->with("localidades","derechohabientes","estados_embarazos");
     }
 }
