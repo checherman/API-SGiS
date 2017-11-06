@@ -5,6 +5,9 @@ namespace App\Http\Controllers\V1\Transacciones;
 use App\Events\NotificacionEvent;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
+use App\Models\Sistema\Notificaciones;
+use App\Models\Sistema\NotificacionesUsuarios;
+use App\Models\Sistema\SisUsuariosNotificaciones;
 use DateTime;
 use Illuminate\Http\Response as HttpResponse;
 
@@ -488,14 +491,18 @@ class IncidenciaController extends Controller
                                         $personaA->domicilio          = $detallePersonaA->domicilio;
 
                                         if ($personaA->save()){
-                                            //si existe actualizar
-                                            if(property_exists($valueAcompaniante, "id")) {
+
+                                            //                                            if(property_exists($valueAcompaniante, "id")) {
                                                 if(!$valueAcompaniante->id == null || !$valueAcompaniante->id == ""){
                                                     $acompaniante = Acompaniantes::find($valueAcompaniante->id);
-                                                }else
-                                                    $acompaniante = new Acompaniantes;
-                                            }else
-                                                $acompaniante = new Acompaniantes;
+                                                }else{
+                                                    $acompaniante = Acompaniantes::where("personas_id", $personaA->id)->where("parentescos_id", $valueAcompaniante->parentescos_id)->where("esResponsable", $valueAcompaniante->esResponsable)->first();
+                                                    if (!$acompaniante){
+                                                        $acompaniante = new Acompaniantes;
+                                                    }
+                                                }
+//                                            }else
+//                                                $acompaniante = new Acompaniantes;
 
                                             $acompaniante->personas_id      = $personaA->id;
                                             $acompaniante->parentescos_id   = $valueAcompaniante->parentescos_id;
@@ -686,8 +693,10 @@ class IncidenciaController extends Controller
             $usuario = SisUsuario::where("email", $obj->get('email'))->first();
 
             $mensaje = collect();
+            $tipo = null;
 
             if(!$movimientos_incidencias == null){
+                $tipo = 2;
                 $mensaje->put('titulo', "Nueva atencion del paciente ... ");
                 $mensaje->put('mensaje', $usuario->nombre." reporto una atencion del folio ". $data->id);
                 $mensaje->put('created_at', date('Y-m-d H:i:s'));
@@ -699,6 +708,7 @@ class IncidenciaController extends Controller
             }
 
             if(!$referencia == null){
+                $tipo = 1;
                 $cluesOrigen = Clues::where("clues", $referencia->clues_origen)->first();
                 $cluesDestino = Clues::where("clues", $referencia->clues_destino)->first();
 
@@ -713,6 +723,7 @@ class IncidenciaController extends Controller
             }
 
             if(!$altas_incidencias == null){
+                $tipo = 4;
                 $mensaje->put('titulo', "Alta del paciente ... ");
                 $mensaje->put('mensaje', $usuario->nombre." reporto una atencion del folio ". $data->id);
                 $mensaje->put('created_at', date('Y-m-d H:i:s'));
@@ -721,6 +732,37 @@ class IncidenciaController extends Controller
 
                 $mensaje->put('sis_usuarios_id', ['ids','ids']);
                 $mensaje->put('altas_incidencias', $altas_incidencias);
+            }
+
+
+            $notificacion = new Notificaciones;
+
+            $notificacion->tipo                = $tipo;
+            $notificacion->mensaje             = $mensaje;
+
+            if ($notificacion->save()){
+                $usuarios = SisUsuariosNotificaciones::
+                select("sis_usuarios_notificaciones.*","sis_usuarios_contactos.valor","sis_usuarios.nombre")
+                ->join('sis_usuarios', 'sis_usuarios.id', '=', 'sis_usuarios_notificaciones.sis_usuarios_id')
+                ->join('sis_usuarios_contactos', 'sis_usuarios_contactos.sis_usuarios_id', '=', 'sis_usuarios.id')
+                ->where('sis_usuarios_contactos.tipos_medios_id', 2)
+                ->where('sis_usuarios_notificaciones.tipos_notificaciones_id', $tipo)
+                ->get();
+
+                foreach($usuarios as $usuario){
+                    $notificacionesUsuarios = new NotificacionesUsuarios;
+
+                    $notificacionesUsuarios->usuarios_id          = $usuario->sis_usuarios_id;
+                    $notificacionesUsuarios->telefono             = $usuario->valor;
+
+                    $notificacionesUsuarios->notificaciones_id    = $notificacion->id;
+                    $notificacionesUsuarios->enviado              = new DateTime("Now");;
+                    $notificacionesUsuarios->sms                  = $mensaje;
+
+                    $notificacionesUsuarios->save();
+                }
+
+
             }
 
             event(new NotificacionEvent($mensaje, $usuario));

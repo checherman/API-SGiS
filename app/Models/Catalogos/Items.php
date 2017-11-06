@@ -9,11 +9,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Items extends BaseModel
 {
-    use SoftDeletes;
-
-    protected $generarID = false;
-    protected $guardarIDServidor = false;
-    protected $guardarIDUsuario = false;
     public $incrementing = true;
 
     protected $table = "items";

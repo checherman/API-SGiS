@@ -51,4 +51,8 @@ class SisUsuario extends BaseModel {
         return $this->hasMany('App\Models\Sistema\SisUsuariosNotificaciones', 'sis_usuarios_id')
         ->join('tipos_notificaciones', 'tipos_notificaciones.id', '=', 'sis_usuarios_notificaciones.tipos_notificaciones_id');
     }
+
+    public function EstadosFuerza(){
+        return $this->hasMany('App\Models\Sistema\EstadosFuerza', 'sis_usuarios_id');
+    }
 }

@@ -2,9 +2,9 @@
 
 namespace App\Models\Sistema;
 
-use App\Models\BaseModel;
+use Illuminate\Database\Eloquent\Model;
 
-class SisUsuariosNotificaciones extends BaseModel {
+class SisUsuariosNotificaciones extends Model {
 
 	public function SisUsuario(){
 		return $this->belongsTo('App\Models\Sistema\SisUsuario','sis_usuarios_id','id');
