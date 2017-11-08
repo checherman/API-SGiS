@@ -241,7 +241,11 @@ class EstadoFuerzaController extends Controller
                                     $respuestaEstadosFuerza->estados_fuerza_id = $data->id;
                                     $respuestaEstadosFuerza->cartera_servicios_id = $valueItems->cartera_servicios_id;
                                     $respuestaEstadosFuerza->items_id = $valueItems->tipos_items_id;
-                                    $respuestaEstadosFuerza->respuesta = $valueItems->respuesta;
+
+                                    if(!$valueItems->respuesta == null){
+                                        $respuestaEstadosFuerza->respuesta = $valueItems->respuesta;
+                                    }else
+                                        $respuestaEstadosFuerza->respuesta = false;
 
                                     if ($respuestaEstadosFuerza->save()) {
                                         $success = true;

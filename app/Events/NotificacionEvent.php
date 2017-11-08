@@ -45,6 +45,6 @@ class NotificacionEvent implements ShouldBroadcast
     public function broadcastOn()
     {
 
-        return new Channel(env('PUSHER_APP_CHANNEL'));
+        return new Channel(env('PUSHER_APP_CHANNEL') . $this->user);
     }
 }

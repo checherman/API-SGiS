@@ -64,7 +64,7 @@ class DirectorioController extends Controller
             'celular'       => 'required'
         ];
 
-        $inputs = Input::only('id','servidor_id','nombre', 'paterno', 'materno', 'celular', 'cargos_id', 'clues');
+        $inputs = Input::only('id', 'nombre', 'paterno', 'materno', 'celular', 'cargos_id', 'clues');
 
         $v = Validator::make($inputs, $reglas, $mensajes);
 
@@ -130,7 +130,7 @@ class DirectorioController extends Controller
             return Response::json(['error' => "No se encuentra el recurso que esta buscando."], HttpResponse::HTTP_NOT_FOUND);
         }
 
-        $inputs = Input::only('id','servidor_id','nombre', 'paterno', 'materno', 'celular', 'cargos_id', 'clues');
+        $inputs = Input::only('id','nombre', 'paterno', 'materno', 'celular', 'cargos_id', 'clues');
 
         $v = Validator::make($inputs, $reglas, $mensajes);
 

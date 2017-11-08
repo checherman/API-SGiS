@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\V1\Transacciones;
 
 use App\Http\Controllers\ApiController;
+use App\Models\Transacciones\Acompaniantes;
 use Illuminate\Support\Facades\Request;
 use App\Models\Transacciones\Personas;
 use Illuminate\Http\Response as HttpResponse;
@@ -53,7 +54,7 @@ class CensoPersonaController extends ApiController
      */
     public function index(){
         $datos = Request::all();
-
+        $acompaniantes = Acompaniantes::select('personas_id')->get();
         // Si existe el paarametro pagina en la url devolver las filas según sea el caso
         // si no existe parametros en la url devolver todos las filas de la tabla correspondiente
         // esta opción es para devolver todos los datos cuando la tabla es de tipo catálogo
@@ -81,7 +82,7 @@ class CensoPersonaController extends ApiController
             if(array_key_exists('buscar', $datos)){
                 $columna = $datos['columna'];
                 $valor   = $datos['valor'];
-                $data = Personas::with('derechohabientes','estados_embarazos','localidades')->orderBy($order,$orden);
+                $data = Personas::whereNotIn('id', $acompaniantes)->with('derechohabientes','estados_embarazos','localidades')->orderBy($order,$orden);
 
                 $search = trim($valor);
                 $keyword = $search;
@@ -98,13 +99,13 @@ class CensoPersonaController extends ApiController
                 $data = $data->skip($pagina-1)->take($datos['limite'])->get();
             }
             else{
-                $data = Personas::with('derechohabientes','estados_embarazos','localidades')->skip($pagina-1)->take($datos['limite'])->orderBy($order, $orden)->get();
+                $data = Personas::whereNotIn('id', $acompaniantes)->with('derechohabientes','estados_embarazos','localidades')->skip($pagina-1)->take($datos['limite'])->orderBy($order, $orden)->get();
                 $total = Personas::all();
             }
 
         }
         else{
-            $data = Personas::with('derechohabientes','estados_embarazos','localidades')->get();
+            $data = Personas::whereNotIn('id', $acompaniantes)->with('derechohabientes','estados_embarazos','localidades')->get();
             $total = $data;
         }
 
