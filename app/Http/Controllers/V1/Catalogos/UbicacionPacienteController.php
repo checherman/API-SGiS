@@ -17,7 +17,7 @@ use App\Models\Catalogos\UbicacionesPacientes;
  * @author     Luis Alberto Valdez Lescieur <luisvl13@gmail.com>
  * @created    2017-06-14
  *
- * Controlador `UbicacionPaciente`: Controlador  para el manejo de estados de pacientes
+ * Controlador `UbicacionPaciente`: Controlador  para el manejo de ubicaciones de pacientes
  *
  */
 class UbicacionPacienteController extends ApiController

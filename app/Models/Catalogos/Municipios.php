@@ -34,4 +34,9 @@ class Municipios extends BaseModel
     {
         return $this->hasMany(Clues::class);
     }
+
+    public function personas()
+    {
+        return $this->hasMany(Personas::class);
+    }
 }

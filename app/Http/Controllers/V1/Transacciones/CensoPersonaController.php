@@ -82,7 +82,7 @@ class CensoPersonaController extends ApiController
             if(array_key_exists('buscar', $datos)){
                 $columna = $datos['columna'];
                 $valor   = $datos['valor'];
-                $data = Personas::whereNotIn('id', $acompaniantes)->with('derechohabientes','estados_embarazos','localidades')->orderBy($order,$orden);
+                $data = Personas::whereNotIn('id', $acompaniantes)->with('derechohabientes','estados_embarazos','localidades','municipios')->orderBy($order,$orden);
 
                 $search = trim($valor);
                 $keyword = $search;
@@ -99,13 +99,13 @@ class CensoPersonaController extends ApiController
                 $data = $data->skip($pagina-1)->take($datos['limite'])->get();
             }
             else{
-                $data = Personas::whereNotIn('id', $acompaniantes)->with('derechohabientes','estados_embarazos','localidades')->skip($pagina-1)->take($datos['limite'])->orderBy($order, $orden)->get();
+                $data = Personas::whereNotIn('id', $acompaniantes)->with('derechohabientes','estados_embarazos','localidades','municipios')->skip($pagina-1)->take($datos['limite'])->orderBy($order, $orden)->get();
                 $total = Personas::all();
             }
 
         }
         else{
-            $data = Personas::whereNotIn('id', $acompaniantes)->with('derechohabientes','estados_embarazos','localidades')->get();
+            $data = Personas::whereNotIn('id', $acompaniantes)->with('derechohabientes','estados_embarazos','localidades','municipios')->get();
             $total = $data;
         }
 
@@ -141,7 +141,7 @@ class CensoPersonaController extends ApiController
 
         ];
 
-        $inputs = Input::only('id','nombre','paterno','materno','fecha_nacimiento','telefono','domicilio','estados_embarazos_id','derechohabientes_id');
+        $inputs = Input::only('id','nombre','paterno','materno','fecha_nacimiento','telefono','domicilio','estados_embarazos_id','derechohabientes_id','municipios_id','localidades_id');
 
         $v = Validator::make($inputs, $reglas, $mensajes);
 
@@ -168,13 +168,13 @@ class CensoPersonaController extends ApiController
      */
     public function show($id)
     {
-        $data = Personas::find($id);
+        $data = Personas::find($id)->with('municipios','localidades','derechohabientes', 'estados_embarazos')->first();
 
         if(!$data){
             return Response::json(['error' => "No se encuentra el recurso que esta buscando."], HttpResponse::HTTP_NOT_FOUND);
         }
 
-        return $this->respuestaVerUno($data);
+        return Response::json(['data' => $data], HttpResponse::HTTP_OK);
     }
 
     /**
@@ -201,7 +201,7 @@ class CensoPersonaController extends ApiController
             'domicilio' => 'required',
         ];
 
-        $inputs = Input::only('id','nombre','paterno','materno','fecha_nacimiento','telefono','domicilio','estados_embarazos_id','derechohabientes_id');
+        $inputs = Input::only('id','nombre','paterno','materno','fecha_nacimiento','telefono','domicilio','estados_embarazos_id','derechohabientes_id','municipios_id','localidades_id');
 
         $v = Validator::make($inputs, $reglas, $mensajes);
 
@@ -219,6 +219,8 @@ class CensoPersonaController extends ApiController
             $data->domicilio =  $inputs['domicilio'];
             $data->estados_embarazos_id =  $inputs['estados_embarazos_id'];
             $data->derechohabientes_id =  $inputs['derechohabientes_id'];
+            $data->municipios_id =  $inputs['municipios_id'];
+            $data->localidades_id =  $inputs['localidades_id'];
 
             $data->save();
             return $this->respuestaVerUno($data);

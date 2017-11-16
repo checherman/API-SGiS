@@ -27,11 +27,11 @@ use App\Models\Sistema\SucursalConfiguracion;
 
 /**
 * Controlador Oauth
-* 
-* @package    Plataforma API
-* @subpackage Controlador
-* @author     Eliecer Ramirez Esquinca <ramirez.esquinca@gmail.com>
-* @created    2015-07-20
+*
+ * @package    UGUS API
+ * @subpackage Controlador
+ * @author     Luis Alberto Valdez Lescieur <luisvl13@gmail.com>
+* @created    2017-09-20
 *
 * Controlador `Oauth`: Manejo de la obtension del token de acceso
 *

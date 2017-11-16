@@ -115,10 +115,8 @@ class ApoyoController extends ApiController
 
 
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @return mixed
      */
     public function store(Request $request)
     {

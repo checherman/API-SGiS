@@ -11,7 +11,17 @@ use App\Http\Requests;
 use App\Models\Sistema\Usuario;
 use Illuminate\Support\Facades\Input;
 use \Validator,\Hash, \Response, \DB;
-
+/**
+ * Controlador Directorio
+ *
+ * @package    UGUS API
+ * @subpackage Controlador
+ * @author     Luis Alberto Valdez Lescieur <luisvl13@gmail.com>
+ * @created    2017-10-22
+ *
+ * Controlador `Directorio`: Controlador  para el manejo de directorio
+ *
+ */
 class DirectorioController extends Controller
 {
     /**

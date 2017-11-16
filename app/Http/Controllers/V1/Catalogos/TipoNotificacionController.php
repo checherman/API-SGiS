@@ -9,17 +9,15 @@ use Illuminate\Support\Facades\Input;
 use \Validator,\Hash, \Response;
 
 use App\Http\Controllers\ApiController;
-
-
 /**
- * Controlador Apoyo
+ * Controlador TipoNotificaciones
  *
  * @package    UGUS API
  * @subpackage Controlador
  * @author     Luis Alberto Valdez Lescieur <luisvl13@gmail.com>
  * @created    2017-03-22
  *
- * Controlador `TipoNotificacion`: Controlador  para el manejo de catalogo apoyos
+ * Controlador `TipoNotificaciones`: Controlador  para el manejo de catalogo de tipos de notificaciones
  *
  */
 class TipoNotificacionController extends ApiController

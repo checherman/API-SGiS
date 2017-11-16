@@ -11,14 +11,14 @@ use \Validator,\Hash, \Response;
 use App\Models\Catalogos\Jurisdicciones;
 
 /**
- * Controlador Clues
+ * Controlador Jurisdiccion
  *
  * @package    UGUS API
  * @subpackage Controlador
  * @author     Luis Alberto Valdez Lescieur <luisvl13@gmail.com>
  * @created    2017-03-22
  *
- * Controlador `Clues`: Controlador  para el manejo de clues
+ * Controlador `Jurisdiccion`: Controlador  para el manejo de Jurisdicciones
  *
  */
 class JurisdiccionController extends Controller

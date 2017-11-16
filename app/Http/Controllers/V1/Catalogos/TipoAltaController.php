@@ -3,25 +3,27 @@
 namespace App\Http\Controllers\V1\Catalogos;
 
 use App\Http\Requests;
-use App\Models\Catalogos\EstadosPacientes;
+use App\Models\Catalogos\TiposAltas;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Input;
 use \Validator,\Hash, \Response;
 
 use App\Http\Controllers\ApiController;
-use App\Models\Catalogos\ValoraciionesPacientes;
+use App\Models\Catalogos\Apoyos;
+
+
 /**
- * Controlador EstadoPaciente
+ * Controlador TipoAlta
  *
  * @package    UGUS API
  * @subpackage Controlador
  * @author     Luis Alberto Valdez Lescieur <luisvl13@gmail.com>
  * @created    2017-03-22
  *
- * Controlador `EstadoPaciente`: Controlador  para el manejo de catalogo estados de pacientes
+ * Controlador `TipoAlta`: Controlador  para el manejo de catalogo tipos altas
  *
  */
-class EstadoPacienteController extends ApiController
+class TipoAltaController extends ApiController
 {
     /**
      * Muestra una lista de los recurso según los parametros a procesar en la petición.
@@ -33,10 +35,10 @@ class EstadoPacienteController extends ApiController
      * </Ul>
      * <Ul>Busqueda
      * <Li> <code>$valor</code> string con el valor para hacer la busqueda</ li>
-     * <Li> <code>$order</code> campo de la base de datos por la que se debe ordenar la información. Por Default es ASC, pero si se antepone el signo - es de manera DESC</ li>
+     * <Li> <code>$order</code> campo de la base de datos por la que se debe ordenar la información. Por Defaul es ASC, pero si se antepone el signo - es de manera DESC</ li>
      * </Ul>
      *
-     * ValoraciionesPacientes ordenamiento con respecto a id:
+     * Apoyos ordenamiento con respecto a id:
      * <code>
      * http://url?pagina=1&limite=5&order=id ASC
      * </code>
@@ -52,7 +54,7 @@ class EstadoPacienteController extends ApiController
     public function index(){
         $datos = Request::all();
 
-        // Si existe el paarametro pagina en la url devolver las filas según sea el caso
+        // Si existe el parametro pagina en la url devolver las filas según sea el caso
         // si no existe parametros en la url devolver todos las filas de la tabla correspondiente
         // esta opción es para devolver todos los datos cuando la tabla es de tipo catálogo
         if(array_key_exists('pagina', $datos)){
@@ -79,7 +81,7 @@ class EstadoPacienteController extends ApiController
             if(array_key_exists('buscar', $datos)){
                 $columna = $datos['columna'];
                 $valor   = $datos['valor'];
-                $data = EstadosPacientes::orderBy($order,$orden);
+                $data = TiposAltas::orderBy($order,$orden);
 
                 $search = trim($valor);
                 $keyword = $search;
@@ -93,13 +95,13 @@ class EstadoPacienteController extends ApiController
                 $data = $data->skip($pagina-1)->take($datos['limite'])->get();
             }
             else{
-                $data = EstadosPacientes::skip($pagina-1)->take($datos['limite'])->orderBy($order, $orden)->get();
-                $total = EstadosPacientes::all();
+                $data = TiposAltas::skip($pagina-1)->take($datos['limite'])->orderBy($order, $orden)->get();
+                $total = TiposAltas::all();
             }
 
         }
         else{
-            $data = EstadosPacientes::get();
+            $data = TiposAltas::get();
             $total = $data;
         }
 
@@ -111,6 +113,7 @@ class EstadoPacienteController extends ApiController
 
         }
     }
+
 
     /**
      * Store a newly created resource in storage.
@@ -127,8 +130,7 @@ class EstadoPacienteController extends ApiController
         ];
 
         $reglas = [
-            'nombre'        => 'required|unique:valoraciones_pacientes',
-            'descripcion'   => 'required'
+            'nombre'        => 'required|unique:apoyos',
         ];
 
         $inputs = Input::only('nombre', 'descripcion');
@@ -141,8 +143,7 @@ class EstadoPacienteController extends ApiController
 
         try {
 
-            $data = EstadosPacientes::create($inputs);
-
+            $data = TiposAltas::create($inputs);
             return $this->respuestaVerUno($data,201);
 
         } catch (\Exception $e) {
@@ -158,10 +159,10 @@ class EstadoPacienteController extends ApiController
      */
     public function show($id)
     {
-        $data = EstadosPacientes::find($id);
+        $data = TiposAltas::find($id);
 
         if(!$data){
-            return Response::json(['error' => "No se encuentra el recurso que esta buscando."], HttpResponse::HTTP_NOT_FOUND);
+            return $this->respuestaError('No se encuentra el recurso que esta buscando.', 404);
         }
 
         return $this->respuestaVerUno($data);
@@ -183,11 +184,10 @@ class EstadoPacienteController extends ApiController
         ];
 
         $reglas = [
-            'nombre'        => 'required|unique:valoraciones_pacientes,nombre,'.$id.',id,deleted_at,NULL',
-            'descripcion'   => 'required',
+            'nombre'        => 'required',
         ];
 
-        $inputs = Input::only('nombre', 'descripcion');
+        $inputs = Input::only('nombre','descripcion');
 
         $v = Validator::make($inputs, $reglas, $mensajes);
 
@@ -196,7 +196,7 @@ class EstadoPacienteController extends ApiController
         }
 
         try {
-            $data = EstadosPacientes::find($id);
+            $data = TiposAltas::find($id);
             $data->nombre =  $inputs['nombre'];
             $data->descripcion =  $inputs['descripcion'];
 
@@ -217,11 +217,10 @@ class EstadoPacienteController extends ApiController
     public function destroy($id)
     {
         try {
-            $data = EstadosPacientes::destroy($id);
+            $data = TiposAltas::destroy($id);
             return $this->respuestaVerTodo($data);
         } catch (Exception $e) {
             return $this->respuestaError($e->getMessage(), 409);
         }
     }
 }
-

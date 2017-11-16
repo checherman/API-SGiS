@@ -13,11 +13,11 @@ use App\Models\Sistema\SisModulo;
 use App\Models\Sistema\SisModuloAccion;
 /**
 * Controlador Modulo
-* 
-* @package    Plataforma API
-* @subpackage Controlador
-* @author     Eliecer Ramirez Esquinca <ramirez.esquinca@gmail.com>
-* @created    2015-07-20
+*
+ * @package    UGUS API
+ * @subpackage Controlador
+ * @author     Luis Alberto Valdez Lescieur <luisvl13@gmail.com>
+* @created    2017-08-20
 *
 * Controlador `SisModulo`: Manejo los permisos(modulo)
 *

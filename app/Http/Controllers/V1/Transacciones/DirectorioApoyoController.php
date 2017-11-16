@@ -12,7 +12,17 @@ use Illuminate\Http\Response as HttpResponse;
 use App\Http\Requests;
 use Illuminate\Support\Facades\Input;
 use \Validator,\Hash, \Response, \DB;
-
+/**
+ * Controlador DirectorioApoyo
+ *
+ * @package    UGUS API
+ * @subpackage Controlador
+ * @author     Luis Alberto Valdez Lescieur <luisvl13@gmail.com>
+ * @created    2017-10-22
+ *
+ * Controlador `DirectorioApoyo`: Controlador  para el manejo de Directorios de apoyos
+ *
+ */
 class DirectorioApoyoController extends Controller
 {
     /**

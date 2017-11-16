@@ -9,6 +9,7 @@
         "barryvdh/laravel-cors": "0.8.x",
         "laravel/framework": "5.4.*",
         "laravel/tinker": "~1.0",
+        "maatwebsite/excel": "~2.1.0",
         "pusher/pusher-php-server": "^3.0",
         "tymon/jwt-auth": "dev-master"
     },

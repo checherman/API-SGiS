@@ -10,16 +10,16 @@ use Input;
 use DB; 
 use App\Models\Catalogos\Paises;
 /**
-* Controlador Acción
-* 
-* @package    Plataforma API
-* @subpackage Controlador
-* @author     Eliecer Ramirez Esquinca <ramirez.esquinca@gmail.com>
-* @created    2015-07-20
-*
-* Controlador `Paises`: Esto es un ejemplo
-*
-*/
+ * Controlador Pais
+ *
+ * @package    UGUS API
+ * @subpackage Controlador
+ * @author     Luis Alberto Valdez Lescieur <luisvl13@gmail.com>
+ * @created    2017-03-22
+ *
+ * Controlador `Pais`: Controlador  para el manejo de catalogo Paises
+ *
+ */
 class PaisController extends Controller {
 	 
 	/**

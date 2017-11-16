@@ -3,35 +3,31 @@ namespace App;
 
 namespace App\Models\Transacciones;
 use App\Models\BaseModel;
-use App\Models\Catalogos\Clues;
-use App\Models\Catalogos\EstadosIncidencias;
+
 use App\Models\Catalogos\EstadosPacientes;
 use App\Models\Catalogos\MetodoPlanificacion;
-use App\Models\Catalogos\SubCategoriasCie10;
-use App\Models\Catalogos\TriageColores;
 use App\Models\Catalogos\Turnos;
 use App\Models\Catalogos\ValoraciionesPacientes;
+use App\Models\Sistema\Multimedias;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class AltasIncidencias extends BaseModel
 {
-    use SoftDeletes;
-
-    protected $generarID = true;
-    protected $guardarIDServidor = true;
-    protected $guardarIDUsuario = false;
-    public $incrementing = false;
+    public $incrementing = true;
 
     protected $table = "altas_incidencias";
     protected $fillable = [
         "id",
-        "servidor_id",
-        "diagnostico_egreso",
-        "observacion_trabajo_social",
         "medico_reporta_id",
         "metodos_planificacion_id",
-        "estados_pacientes_id",
+        "tipos_altas_id",
         "turnos_id",
+        "diagnostico_egreso",
+        "observacion_trabajo_social",
+        "clues_contrarefiere",
+        "clues_regresa",
+        "resumen_clinico",
+        "instrucciones_recomendaciones",
     ];
 
     public function incidencias()

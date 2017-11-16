@@ -5,6 +5,7 @@ namespace App;
 namespace App\Models\Transacciones;
 
 use App\Models\BaseModel;
+use App\Models\Catalogos\CarteraServicios;
 use App\Models\Catalogos\Items;
 use App\Models\Catalogos\Turnos;
 
@@ -24,7 +25,7 @@ class RespuestasEstadosFuerza extends BaseModel
 
     public function cartera_servicios()
     {
-        return $this->belongsTo(EstadosFuerza::class);
+        return $this->belongsTo(CarteraServicios::class);
     }
 
     public function estados_fuerza()

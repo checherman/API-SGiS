@@ -10,17 +10,16 @@ use Input;
 use DB; 
 use App\Models\Catalogos\Estados;
 /**
-* Controlador Acción
-* 
-* @package    Plataforma API
-* @subpackage Controlador
-* @author     Eliecer Ramirez Esquinca <ramirez.esquinca@gmail.com>
-* @created    2015-07-20
-*
-* Controlador `Estados`: Esto es un ejemplo
-*
-*/
-
+ * Controlador Estado
+ *
+ * @package    UGUS API
+ * @subpackage Controlador
+ * @author     Luis Alberto Valdez Lescieur <luisvl13@gmail.com>
+ * @created    2017-03-22
+ *
+ * Controlador `Estado`: Controlador  para el manejo de Estados
+ *
+ */
 class EstadoController extends Controller {
 	 
 	/**

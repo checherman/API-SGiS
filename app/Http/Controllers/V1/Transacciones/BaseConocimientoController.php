@@ -11,7 +11,17 @@ use App\Http\Requests;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Request;
 use \Validator,\Hash, \Response, \DB;
-
+/**
+ * Controlador BaseConocimiento
+ *
+ * @package    UGUS API
+ * @subpackage Controlador
+ * @author     Luis Alberto Valdez Lescieur <luisvl13@gmail.com>
+ * @created    2017-10-22
+ *
+ * Controlador `BaseConocimiento`: Controlador  para el manejo de Base de Conocimientos
+ *
+ */
 class BaseConocimientoController extends Controller
 {
     /**

@@ -1,28 +1,32 @@
 <?php
 namespace App\Http\Controllers\v1\Sistema;
 
-use App\Http\Requests;
+
 use App\Http\Controllers\Controller;
 
-use Request;
-use Response;
-use Input;
-use DB; 
-use Hash;
+
+use App\Http\Requests;
+use Illuminate\Http\Response as HttpResponse;
+use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Input;
+use \Validator,\Hash, \Response;
+use DB;
 use JWTAuth;
+
+
 use App\Models\Sistema\SisUSuario;
 use App\Models\Sistema\Notificaciones;
 use App\Models\Sistema\NotificacionesUsuarios;
 
 /**
-* Controlador SisUSuario
-* 
-* @package    Plataforma API
-* @subpackage Controlador
-* @author     Eliecer Ramirez Esquinca <ramirez.esquinca@gmail.com>
-* @created    2015-07-20
+* Controlador Notificacion
 *
-* Controlador `SisSisUSuario`: Manejo de usuarios del sistema
+ * @package    UGUS API
+ * @subpackage Controlador
+ * @author     Luis Alberto Valdez Lescieur <luisvl13@gmail.com>
+* @created    2017-10-20
+*
+* Controlador `Notificacion`: Manejo de notificaciones
 *
 */
 class NotificacionController extends Controller {
@@ -68,8 +72,7 @@ class NotificacionController extends Controller {
 				else
 					$orden = "asc";
 				$order=str_replace("-", "", $order); 
-			}
-			else{
+			}else{
 				$order = "id"; $orden = "asc";
 			}
 			
@@ -105,8 +108,7 @@ class NotificacionController extends Controller {
 				$total = $total->get();
 			}
 			
-		}
-		else{
+		}else{
 			$data = NotificacionesUsuarios::with("Notificaciones")->where("usuarios_id",$usuario->id);			
 			$data = $data->get();
 			$total = $data;
@@ -114,15 +116,17 @@ class NotificacionController extends Controller {
 
 		if(!$data){
 			return Response::json(array("status" => 204, "messages" => "No hay resultados"),204);
-		} 
-		else {	
+		}else {
 			$total_n = NotificacionesUsuarios::with("Notificaciones")->where("usuarios_id",$usuario->id)->where("leido", null)->get();		
 			$notificaciones = [];
-			foreach ($data as $key => $value) {
-				$mensaje = json_decode($value->notificaciones->mensaje);
-				$mensaje->mensaje->leido = $value->leido;
-				$mensaje->mensaje->tipo = $value->tipo;
-				array_push($notificaciones, $mensaje);				
+            foreach ($data as $key => $value) {
+
+                $mensaje = json_decode($value->notificaciones->mensaje);
+                $mensaje->id = $value->id;
+                //$mensaje->mensaje->leido = $value->leido;
+                if(property_exists($value, "tipo"))
+                    $mensaje->mensaje->tipo = $value->tipo;
+                array_push($notificaciones, array("mensaje" => $mensaje));
 			}
 			return Response::json(array("status" => 200, "messages" => "Operación realizada con exito", "data" => $notificaciones, "total" => count($total), "total_n" => count($total_n)),  200);			
 		}
@@ -150,13 +154,12 @@ class NotificacionController extends Controller {
         	$obj =  JWTAuth::parseToken()->getPayload();
 			$usuario = SisUsuario::where("email", $obj->get('email'))->first();
 
-        	$data = Notificaciones::find($id);
+            $data = NotificacionesUsuarios::find($id);
 
             if(!$data){
                 return Response::json(['error' => "No se encuentra el recurso que esta buscando."], HttpResponse::HTTP_NOT_FOUND);
-            } 
-            else{
-            	$notificacion = NotificacionesUsuarios::where("notificaciones_id", $data->id)->where("usuarios_id", $usuario->id)->first();
+            }else{
+            	$notificacion = NotificacionesUsuarios::where("id", $data->id)->where("usuarios_id", $usuario->id)->first();
 
             	if(property_exists($datos, "leido"))
         			$notificacion->leido = date("Y-m-d h:i:s");
@@ -175,8 +178,7 @@ class NotificacionController extends Controller {
         if($success){
 			DB::commit();
 			return Response::json(array("status" => 200, "messages" => "Operación realizada con exito", "data" => $data), 200);
-		} 
-		else {
+		}else {
 			DB::rollback();
 			return Response::json(array("status" => 304, "messages" => "No modificado"),200);
 		}

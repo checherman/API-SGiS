@@ -12,10 +12,10 @@ use App\Models\Catalogos\VersionApp;
 /**
  * Controlador Acción
  *
- * @package    CIUM API
+ * @package    UGUS API
  * @subpackage Controlador
- * @author     Eliecer Ramirez Esquinca <ramirez.esquinca@gmail.com>
- * @created    2015-07-20
+ * @author     Luis Alberto Valdez Lescieur <luisvl13@gmail.com>
+ * @created    2017-03-22
  *
  * Controlador `VersionApp`: Manejo del catálogo para las VersionAppes que se ponen en marcha cuando en una evaluación se genera un hallazgo
  *

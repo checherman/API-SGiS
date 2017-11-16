@@ -111,8 +111,7 @@ class IncidenciaController extends Controller
 
                 $total = $data->get();
                 $data = $data->skip($pagina-1)->take($datos['limite'])->get();
-            }
-            else{
+            }else{
                 if(!$edoIncidencia == null){
                     $data = Incidencias::select("incidencias.*")->with("pacientes.personas", "pacientes.acompaniantes.personas")
                         ->with("movimientos_incidencias", "referencias", "altas_incidencias", "estados_incidencias")
@@ -239,8 +238,7 @@ class IncidenciaController extends Controller
 
         if(!$data){
             return Response::json(array("status" => 204,"messages" => "No hay resultados"), 204);
-        }
-        else{
+        }else{
 
             $clues = DB::table('incidencia_clue')->where('incidencias_id', $id)->first();
             $data->clues = $clues->clues;
@@ -283,15 +281,13 @@ class IncidenciaController extends Controller
 
             $this->AgregarDatos($datos, $data);
             $success = true;
-        }
-        catch (\Exception $e){
+        }catch (\Exception $e){
             return Response::json($e->getMessage(), 500);
         }
         if ($success){
             DB::commit();
             return Response::json(array("status" => 200, "messages" => "Operación realizada con exito", "data" => $data), 200);
-        }
-        else {
+        }else {
             DB::rollback();
             return Response::json(array("status" => 304, "messages" => "No modificado"),304);
         }
@@ -315,15 +311,13 @@ class IncidenciaController extends Controller
             if($data)
                 $data->delete();
             $success = true;
-        }
-        catch (\Exception $e){
+        }catch (\Exception $e){
             return Response::json($e->getMessage(), 500);
         }
         if ($success){
             DB::commit();
             return Response::json(array("status" => 200, "messages" => "Operación realizada con exito","data" => $data), 200);
-        }
-        else {
+        }else {
             DB::rollback();
             return Response::json(array("status" => 404, "messages" => "No se encontro el registro"), 404);
         }
@@ -434,6 +428,7 @@ class IncidenciaController extends Controller
                             $persona->telefono              = $detallePersonas->telefono;
                             $persona->estados_embarazos_id  = $detallePersonas->estados_embarazos_id;
                             $persona->derechohabientes_id   = $detallePersonas->derechohabientes_id;
+                            $persona->municipios_id         = $detallePersonas->municipios_id;
                             $persona->localidades_id        = $detallePersonas->localidades_id;
 
                             if ($persona->save()) {
@@ -458,7 +453,6 @@ class IncidenciaController extends Controller
                                 }
                             }
                         }
-
 
                         if(property_exists($valuePaciente, "acompaniantes")){
                             //limpiar el arreglo de posibles nullos
@@ -492,18 +486,14 @@ class IncidenciaController extends Controller
                                         $personaA->domicilio          = $detallePersonaA->domicilio;
 
                                         if ($personaA->save()){
-
-                                            //                                            if(property_exists($valueAcompaniante, "id")) {
-                                                if(!$valueAcompaniante->id == null || !$valueAcompaniante->id == ""){
-                                                    $acompaniante = Acompaniantes::find($valueAcompaniante->id);
-                                                }else{
-                                                    $acompaniante = Acompaniantes::where("personas_id", $personaA->id)->where("parentescos_id", $valueAcompaniante->parentescos_id)->where("esResponsable", $valueAcompaniante->esResponsable)->first();
-                                                    if (!$acompaniante){
-                                                        $acompaniante = new Acompaniantes;
-                                                    }
+                                            if(!$valueAcompaniante->id == null || !$valueAcompaniante->id == ""){
+                                                $acompaniante = Acompaniantes::find($valueAcompaniante->id);
+                                            }else{
+                                                $acompaniante = Acompaniantes::where("personas_id", $personaA->id)->where("parentescos_id", $valueAcompaniante->parentescos_id)->where("esResponsable", $valueAcompaniante->esResponsable)->first();
+                                                if (!$acompaniante){
+                                                    $acompaniante = new Acompaniantes;
                                                 }
-//                                            }else
-//                                                $acompaniante = new Acompaniantes;
+                                                }
 
                                             $acompaniante->personas_id      = $personaA->id;
                                             $acompaniante->parentescos_id   = $valueAcompaniante->parentescos_id;
@@ -600,26 +590,59 @@ class IncidenciaController extends Controller
                         $altas_incidencias->incidencias_id                  = $data->id;
 
                         $altas_incidencias->medico_reporta_id               = $value->medico_reporta_id;
-                        $altas_incidencias->diagnostico_egreso              = $value->diagnostico_egreso;
-                        $altas_incidencias->observacion_trabajo_social      = $value->observacion_trabajo_social;
                         $altas_incidencias->metodos_planificacion_id        = $value->metodos_planificacion_id;
-
-                        $altas_incidencias->ubicaciones_pacientes_id        = $value->ubicaciones_pacientes_id;
+                        $altas_incidencias->tipos_altas_id                  = $value->tipos_altas_id;
                         $altas_incidencias->turnos_id                       = $value->turnos_id;
 
+                        $altas_incidencias->diagnostico_egreso              = $value->diagnostico_egreso;
+                        $altas_incidencias->observacion_trabajo_social      = $value->observacion_trabajo_social;
+
+                        $altas_incidencias->clues_contrarefiere              = $value->clues_contrarefiere;
+                        $altas_incidencias->clues_regresa                    = $value->clues_regresa;
+                        $altas_incidencias->resumen_clinico                  = $value->resumen_clinico;
+                        $altas_incidencias->instrucciones_recomendaciones    = $value->instrucciones_recomendaciones;
+
+
                         if($altas_incidencias->save()){
-                            //comprobar que el dato que se envio no exista
-                            if(property_exists($value, "id")) {
-                                //si existe actualizar
-                                $multimedia = Multimedias::where("id", $value->id)->where("refererencias_id", $data->id)->first();
-                            }else
-                                $multimedia = new Multimedias;
+                            if(property_exists($value, "multimedias")){
+                                $medios = array_filter($value->multimedias, function($v){return $v !== null;});
+                                Multimedias::where("altas_incidencias_id", $altas_incidencias->id)->delete();
 
-                            $multimedia->altas_incidencias_id                   = $altas_incidencias->id;
-                            $multimedia->tipo                                   = "imagen";
-                            $multimedia->url                                    = $this->convertir_imagen($value->img, 'referencias', $data->id);
+                                foreach ($medios as $key => $value) {
+                                    //validar que el valor no sea null
+                                    if($value != null){
+                                        //comprobar si el value es un array, si es convertirlo a object mas facil para manejar.
+                                        if(is_array($value))
+                                            $value = (object) $value;
 
-                            $multimedia->save();
+                                        //comprobar que el dato que se envio no exista o este borrado, si existe y esta borrado poner en activo nuevamente
+                                        if(property_exists($value, "id")) {
+                                            DB::update("update multimedias set deleted_at = null where id = $value->id and altas_incidencias_id = $altas_incidencias->id");
+                                            //si existe actualizar
+                                            $multimedia = Multimedias::where("id", $value->id)->where("altas_incidencias_id", $altas_incidencias->id)->first();
+
+                                            $multimedia->altas_incidencias_id             = $altas_incidencias->id;
+                                            $multimedia->tipo                             = "imagen";
+                                            $multimedia->url                              = $value->url;
+                                            $multimedia->save();
+
+
+                                        }else{
+                                            foreach($value as $img){
+                                                $multimedia = new Multimedias;
+
+                                                $multimedia->altas_incidencias_id             = $altas_incidencias->id;
+                                                $multimedia->tipo                             = "imagen";
+                                                $multimedia->url                              = $this->convertir_imagen($img, 'contrareferencias', $altas_incidencias->id);
+
+                                                $multimedia->save();
+                                            }
+
+                                        }
+                                    }
+                                }
+                            }
+
                         }
 
                     }
@@ -635,10 +658,9 @@ class IncidenciaController extends Controller
                     //dd($detalleMovimientos);
                     if(is_array($detalleReferencia))
                         $detalleReferencia = (object) $detalleReferencia;
+
                     //borrar los datos previos de articulo para no duplicar información
-                    if(property_exists($detalleReferencia, "id")){
-                        Referencias::where("id", $detalleReferencia->id)->where("incidencias_id", $data->id)->delete();
-                    }
+                    Referencias::where("incidencias_id", $data->id)->delete();
 
                     //recorrer cada elemento del arreglo
                     foreach ($detalleReferencia as $key => $valueReferencia) {
@@ -664,25 +686,44 @@ class IncidenciaController extends Controller
                             $referencia->clues_destino                  = $valueReferencia->clues_destino;
 
                             if($referencia->save()){
-
                                 if(property_exists($valueReferencia, "multimedias")){
                                     $medios = array_filter($valueReferencia->multimedias, function($v){return $v !== null;});
 
-                                    Multimedias::where("id", $value->id)->where("referencias_id", $data->id)->delete();
+                                    Multimedias::where("referencias_id", $referencia->id)->delete();
+
                                     foreach ($medios as $key => $value) {
-                                        $value = (object) $value;
+                                        //validar que el valor no sea null
                                         if($value != null){
-                                            DB::update("update multimedias set deleted_at = null where sis_usuarios_id = $data->id and valor = '$value->valor' ");
-                                            $multimedia = Multimedias::where("sis_usuarios_id", $data->id)->where("valor", $value->valor)->first();
+                                            //comprobar si el value es un array, si es convertirlo a object mas facil para manejar.
+                                            if(is_array($value))
+                                            $value = (object) $value;
 
-                                            if(!$multimedia)
-                                                $multimedia = new Multimedias;
+                                            //comprobar que el dato que se envio no exista o este borrado, si existe y esta borrado poner en activo nuevamente
+                                            if(property_exists($value, "id")) {
+                                                DB::update("update multimedias set deleted_at = null where id = $value->id and referencias_id = $referencia->id");
+                                                //si existe actualizar
+                                                $multimedia = Multimedias::where("id", $value->id)->where("referencias_id", $referencia->id)->first();
 
-                                            $multimedia->referencias_id                   = $referencia->id;
-                                            $multimedia->tipo                             = "imagen";
-                                            $multimedia->url                              = $this->convertir_imagen($value->img, 'referencias', $data->id);
+                                                $multimedia->referencias_id                   = $referencia->id;
+                                                $multimedia->tipo                             = "imagen";
+                                                $multimedia->url                              = $value->url;
+                                                $multimedia->save();
 
-                                            $multimedia->save();
+
+                                            }else{
+                                                foreach($value as $img){
+                                                    $multimedia = new Multimedias;
+
+                                                    $multimedia->referencias_id                   = $referencia->id;
+                                                    $multimedia->tipo                             = "imagen";
+                                                    $multimedia->url                              = $this->convertir_imagen($img, 'referencias', $referencia->id);
+
+                                                    $multimedia->save();
+                                                }
+
+                                            }
+
+
                                         }
                                     }
                                 }
@@ -692,32 +733,31 @@ class IncidenciaController extends Controller
                 }
             }
 
-
             $obj =  JWTAuth::parseToken()->getPayload();
-            $usuario = SisUsuario::where("email", $obj->get('email'))->first();
+            $usuarioActual = SisUsuario::where("email", $obj->get('email'))->first();
 
             $clues = Clues::select("nombre")->where("clues", $datos->clues)->first();
 
             $mensaje = collect();
             $mensajeSMS = "";
             $tipo = null;
+            $mensaje->put('usuario', $usuarioActual);
 
             if(!$movimientos_incidencias == null){
                 if($datos->estados_incidencias_id == 1){
                     $tipo = 1;
-                    $mensajeSMS = "NVO INGRESO. En " . $clues->nombre;
+                    $mensajeSMS = "NVO INGRESO. de la paciente". $detallePacientes[0]["personas"]["nombre"] . " " . $detallePacientes[0]["personas"]["paterno"] . " " . $detallePacientes[0]["personas"]["materno"] ." en ".$clues->nombre;
                 }else{
                     $tipo = 2;
-                    $mensajeSMS = "NVA ATENCION. del paciente ... ";
+                    $mensajeSMS = "NVA ATENCION. de la paciente ". $detallePacientes[0]["personas"]["nombre"] . " " . $detallePacientes[0]["personas"]["paterno"] . " " . $detallePacientes[0]["personas"]["materno"] ." en ". $clues->nombre;
                 }
 
                 $mensaje->put('titulo', "Nueva atencion del paciente ... ");
-                $mensaje->put('mensaje', $usuario->nombre." reporto una atencion del folio ". $data->id);
+                $mensaje->put('mensaje', $usuarioActual->nombre." reporto una atencion del folio ". $data->id);
                 $mensaje->put('created_at', date('Y-m-d H:i:s'));
                 $mensaje->put('enviado', null);
                 $mensaje->put('leido', null);
 
-                $mensaje->put('sis_usuarios_id', ['ids','ids']);
                 $mensaje->put('movimientos_incidencias', $movimientos_incidencias);
             }
 
@@ -727,37 +767,36 @@ class IncidenciaController extends Controller
                 $cluesOrigen = Clues::where("clues", $referencia->clues_origen)->first();
                 $cluesDestino = Clues::where("clues", $referencia->clues_destino)->first();
 
-                $mensajeSMS = "NVA REFERENCIA. " . substr($cluesOrigen->nombre,0,10) ." -> ". substr($cluesDestino->nombre,0,10) . " paciente ...";
+                $mensajeSMS = "REFERENCIA. PAC: ". $detallePacientes[0]["personas"]["nombre"] . " " . $detallePacientes[0]["personas"]["paterno"] . " " . $detallePacientes[0]["personas"]["materno"] ." de ". $cluesOrigen->nombre ." -> ". $cluesDestino->nombre;
 
                 $mensaje->put('titulo', "Nueva referencia del paciente ... ");
-                $mensaje->put('mensaje', $usuario->nombre." realizo una referencia del folio ". $data->id. " de (" . $cluesOrigen->clues . ")-" . $cluesOrigen->nombre  . " a (". $cluesOrigen->clues . ")-" . $cluesOrigen->nombre);
+                $mensaje->put('mensaje', $usuarioActual->nombre." realizo una referencia del folio ". $data->id. " de (" . $cluesOrigen->clues . ")-" . $cluesOrigen->nombre  . " a (". $cluesOrigen->clues . ")-" . $cluesOrigen->nombre);
                 $mensaje->put('created_at', date('Y-m-d H:i:s'));
                 $mensaje->put('enviado', null);
                 $mensaje->put('leido', null);
 
-                $mensaje->put('sis_usuarios_id', ['ids','ids']);
                 $mensaje->put('referencias', $referencia);
             }
 
             if(!$altas_incidencias == null){
                 $tipo = 4;
 
-                $mensajeSMS = "ALTA PACIENTE.... ";
+                $mensajeSMS = "ALTA de la paciente ". $detallePacientes[0]["personas"]["nombre"] . " " . $detallePacientes[0]["personas"]["paterno"] . " " . $detallePacientes[0]["personas"]["materno"];
 
                 $mensaje->put('titulo', "Alta del paciente ... ");
-                $mensaje->put('mensaje', $usuario->nombre." reporto una atencion del folio ". $data->id);
+                $mensaje->put('mensaje', $usuarioActual->nombre." reporto una atencion del folio ". $data->id);
                 $mensaje->put('created_at', date('Y-m-d H:i:s'));
                 $mensaje->put('enviado', null);
                 $mensaje->put('leido', null);
 
-                $mensaje->put('sis_usuarios_id', ['ids','ids']);
                 $mensaje->put('altas_incidencias', $altas_incidencias);
             }
 
-
+            //Notificaciones
             $notificacion = new Notificaciones;
             $notificacion->tipo                = $tipo;
             $notificacion->mensaje             = $mensaje;
+
 
             if ($notificacion->save()){
                 $usuarios = SisUsuariosNotificaciones::
@@ -775,13 +814,13 @@ class IncidenciaController extends Controller
                     $notificacionesUsuarios->telefono             = $usuario->valor;
 
                     $notificacionesUsuarios->notificaciones_id    = $notificacion->id;
-                    $notificacionesUsuarios->enviado              = new DateTime("Now");;
+                    $notificacionesUsuarios->enviado              = new DateTime("Now");
                     $notificacionesUsuarios->sms                  = $mensajeSMS;
                     $notificacionesUsuarios->status               = 0;
 
                     $notificacionesUsuarios->save();
 
-                    event(new NotificacionEvent($mensaje, $usuario->sis_usuarios_id));
+                    event(new NotificacionEvent($mensaje, $usuario->id));
 
                 }
 

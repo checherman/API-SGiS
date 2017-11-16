@@ -7,6 +7,9 @@ use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Input;
 use \Validator,\Hash, \Response;
 
+use Illuminate\Http\Response as HttpResponse;
+
+
 use App\Http\Controllers\Controller;
 use App\Models\Catalogos\Rutas;
 /**

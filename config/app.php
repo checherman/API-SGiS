@@ -186,6 +186,11 @@ return [
         * CORS
         */
         Barryvdh\Cors\ServiceProvider::class,
+
+        /*
+        * Excel
+        */
+        Maatwebsite\Excel\ExcelServiceProvider::class,
     ],
 
     /*
@@ -239,6 +244,8 @@ return [
         'JWTFactory' => 'Tymon\JWTAuth\Facades\JWTFactory',
 
         'Pusher' => Pusher\Pusher::class,
+
+        'Excel' => Maatwebsite\Excel\Facades\Excel::class,
     ],
 
 ];

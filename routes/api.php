@@ -16,7 +16,6 @@
 
 Route::get("/v1/pdf", 			 "v1\ExportController@getPDF");
 Route::post("/v1/html-pdf", 	 "v1\ExportController@setHTML");
-Route::get('/v1/articulos-auto', "v1\Catalogos\AutoCompleteController@articulos");
 
 //Autocomplete
 Route::get('/v1/grupo-permiso',             'AutoCompleteController@grupo_permiso');
@@ -50,23 +49,18 @@ Route::middleware('token')->prefix("v1")->group(function(){
     Route::get("permiso",   				"v1\Sistema\SisModuloController@permiso");
     Route::post("permisos-autorizados", 	"v1\Sistema\SisOauthController@permisosAutorizados");
 
-    Route::get("descargar-app",   			"v1\Catalogos\CatalogosController@descargarApp");
-    Route::get("puesto-usuario/{id}",   	"v1\Catalogos\CatalogosController@puestoUsuario");
-    Route::get("lista-persona/{id}",   		"v1\Catalogos\CatalogosController@personas");
+//    Route::get("descargar-app",   			"v1\Catalogos\CatalogosController@descargarApp");
+//    Route::get("puesto-usuario/{id}",   	"v1\Catalogos\CatalogosController@puestoUsuario");
+//    Route::get("lista-persona/{id}",   		"v1\Catalogos\CatalogosController@personas");
 
-    Route::resource("tipo-moneda",         	"v1\Catalogos\TipoMonedaController");
     Route::resource("tipo-medio",         	"v1\Catalogos\TipoMedioController");
     Route::resource("tipo-red-social", 		"v1\Catalogos\TipoRedSocialController");
-    Route::resource("tipo-persona",       	"v1\Catalogos\TipoPersonaController");
 
-    Route::resource("tipo-metodo-pago",     "v1\Catalogos\TipoMetodoPagoController");
-    Route::resource("tipo-flujo-efectivo", 	"v1\Catalogos\TipoFlujoEfectivoController");
-    Route::resource("tipo-movimiento",      "v1\Catalogos\TipoMovimientoController");
 
     Route::resource("notificacion",         "v1\Sistema\NotificacionController");
 });
 
-Route::get("/v1/comprimir/{id}", "v1\Catalogos\CatalogosController@comprimir");
+//Route::get("/v1/comprimir/{id}", "v1\Catalogos\CatalogosController@comprimir");
 // Fin OAUTH
 
 // Inicia rutas del sistema
@@ -81,15 +75,14 @@ Route::middleware('tokenPermiso')->prefix("v1")->group(function(){
     Route::resource("sisGrupo",   			        "v1\Sistema\SisGrupoController");
     Route::resource("sisReporte",   		        "v1\Sistema\SisReporteController");
     Route::resource("sisDashboard",   		        "v1\Sistema\SisDashboardController");
-    Route::resource("empresa-configuracion",        "v1\Sistema\EmpresaConfiguracionController");
-    Route::resource("sucursal-configuracion",       "v1\Sistema\SucursalConfiguracionController");
-    Route::resource("empresa",				        "v1\Sistema\EmpresaController");
-    Route::resource("sucursal",                     "v1\Sistema\SucursalController");
     Route::resource("version-app",   		        "v1\Sistema\VersionAppController");
 
-    Route::get("descargar-app",                     "v1\Sistema\VersionAppController@descargarApp");
+    //Route::get("descargar-app",                     "v1\Sistema\VersionAppController@descargarApp");
 
-
+    //Reportes y Dashboard
+    Route::resource("dashboard",   			        "V1\Dashboard\DashboardController");
+    Route::get("reportes/incidencias",              "V1\Reportes\ReporteController@incidencias");
+    Route::get("reportes/estado-fuerza",            "V1\Reportes\ReporteController@estadoFuerza");
 });
 
 // Inicia rutas de catalogos
@@ -120,6 +113,7 @@ Route::middleware('tokenPermiso')->prefix("v1")->group(function(){
     Route::resource('turnos',                       'V1\Catalogos\TurnoController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
     Route::resource('cargos',                       'V1\Catalogos\CargoController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
     Route::resource('apoyos',                       'V1\Catalogos\ApoyoController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
+    Route::resource('tipos-altas',                  'V1\Catalogos\TipoAltaController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
 
     Route::resource('rutas',                'V1\Catalogos\RutaController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
     Route::resource('cartera-servicios',    'V1\Catalogos\CarteraServicioController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);

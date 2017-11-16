@@ -7,6 +7,7 @@ use App\Models\BaseModel;
 use App\Models\Catalogos\Derechohabientes;
 use App\Models\Catalogos\EstadosEmbarazos;
 use App\Models\Catalogos\Localidades;
+use App\Models\Catalogos\Municipios;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Personas extends BaseModel
@@ -14,7 +15,7 @@ class Personas extends BaseModel
     public $incrementing = false;
 
     protected $table = "personas";
-    protected $fillable = ["id", "nombre", "paterno", "materno", "fecha_nacimiento", "telefono", "domicilio", "estados_embarazos_id", "derechohabientes_id", "localidades_id"];
+    protected $fillable = ["id", "nombre", "paterno", "materno", "fecha_nacimiento", "telefono", "domicilio", "estados_embarazos_id", "derechohabientes_id", "municipios_id", "localidades_id"];
 
     protected $hidden = ["created_at", "updated_at", "deleted_at"];
 
@@ -26,6 +27,11 @@ class Personas extends BaseModel
     public function estados_embarazos()
     {
         return $this->belongsTo(EstadosEmbarazos::class);
+    }
+
+    public function municipios()
+    {
+        return $this->belongsTo(Municipios::class);
     }
 
     public function localidades()

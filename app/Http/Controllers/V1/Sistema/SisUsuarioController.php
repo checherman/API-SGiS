@@ -19,11 +19,11 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 
 /**
 * Controlador SisUSuario
-* 
-* @package    Plataforma API
-* @subpackage Controlador
-* @author     Eliecer Ramirez Esquinca <ramirez.esquinca@gmail.com>
-* @created    2015-07-20
+*
+ * @package    UGUS API
+ * @subpackage Controlador
+ * @author     Luis Alberto Valdez Lescieur <luisvl13@gmail.com>
+* @created    2017-08-20
 *
 * Controlador `SisUSuario`: Manejo de usuarios del sistema
 *
@@ -231,7 +231,7 @@ class SisUSuarioController extends Controller {
 		$data->avatar 			 = property_exists($datos, "avatar") 			? $datos->avatar 				: $data->avatar;
 		$data->foto 			 = property_exists($datos, "foto") 				? $datos->foto 					: $data->foto;
 		$data->spam 			 = property_exists($datos, "spam") 				? $datos->spam 					: $data->spam;
-		$data->paises_id 		 = property_exists($datos, "paises_id") 		? $datos->paises_id 			: $data->paises_id;
+		$data->localidades_id 	 = property_exists($datos, "localidades_id") 	? $datos->localidades_id 			: $data->localidades_id;
 		$data->estados_id 		 = property_exists($datos, "estados_id") 		? $datos->estados_id 			: $data->estados_id;
 		$data->municipios_id 	 = property_exists($datos, "municipios_id") 	? $datos->municipios_id 		: $data->municipios_id;	
 
