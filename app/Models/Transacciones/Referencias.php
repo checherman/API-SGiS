@@ -3,6 +3,7 @@ namespace App;
 
 namespace App\Models\Transacciones;
 use App\Models\BaseModel;
+use App\Models\Catalogos\Clues;
 use App\Models\Sistema\Multimedias;
 
 class Referencias extends BaseModel
@@ -22,5 +23,13 @@ class Referencias extends BaseModel
     public function multimedias()
     {
         return $this->hasMany(Multimedias::class);
+    }
+
+    public function CluesOrigenO(){
+        return $this->belongsTo(Clues::class,'clues_origen','clues');
+    }
+
+    public function CluesDestinoO(){
+        return $this->belongsTo(Clues::class,'clues_destino','clues');
     }
 }

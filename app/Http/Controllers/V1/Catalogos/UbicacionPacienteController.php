@@ -126,7 +126,7 @@ class UbicacionPacienteController extends ApiController
         ];
 
         $reglas = [
-            'nombre'        => 'required|unique:estados_pacientes',
+            'nombre'        => 'required|unique:ubicaciones_pacientes',
         ];
 
         $inputs = Input::only('nombre', 'descripcion');

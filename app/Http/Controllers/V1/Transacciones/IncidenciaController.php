@@ -5,6 +5,8 @@ namespace App\Http\Controllers\V1\Transacciones;
 use App\Events\NotificacionEvent;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
+use App\Models\Catalogos\SubCategoriasCie10;
+use App\Models\Catalogos\TriageColores;
 use App\Models\Sistema\Notificaciones;
 use App\Models\Sistema\NotificacionesUsuarios;
 use App\Models\Sistema\SisUsuariosNotificaciones;
@@ -36,7 +38,7 @@ use App\Models\Transacciones\Referencias;
  * @package    UGUS API
  * @subpackage Controlador
  * @author     Luis Alberto Valdez Lescieur <luisvl13@gmail.com>
- * @created    2017-05-25
+ * @created    2017-07-25
  *
  * Controlador `Incidencia`: Controlador  para el manejo de incidencias
  *
@@ -44,9 +46,30 @@ use App\Models\Transacciones\Referencias;
 class IncidenciaController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Muestra una lista de los recurso según los parametros a procesar en la petición.
      *
-     * @return \Illuminate\Http\Response
+     * <h3>Lista de parametros Request:</h3>
+     * <Ul>Paginación
+     * <Li> <code>$pagina</code> numero del puntero(offset) para la sentencia limit </ li>
+     * <Li> <code>$limite</code> numero de filas a mostrar por página</ li>
+     * </Ul>
+     * <Ul>Busqueda
+     * <Li> <code>$valor</code> string con el valor para hacer la busqueda</ li>
+     * <Li> <code>$order</code> campo de la base de datos por la que se debe ordenar la información. Por Defaul es ASC, pero si se antepone el signo - es de manera DESC</ li>
+     * </Ul>
+     *
+     * Ejemplo ordenamiento con respecto a id:
+     * <code>
+     * http://url?pagina=1&limite=5&order=id ASC
+     * </code>
+     * <code>
+     * http://url?pagina=1&limite=5&order=-id DESC
+     * </code>
+     *
+     * Todo Los parametros son opcionales, pero si existe pagina debe de existir tambien limite
+     * @return Response
+     * <code style="color:green"> Respuesta Ok json(array("status": 200, "messages": "Operación realizada con exito", "data": array(resultado)),status) </code>
+     * <code> Respuesta Error json(array("status": 404, "messages": "No hay resultados"),status) </code>
      */
     public function index()
     {
@@ -74,7 +97,7 @@ class IncidenciaController extends Controller
                 $order = str_replace("-", "", $order);
             }
             else{
-                $order = "id"; $orden = "asc";
+                $order = "created_at"; $orden = "desc";
             }
 
             if($pagina == 0){
@@ -181,9 +204,14 @@ class IncidenciaController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
-     * @return HttpResponse
-     * @internal param \Illuminate\Http\Request|Request $request
+     * Crear un nuevo registro en la base de datos con los datos enviados
+     *
+     * <h4>Request</h4>
+     * Recibe un input request tipo json de los datos a almacenar en la tabla correspondiente
+     *
+     * @return Response
+     * <code style="color:green"> Respuesta Ok json(array("status": 201, "messages": "Creado", "data": array(resultado)),status) </code>
+     * <code> Respuesta Error json(array("status": 500, "messages": "Error interno del servidor"),status) </code>
      */
     public function store()
     {
@@ -257,7 +285,7 @@ class IncidenciaController extends Controller
     }
 
     /**
-     * Actualizar el  registro especificado en la base de datos
+     * Actualizar el  registro especificado en el la base de datos
      *
      * <h4>Request</h4>
      * Recibe un Input Request con el json de los datos
@@ -567,6 +595,7 @@ class IncidenciaController extends Controller
                 $detalleAltas = array_filter($datos->altas_incidencias, function($v){return $v !== null;});
                 if(is_array($detalleAltas))
                     $detalleAltas = (object) $detalleAltas;
+
                 //borrar los datos previos de articulo para no duplicar información
                 if(property_exists($detalleAltas, "id")){
                     AltasIncidencias::where("id", $detalleAltas->id)->where("incidencias_id", $data->id)->delete();
@@ -602,7 +631,6 @@ class IncidenciaController extends Controller
                         $altas_incidencias->resumen_clinico                  = $value->resumen_clinico;
                         $altas_incidencias->instrucciones_recomendaciones    = $value->instrucciones_recomendaciones;
 
-
                         if($altas_incidencias->save()){
                             if(property_exists($value, "multimedias")){
                                 $medios = array_filter($value->multimedias, function($v){return $v !== null;});
@@ -614,7 +642,6 @@ class IncidenciaController extends Controller
                                         //comprobar si el value es un array, si es convertirlo a object mas facil para manejar.
                                         if(is_array($value))
                                             $value = (object) $value;
-
                                         //comprobar que el dato que se envio no exista o este borrado, si existe y esta borrado poner en activo nuevamente
                                         if(property_exists($value, "id")) {
                                             DB::update("update multimedias set deleted_at = null where id = $value->id and altas_incidencias_id = $altas_incidencias->id");
@@ -655,7 +682,7 @@ class IncidenciaController extends Controller
                 if(property_exists($datos, "referencias")){
                     //limpiar el arreglo de posibles nullos
                     $detalleReferencia = array_filter($datos->referencias, function($v){return $v !== null;});
-                    //dd($detalleMovimientos);
+
                     if(is_array($detalleReferencia))
                         $detalleReferencia = (object) $detalleReferencia;
 
@@ -686,6 +713,7 @@ class IncidenciaController extends Controller
                             $referencia->clues_destino                  = $valueReferencia->clues_destino;
 
                             if($referencia->save()){
+                                //verificar si existe multimedias, en caso de que exista proceder a guardarlo
                                 if(property_exists($valueReferencia, "multimedias")){
                                     $medios = array_filter($valueReferencia->multimedias, function($v){return $v !== null;});
 
@@ -737,6 +765,8 @@ class IncidenciaController extends Controller
             $usuarioActual = SisUsuario::where("email", $obj->get('email'))->first();
 
             $clues = Clues::select("nombre")->where("clues", $datos->clues)->first();
+            $triage = TriageColores::select("nombre")->where("id", $datos->movimientos_incidencias[sizeof($datos->movimientos_incidencias)-1]["triage_colores_id"])->first();
+            $cie10 = SubCategoriasCie10::select("nombre")->where("id", $datos->movimientos_incidencias[sizeof($datos->movimientos_incidencias)-1]["subcategorias_cie10_id"])->first();
 
             $mensaje = collect();
             $mensajeSMS = "";
@@ -744,21 +774,26 @@ class IncidenciaController extends Controller
             $mensaje->put('usuario', $usuarioActual);
 
             if(!$movimientos_incidencias == null){
-                if($datos->estados_incidencias_id == 1){
-                    $tipo = 1;
-                    $mensajeSMS = "NVO INGRESO. de la paciente". $detallePacientes[0]["personas"]["nombre"] . " " . $detallePacientes[0]["personas"]["paterno"] . " " . $detallePacientes[0]["personas"]["materno"] ." en ".$clues->nombre;
-                }else{
-                    $tipo = 2;
-                    $mensajeSMS = "NVA ATENCION. de la paciente ". $detallePacientes[0]["personas"]["nombre"] . " " . $detallePacientes[0]["personas"]["paterno"] . " " . $detallePacientes[0]["personas"]["materno"] ." en ". $clues->nombre;
+                if ($datos->movimientos_incidencias[sizeof($datos->movimientos_incidencias)-1]["id"] == ""){
+                    if($datos->estados_incidencias_id == 1){
+                        $tipo = 1;
+                        $mensajeSMS = "INGRESO. ". $detallePacientes[0]["personas"]["nombre"] . " " . $detallePacientes[0]["personas"]["paterno"] . " " . $detallePacientes[0]["personas"]["materno"] ." en ". $clues->nombre . ", triage: " . $triage->nombre;
+                        if($triage->nombre == "Rojo"){
+                            $mensajeSMS = $mensajeSMS ."-". $cie10->nombre;
+                        }
+                    }else{
+                        $tipo = 2;
+                        $mensajeSMS = "ATENCION. ". $detallePacientes[0]["personas"]["nombre"] . " " . $detallePacientes[0]["personas"]["paterno"] . " " . $detallePacientes[0]["personas"]["materno"] ." en ". $clues->nombre;
+                    }
+
+                    $mensaje->put('titulo', "Nueva atencion del paciente ... ");
+                    $mensaje->put('mensaje', $usuarioActual->nombre." reporto una atencion del folio ". $data->id);
+                    $mensaje->put('created_at', date('Y-m-d H:i:s'));
+                    $mensaje->put('enviado', null);
+                    $mensaje->put('leido', null);
+
+                    $mensaje->put('movimientos_incidencias', $movimientos_incidencias);
                 }
-
-                $mensaje->put('titulo', "Nueva atencion del paciente ... ");
-                $mensaje->put('mensaje', $usuarioActual->nombre." reporto una atencion del folio ". $data->id);
-                $mensaje->put('created_at', date('Y-m-d H:i:s'));
-                $mensaje->put('enviado', null);
-                $mensaje->put('leido', null);
-
-                $mensaje->put('movimientos_incidencias', $movimientos_incidencias);
             }
 
             if(!$referencia == null){
@@ -767,7 +802,7 @@ class IncidenciaController extends Controller
                 $cluesOrigen = Clues::where("clues", $referencia->clues_origen)->first();
                 $cluesDestino = Clues::where("clues", $referencia->clues_destino)->first();
 
-                $mensajeSMS = "REFERENCIA. PAC: ". $detallePacientes[0]["personas"]["nombre"] . " " . $detallePacientes[0]["personas"]["paterno"] . " " . $detallePacientes[0]["personas"]["materno"] ." de ". $cluesOrigen->nombre ." -> ". $cluesDestino->nombre;
+                $mensajeSMS = "REFERENCIA. ". $detallePacientes[0]["personas"]["nombre"] . " " . $detallePacientes[0]["personas"]["paterno"] . " " . $detallePacientes[0]["personas"]["materno"] ." de ". $cluesOrigen->nombre ." -> ". $cluesDestino->nombre . ", triage: " . $triage->nombre;
 
                 $mensaje->put('titulo', "Nueva referencia del paciente ... ");
                 $mensaje->put('mensaje', $usuarioActual->nombre." realizo una referencia del folio ". $data->id. " de (" . $cluesOrigen->clues . ")-" . $cluesOrigen->nombre  . " a (". $cluesOrigen->clues . ")-" . $cluesOrigen->nombre);
@@ -781,7 +816,7 @@ class IncidenciaController extends Controller
             if(!$altas_incidencias == null){
                 $tipo = 4;
 
-                $mensajeSMS = "ALTA de la paciente ". $detallePacientes[0]["personas"]["nombre"] . " " . $detallePacientes[0]["personas"]["paterno"] . " " . $detallePacientes[0]["personas"]["materno"];
+                $mensajeSMS = "ALTA. ". $detallePacientes[0]["personas"]["nombre"] . " " . $detallePacientes[0]["personas"]["paterno"] . " " . $detallePacientes[0]["personas"]["materno"];
 
                 $mensaje->put('titulo', "Alta del paciente ... ");
                 $mensaje->put('mensaje', $usuarioActual->nombre." reporto una atencion del folio ". $data->id);

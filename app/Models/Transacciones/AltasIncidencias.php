@@ -6,6 +6,7 @@ use App\Models\BaseModel;
 
 use App\Models\Catalogos\EstadosPacientes;
 use App\Models\Catalogos\MetodoPlanificacion;
+use App\Models\Catalogos\TiposAltas;
 use App\Models\Catalogos\Turnos;
 use App\Models\Catalogos\ValoraciionesPacientes;
 use App\Models\Sistema\Multimedias;
@@ -48,6 +49,11 @@ class AltasIncidencias extends BaseModel
     public function multimedias()
     {
         return $this->hasMany(Multimedias::class);
+    }
+
+    public function tipos_altas()
+    {
+        return $this->belongsTo(TiposAltas::class);
     }
 
     public function turnos()

@@ -7,6 +7,7 @@ namespace App\Models\Catalogos;
 use App\Models\BaseModel;
 use App\Models\Sistema\SisUsuario;
 use App\Models\Transacciones\Incidencias;
+use App\Models\Transacciones\Referencias;
 use App\Models\Transacciones\RespuestasEstadosFuerza;
 use Illuminate\Database\Eloquent\Model;
 
@@ -42,5 +43,4 @@ class Clues extends Model
     {
         return $this->hasMany(RespuestasEstadosFuerza::class, 'clues','clues');
     }
-
 }

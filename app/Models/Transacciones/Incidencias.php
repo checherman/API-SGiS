@@ -16,7 +16,7 @@ class Incidencias extends BaseModel
 
     public function altas_incidencias()
     {
-        return $this->hasMany(AltasIncidencias::class)->orderBy('id', 'DESC')->with("multimedias")->with("estados_pacientes","metodos_planificacion","turnos");
+        return $this->hasMany(AltasIncidencias::class)->orderBy('id', 'DESC')->with("multimedias")->with("estados_pacientes","metodos_planificacion","turnos","tipos_altas");
     }
 
     public function clues()
@@ -41,6 +41,6 @@ class Incidencias extends BaseModel
 
     public function referencias()
     {
-        return $this->hasMany(Referencias::class)->orderBy('id', 'DESC')->with("multimedias");
+        return $this->hasMany(Referencias::class)->orderBy('id', 'DESC')->with("multimedias","CluesOrigenO","CluesDestinoO");
     }
 }

@@ -3,6 +3,7 @@
 namespace App;
 
 namespace App\Models\Catalogos;
+use App\Models\Transacciones\AltasIncidencias;
 use App\Models\Transacciones\MovimientosIncidencias;
 use App\Models\Transacciones\RespuestasEstadosFuerza;
 use Illuminate\Database\Eloquent\Model;
@@ -29,5 +30,10 @@ class Turnos extends Model
     public function respuestas_estados_fuerza()
     {
         return $this->hasMany(RespuestasEstadosFuerza::class);
+    }
+
+    public function altas_incidencias()
+    {
+        return $this->hasMany(AltasIncidencias::class);
     }
 }

@@ -36,7 +36,7 @@ class EstadoPacienteController extends ApiController
      * <Li> <code>$order</code> campo de la base de datos por la que se debe ordenar la información. Por Default es ASC, pero si se antepone el signo - es de manera DESC</ li>
      * </Ul>
      *
-     * ValoraciionesPacientes ordenamiento con respecto a id:
+     * EstadosPacientes ordenamiento con respecto a id:
      * <code>
      * http://url?pagina=1&limite=5&order=id ASC
      * </code>
@@ -127,7 +127,7 @@ class EstadoPacienteController extends ApiController
         ];
 
         $reglas = [
-            'nombre'        => 'required|unique:valoraciones_pacientes',
+            'nombre'        => 'required|unique:estados_pacientes',
             'descripcion'   => 'required'
         ];
 
@@ -183,7 +183,7 @@ class EstadoPacienteController extends ApiController
         ];
 
         $reglas = [
-            'nombre'        => 'required|unique:valoraciones_pacientes,nombre,'.$id.',id,deleted_at,NULL',
+            'nombre'        => 'required|unique:estados_pacientes,nombre,'.$id.',id,deleted_at,NULL',
             'descripcion'   => 'required',
         ];
 
