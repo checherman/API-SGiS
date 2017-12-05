@@ -87,7 +87,7 @@ class NotificacionController extends Controller {
 			if(array_key_exists("buscar", $datos)){
 				$columna = $datos["columna"];
 				$valor   = $datos["valor"];
-				$data = NotificacionesUsuarios::with("Notificaciones")->where("usuarios_id",$usuario->id)->orderBy($order, $orden);
+				$data = NotificacionesUsuarios::with("Notificaciones")->where("usuarios_id",$usuario->id)->where("leido", null)->orderBy($order, $orden);
 				
 				$search = trim($valor);
 				$keyword = $search;
@@ -99,17 +99,16 @@ class NotificacionController extends Controller {
 				$data = $data->skip($pagina-1)->take($datos["limite"])->get();
 			}
 			else{
-				$data = NotificacionesUsuarios::with("Notificaciones")->where("usuarios_id",$usuario->id)
+				$data = NotificacionesUsuarios::with("Notificaciones")->where("usuarios_id",$usuario->id)->where("leido", null)
 				->skip($pagina-1)->take($datos["limite"])->orderBy($order, $orden);
-				
-				$data = $data->get();
-				$total =  NotificacionesUsuarios::with("Notificaciones")->where("usuarios_id",$usuario->id);
+                $data = $data->get();
+                $total =  NotificacionesUsuarios::with("Notificaciones")->where("usuarios_id",$usuario->id)->where("leido", null);
 				
 				$total = $total->get();
 			}
 			
 		}else{
-			$data = NotificacionesUsuarios::with("Notificaciones")->where("usuarios_id",$usuario->id);			
+			$data = NotificacionesUsuarios::with("Notificaciones")->where("usuarios_id",$usuario->id)->where("leido", null);
 			$data = $data->get();
 			$total = $data;
 		}
@@ -117,7 +116,8 @@ class NotificacionController extends Controller {
 		if(!$data){
 			return Response::json(array("status" => 204, "messages" => "No hay resultados"),204);
 		}else {
-			$total_n = NotificacionesUsuarios::with("Notificaciones")->where("usuarios_id",$usuario->id)->where("leido", null)->get();		
+			$total_n = NotificacionesUsuarios::with("Notificaciones")->where("usuarios_id",$usuario->id)->where("leido", null)->get();
+
 			$notificaciones = [];
             foreach ($data as $key => $value) {
 

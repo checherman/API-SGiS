@@ -181,7 +181,7 @@ class IncidenciaController extends Controller
             $value->antiguedad = $antiguedad;
         }
 
-        foreach($data as $mov) {
+        foreach($total as $mov) {
             if (!in_array($mov->estados_incidencias['nombre'], $estadosIncidencias)) {
                 array_push($estadosIncidencias, ['id' => $mov->estados_incidencias['id'], 'nombre' => $mov->estados_incidencias['nombre']]);
             }
@@ -778,12 +778,13 @@ class IncidenciaController extends Controller
                     if($datos->estados_incidencias_id == 1){
                         $tipo = 1;
                         $mensajeSMS = "INGRESO. ". $detallePacientes[0]["personas"]["nombre"] . " " . $detallePacientes[0]["personas"]["paterno"] . " " . $detallePacientes[0]["personas"]["materno"] ." en ". $clues->nombre . ", triage: " . $triage->nombre;
-                        if($triage->nombre == "Rojo"){
+                        //if($triage->nombre == "Rojo"){
                             $mensajeSMS = $mensajeSMS ."-". $cie10->nombre;
-                        }
+                        //}
                     }else{
                         $tipo = 2;
                         $mensajeSMS = "ATENCION. ". $detallePacientes[0]["personas"]["nombre"] . " " . $detallePacientes[0]["personas"]["paterno"] . " " . $detallePacientes[0]["personas"]["materno"] ." en ". $clues->nombre;
+                        $mensajeSMS = $mensajeSMS ."-". $cie10->nombre;
                     }
 
                     $mensaje->put('titulo', "Nueva atencion del paciente ... ");

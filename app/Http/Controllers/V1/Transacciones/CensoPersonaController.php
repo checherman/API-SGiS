@@ -168,8 +168,7 @@ class CensoPersonaController extends ApiController
      */
     public function show($id)
     {
-        $data = Personas::find($id)->with('municipios','localidades','derechohabientes', 'estados_embarazos')->first();
-
+        $data = Personas::where('id',$id)->with('municipios','localidades','derechohabientes', 'estados_embarazos')->first();
         if(!$data){
             return Response::json(['error' => "No se encuentra el recurso que esta buscando."], HttpResponse::HTTP_NOT_FOUND);
         }

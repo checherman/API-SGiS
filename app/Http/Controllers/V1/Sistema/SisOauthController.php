@@ -167,7 +167,7 @@ class SisOauthController extends Controller {
 
             $variable = DB::table('clue_usuario')
                 ->leftJoin("clues","clues.clues","clue_usuario.clues")
-                ->select("clues.clues","clues.nombre")
+                ->select("clues.clues","clues.nombre","clues.numeroLongitud","clues.numeroLatitud")
                 ->where('sis_usuarios_id', $usuario_logueado)->get();
 
             $server_info = [
