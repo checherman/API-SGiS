@@ -34,4 +34,9 @@ class Localidades extends BaseModel
     {
         return $this->hasMany(Personas::class);
     }
+
+    public function SisUsuario()
+    {
+        return $this->hasMany(SisUsuario::class);
+    }
 }

@@ -2,6 +2,8 @@
 
 use App\Models\BaseModel;
 use App\Models\Catalogos\Clues;
+use App\Models\Catalogos\Localidades;
+use App\Models\Catalogos\Municipios;
 
 /**
 * Modelo SisUsuario
@@ -54,5 +56,15 @@ class SisUsuario extends BaseModel {
 
     public function EstadosFuerza(){
         return $this->hasMany('App\Models\Sistema\EstadosFuerza', 'sis_usuarios_id');
+    }
+
+    public function municipios()
+    {
+        return $this->belongsTo(Municipios::class);
+    }
+
+    public function localidades()
+    {
+        return $this->belongsTo(Localidades::class);
     }
 }

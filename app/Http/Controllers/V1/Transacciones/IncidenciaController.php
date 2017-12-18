@@ -99,10 +99,10 @@ class IncidenciaController extends Controller
             else{
                 $order = "created_at"; $orden = "desc";
             }
-
-            if($pagina == 0){
+            if($pagina == 0 || $pagina == null){
                 $pagina = 1;
             }
+
             if($pagina == 1)
                 $datos["limite"] = $datos["limite"] - 1;
             // si existe buscar se realiza esta linea para devolver las filas que en el campo que coincidan con el valor que el usuario escribio
@@ -145,7 +145,13 @@ class IncidenciaController extends Controller
                         ->skip($pagina-1)->take($datos['limite'])->orderBy('incidencias.id', $orden)
                         ->get();
 
-                    $total = Incidencias::all();
+                    $total = Incidencias::select("incidencias.*")->with("pacientes.personas", "pacientes.acompaniantes.personas")
+                        ->with("movimientos_incidencias", "referencias", "altas_incidencias", "estados_incidencias")
+                        ->join('estados_incidencias', 'estados_incidencias.id', '=', 'incidencias.estados_incidencias_id')
+                        ->where('incidencias.estados_incidencias_id',$edoIncidencia)
+                        ->join('incidencia_clue', 'incidencia_clue.incidencias_id', '=', 'incidencias.id')
+                        ->where('incidencia_clue.clues',$cluesH)
+                        ->get();
                 }else{
                     $data = Incidencias::select("incidencias.*")->with("pacientes.personas", "pacientes.acompaniantes.personas")
                         ->with("movimientos_incidencias", "referencias", "altas_incidencias", "estados_incidencias")
@@ -154,7 +160,11 @@ class IncidenciaController extends Controller
                         ->skip($pagina-1)->take($datos['limite'])->orderBy($order, $orden)
                         ->get();
 
-                    $total = Incidencias::all();
+                    $total = Incidencias::select("incidencias.*")->with("pacientes.personas", "pacientes.acompaniantes.personas")
+                        ->with("movimientos_incidencias", "referencias", "altas_incidencias", "estados_incidencias")
+                        ->join('incidencia_clue', 'incidencia_clue.incidencias_id', '=', 'incidencias.id')
+                        ->where('incidencia_clue.clues',$cluesH)
+                        ->get();
                 }
             }
 
@@ -180,8 +190,8 @@ class IncidenciaController extends Controller
 
             $value->antiguedad = $antiguedad;
         }
-
-        foreach($total as $mov) {
+        $combosEstadosIncidencia = Incidencias::all();
+        foreach($combosEstadosIncidencia as $mov) {
             if (!in_array($mov->estados_incidencias['nombre'], $estadosIncidencias)) {
                 array_push($estadosIncidencias, ['id' => $mov->estados_incidencias['id'], 'nombre' => $mov->estados_incidencias['nombre']]);
             }
@@ -278,6 +288,12 @@ class IncidenciaController extends Controller
                 $antiguedad = $this->obtenerAntiguedad($diff);
 
                 $value->antiguedad = $antiguedad;
+            }
+
+            if(count($data->referencias) >= 1){
+                $data->tieneReferencia = 1;
+            }else{
+                $data->tieneReferencia = 0;
             }
 
             return Response::json(array("status" => 200,"messages" => "Operación realizada con exito","data" => $data), 200);
@@ -435,7 +451,9 @@ class IncidenciaController extends Controller
                             $valuePaciente = (object)$valuePaciente;
 
                         //si existe actualizar
-                        $persona = Personas::find($valuePaciente->personas_id);
+                        if(property_exists($valuePaciente, "personas_id_viejo") && !$valuePaciente->personas_id_viejo == null){
+                            $persona = Personas::find($valuePaciente->personas_id_viejo);
+                        }
 
                         if(property_exists($valuePaciente, "personas")){
                             //limpiar el arreglo de posibles nullos
@@ -521,14 +539,14 @@ class IncidenciaController extends Controller
                                                 if (!$acompaniante){
                                                     $acompaniante = new Acompaniantes;
                                                 }
-                                                }
+                                            }
 
                                             $acompaniante->personas_id      = $personaA->id;
                                             $acompaniante->parentescos_id   = $valueAcompaniante->parentescos_id;
                                             $acompaniante->esResponsable    = $valueAcompaniante->esResponsable;
 
                                             if($acompaniante->save()){
-                                                if($valueAcompaniante->id == null || $valueAcompaniante->id == ""){
+                                                if($valuePaciente->id == null || $valuePaciente->id == ""){
                                                     DB::insert("insert into acompaniante_paciente (pacientes_id, acompaniantes_id) VALUE ('$paciente->id', '$acompaniante->id')");
                                                 }
                                             }
@@ -660,7 +678,7 @@ class IncidenciaController extends Controller
 
                                                 $multimedia->altas_incidencias_id             = $altas_incidencias->id;
                                                 $multimedia->tipo                             = "imagen";
-                                                $multimedia->url                              = $this->convertir_imagen($img, 'contrareferencias', $altas_incidencias->id);
+                                                $multimedia->url                              = $this->convertir_imagen($img["foto"], 'contrareferencias', $altas_incidencias->id);
 
                                                 $multimedia->save();
                                             }
@@ -697,8 +715,9 @@ class IncidenciaController extends Controller
                             if(is_array($valueReferencia))
                                 $valueReferencia = (object) $valueReferencia;
 
+
                             //comprobar que el dato que se envio no exista o este borrado, si existe y esta borrado poner en activo nuevamente
-                            if(property_exists($valueReferencia, "id")) {
+                            if(property_exists($valueReferencia, "id") && !$valueReferencia->id == null) {
                                 DB::update("update referencias set deleted_at = null where id = '$valueReferencia->id' and incidencias_id = '$data->id' ");
                                 //si existe actualizar
                                 $referencia = Referencias::where("id", $valueReferencia->id)->where("incidencias_id", $data->id)->first();
@@ -709,8 +728,9 @@ class IncidenciaController extends Controller
                             $referencia->medico_refiere_id              = $valueReferencia->medico_refiere_id;
                             $referencia->diagnostico                    = $valueReferencia->diagnostico;
                             $referencia->resumen_clinico                = $valueReferencia->resumen_clinico;
-                            $referencia->clues_origen                   = $valueReferencia->clues_origen;
-                            $referencia->clues_destino                  = $valueReferencia->clues_destino;
+
+                            $referencia->clues_origen                   = is_array($valueReferencia->clues_origen)?$valueReferencia->clues_origen['clues']:$valueReferencia->clues_origen;
+                            $referencia->clues_destino                  = is_array($valueReferencia->clues_destino)?$valueReferencia->clues_destino['clues']:$valueReferencia->clues_destino;
 
                             if($referencia->save()){
                                 //verificar si existe multimedias, en caso de que exista proceder a guardarlo
@@ -724,32 +744,30 @@ class IncidenciaController extends Controller
                                         if($value != null){
                                             //comprobar si el value es un array, si es convertirlo a object mas facil para manejar.
                                             if(is_array($value))
-                                            $value = (object) $value;
-
+                                                $value = (object) $value;
                                             //comprobar que el dato que se envio no exista o este borrado, si existe y esta borrado poner en activo nuevamente
-                                            if(property_exists($value, "id")) {
-                                                DB::update("update multimedias set deleted_at = null where id = $value->id and referencias_id = $referencia->id");
-                                                //si existe actualizar
-                                                $multimedia = Multimedias::where("id", $value->id)->where("referencias_id", $referencia->id)->first();
+                                            foreach($value as $img){
+                                                //comprobar si el value es un array, si es convertirlo a object mas facil para manejar.
+                                                if(is_array($img))
+                                                    $img = (object) $img;
 
-                                                $multimedia->referencias_id                   = $referencia->id;
-                                                $multimedia->tipo                             = "imagen";
-                                                $multimedia->url                              = $value->url;
-                                                $multimedia->save();
-
-
-                                            }else{
-                                                foreach($value as $img){
+                                                if ($img->es_url == false){
                                                     $multimedia = new Multimedias;
 
                                                     $multimedia->referencias_id                   = $referencia->id;
                                                     $multimedia->tipo                             = "imagen";
-                                                    $multimedia->url                              = $this->convertir_imagen($img, 'referencias', $referencia->id);
+                                                    $multimedia->url                              = $this->convertir_imagen($img->foto, 'referencias', $referencia->id);
 
                                                     $multimedia->save();
+                                                }else{
+                                                    if (file_exists(public_path()."/adjunto/referencias/".$img->foto)){
+                                                        DB::update("update multimedias set deleted_at = null where url = '$img->foto' and referencias_id = $referencia->id");
+                                                    }
                                                 }
 
                                             }
+
+
 
 
                                         }
@@ -765,8 +783,6 @@ class IncidenciaController extends Controller
             $usuarioActual = SisUsuario::where("email", $obj->get('email'))->first();
 
             $clues = Clues::select("nombre")->where("clues", $datos->clues)->first();
-            $triage = TriageColores::select("nombre")->where("id", $datos->movimientos_incidencias[sizeof($datos->movimientos_incidencias)-1]["triage_colores_id"])->first();
-            $cie10 = SubCategoriasCie10::select("nombre")->where("id", $datos->movimientos_incidencias[sizeof($datos->movimientos_incidencias)-1]["subcategorias_cie10_id"])->first();
 
             $mensaje = collect();
             $mensajeSMS = "";
@@ -774,20 +790,25 @@ class IncidenciaController extends Controller
             $mensaje->put('usuario', $usuarioActual);
 
             if(!$movimientos_incidencias == null){
+
+                $triage = TriageColores::select("nombre")->where("id", $datos->movimientos_incidencias[sizeof($datos->movimientos_incidencias)-1]["triage_colores_id"])->first();
+                $cie10 = SubCategoriasCie10::select("nombre")->where("id", $datos->movimientos_incidencias[sizeof($datos->movimientos_incidencias)-1]["subcategorias_cie10_id"])->first();
+
                 if ($datos->movimientos_incidencias[sizeof($datos->movimientos_incidencias)-1]["id"] == ""){
                     if($datos->estados_incidencias_id == 1){
                         $tipo = 1;
-                        $mensajeSMS = "INGRESO. ". $detallePacientes[0]["personas"]["nombre"] . " " . $detallePacientes[0]["personas"]["paterno"] . " " . $detallePacientes[0]["personas"]["materno"] ." en ". $clues->nombre . ", triage: " . $triage->nombre;
+                        $mensajeSMS = "Ingreso de paciente ". $detallePacientes[0]["personas"]["nombre"] . " " . $detallePacientes[0]["personas"]["paterno"] . " " . $detallePacientes[0]["personas"]["materno"] ." en ". $clues->nombre . ", triage: " . $triage->nombre;
                         //if($triage->nombre == "Rojo"){
-                            $mensajeSMS = $mensajeSMS ."-". $cie10->nombre;
+                        $mensajeSMS = $mensajeSMS ." - ". $cie10->nombre;
                         //}
                     }else{
                         $tipo = 2;
-                        $mensajeSMS = "ATENCION. ". $detallePacientes[0]["personas"]["nombre"] . " " . $detallePacientes[0]["personas"]["paterno"] . " " . $detallePacientes[0]["personas"]["materno"] ." en ". $clues->nombre;
-                        $mensajeSMS = $mensajeSMS ."-". $cie10->nombre;
+                        $mensajeSMS = "Se atendió a la paciente ". $detallePacientes[0]["personas"]["nombre"] . " " . $detallePacientes[0]["personas"]["paterno"] . " en " . $detallePacientes[0]["personas"]["materno"] ." en ". $clues->nombre;
+                        $mensajeSMS = $mensajeSMS ." - ". $triage->nombre;
+                        $mensajeSMS = $mensajeSMS ." - ". $cie10->nombre;
                     }
 
-                    $mensaje->put('titulo', "Nueva atencion del paciente ... ");
+                    $mensaje->put('titulo', "Atención de la paciente ". $detallePacientes[0]["personas"]["nombre"] . " " . $detallePacientes[0]["personas"]["paterno"] . " " . $detallePacientes[0]["personas"]["materno"]);
                     $mensaje->put('mensaje', $usuarioActual->nombre." reporto una atencion del folio ". $data->id);
                     $mensaje->put('created_at', date('Y-m-d H:i:s'));
                     $mensaje->put('enviado', null);
@@ -805,7 +826,7 @@ class IncidenciaController extends Controller
 
                 $mensajeSMS = "REFERENCIA. ". $detallePacientes[0]["personas"]["nombre"] . " " . $detallePacientes[0]["personas"]["paterno"] . " " . $detallePacientes[0]["personas"]["materno"] ." de ". $cluesOrigen->nombre ." -> ". $cluesDestino->nombre . ", triage: " . $triage->nombre;
 
-                $mensaje->put('titulo', "Nueva referencia del paciente ... ");
+                $mensaje->put('titulo', "Referencia de la paciente " . $detallePacientes[0]["personas"]["nombre"] . " " . $detallePacientes[0]["personas"]["paterno"] . " " . $detallePacientes[0]["personas"]["materno"]);
                 $mensaje->put('mensaje', $usuarioActual->nombre." realizo una referencia del folio ". $data->id. " de (" . $cluesOrigen->clues . ")-" . $cluesOrigen->nombre  . " a (". $cluesOrigen->clues . ")-" . $cluesOrigen->nombre);
                 $mensaje->put('created_at', date('Y-m-d H:i:s'));
                 $mensaje->put('enviado', null);
@@ -817,10 +838,10 @@ class IncidenciaController extends Controller
             if(!$altas_incidencias == null){
                 $tipo = 4;
 
-                $mensajeSMS = "ALTA. ". $detallePacientes[0]["personas"]["nombre"] . " " . $detallePacientes[0]["personas"]["paterno"] . " " . $detallePacientes[0]["personas"]["materno"];
+                $mensajeSMS = "Se dio de alta a la paciente ". $detallePacientes[0]["personas"]["nombre"] . " " . $detallePacientes[0]["personas"]["paterno"] . " " . $detallePacientes[0]["personas"]["materno"];
 
-                $mensaje->put('titulo', "Alta del paciente ... ");
-                $mensaje->put('mensaje', $usuarioActual->nombre." reporto una atencion del folio ". $data->id);
+                $mensaje->put('titulo', "Se dio de alta a la paciente ". $detallePacientes[0]["personas"]["nombre"] . " " . $detallePacientes[0]["personas"]["paterno"] . " " . $detallePacientes[0]["personas"]["materno"]);
+                $mensaje->put('mensaje', $usuarioActual->nombre." reporto una alta del folio ". $data->id);
                 $mensaje->put('created_at', date('Y-m-d H:i:s'));
                 $mensaje->put('enviado', null);
                 $mensaje->put('leido', null);
@@ -882,8 +903,8 @@ class IncidenciaController extends Controller
      */
     public function convertir_imagen($data, $nombre, $i){
         try{
-            $data = base64_decode($data);
 
+            $data = base64_decode($data);
             $im = imagecreatefromstring($data);
 
             if ($im !== false) {

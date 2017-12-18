@@ -86,7 +86,7 @@ class SisUSuarioController extends Controller {
 			if(array_key_exists("buscar", $datos)){
 				$columna = $datos["columna"];
 				$valor   = $datos["valor"];
-				$data = SisUSuario::with("SisUsuariosGrupos","SisUsuariosRfcs", "SisUsuariosContactos")->orderBy($order, $orden);
+				$data = SisUSuario::with("SisUsuariosGrupos", "SisUsuariosContactos")->orderBy($order, $orden);
 				
 				$search = trim($valor);
 				$keyword = $search;
@@ -101,11 +101,11 @@ class SisUSuarioController extends Controller {
 				$data = $data->skip($pagina-1)->take($datos["limite"])->get();
 			}
 			else{
-				$data = SisUSuario::with("SisUsuariosGrupos","SisUsuariosRfcs", "SisUsuariosContactos")->skip($pagina-1)->take($datos["limite"])->orderBy($order, $orden);
+				$data = SisUSuario::with("SisUsuariosGrupos", "SisUsuariosContactos")->skip($pagina-1)->take($datos["limite"])->orderBy($order, $orden);
 				if(!$usuario->es_super)
 					$data = $data->whereIn("es_super", 0);
 				$data = $data->get();
-				$total =  SisUSuario::with("SisUsuariosGrupos","SisUsuariosRfcs", "SisUsuariosContactos");
+				$total =  SisUSuario::with("SisUsuariosGrupos", "SisUsuariosContactos");
 				if(!$usuario->es_super)
 					$total = $total->whereIn("es_super", 0);
 				$total = $total->get();
@@ -113,7 +113,7 @@ class SisUSuarioController extends Controller {
 			
 		}
 		else{
-			$data = SisUSuario::with("SisUsuariosGrupos","SisUsuariosRfcs", "SisUsuariosContactos");
+			$data = SisUSuario::with("SisUsuariosGrupos", "SisUsuariosContactos");
 			if(!$usuario->es_super)
 					$data = $data->whereIn("es_super", 0);
 			$data = $data->get();
@@ -231,7 +231,7 @@ class SisUSuarioController extends Controller {
 		$data->avatar 			 = property_exists($datos, "avatar") 			? $datos->avatar 				: $data->avatar;
 		$data->foto 			 = property_exists($datos, "foto") 				? $datos->foto 					: $data->foto;
 		$data->spam 			 = property_exists($datos, "spam") 				? $datos->spam 					: $data->spam;
-		$data->localidades_id 	 = property_exists($datos, "localidades_id") 	? $datos->localidades_id 			: $data->localidades_id;
+		$data->localidades_id 	 = property_exists($datos, "localidades_id") 	? $datos->localidades_id 		: $data->localidades_id;
 		$data->estados_id 		 = property_exists($datos, "estados_id") 		? $datos->estados_id 			: $data->estados_id;
 		$data->municipios_id 	 = property_exists($datos, "municipios_id") 	? $datos->municipios_id 		: $data->municipios_id;	
 
@@ -257,59 +257,7 @@ class SisUSuarioController extends Controller {
             	}
         	}
 
-//        	if(property_exists($datos, "sis_usuarios_dashboards")){
-//            	DB::table('sis_usuarios_dashboards')->where('sis_usuarios_id', $data->id)->delete();
-//            	foreach($datos->sis_usuarios_dashboards as $valor){
-//            		if(is_array($valor))
-//            			$valor = (object) $valor;
-//            		DB::table('sis_usuarios_dashboards')->insert(
-//					    ['sis_usuarios_id' => $data->id, 'sis_dashboards_id' => $valor->id]
-//					);
-//            	}
-//        	}
-//
-//        	if(property_exists($datos, "sis_usuarios_reportes")){
-//            	DB::table('sis_usuarios_reportes')->where('sis_usuarios_id', $data->id)->delete();
-//            	foreach($datos->sis_usuarios_reportes as $valor){
-//            		if(is_array($valor))
-//            			$valor = (object) $valor;
-//            		DB::table('sis_usuarios_reportes')->insert(
-//					    ['sis_usuarios_id' => $data->id, 'sis_reportes_id' => $valor->id]
-//					);
-//            	}
-//        	}
 
-        	if(property_exists($datos, "sis_usuarios_rfcs")){
-        		$rfcs = array_filter($datos->sis_usuarios_rfcs, function($v){return $v !== null;});
-        		SisUsuariosRfcs::where("sis_usuarios_id", $data->id)->delete();
-        		foreach ($rfcs as $key => $value) {
-        			$value = (object) $value;
-        			if($value != null){
-        				DB::update("update sis_usuarios_rfcs set deleted_at = null where sis_usuarios_id = $data->id and rfc = '$value->rfc' ");
-        				$item = SisUsuariosRfcs::where("sis_usuarios_id", $data->id)->where("rfc", $value->rfc)->first();
-
-        				if(!$item)
-            				$item = new SisUsuariosRfcs;
-
-            			$item->sis_usuarios_id = $data->id;
-            			$item->tipo_persona    = $value->tipo_persona;
-            			$item->razon_social    = $value->razon_social;
-            			$item->rfc 			   = $value->rfc;
-            			$item->paises_id 	   = $value->paises_id;
-            			$item->estados_id 	   = $value->estados_id;
-            			$item->municipios_id   = $value->municipios_id;
-            			$item->localidad 	   = $value->localidad;
-            			$item->colonia 		   = $value->colonia;
-            			$item->calle 		   = $value->calle;
-            			$item->numero_exterior = $value->numero_exterior;
-            			$item->numero_interior = $value->numero_interior;
-            			$item->codigo_postal   = $value->codigo_postal;
-            			$item->email 		   = $value->email;
-
-            			$item->save();
-            		}
-        		}
-        	}
         	if(property_exists($datos, "sis_usuarios_contactos")){
         		$medios = array_filter($datos->sis_usuarios_contactos, function($v){return $v !== null;});
         		SisUsuariosContactos::where("sis_usuarios_id", $data->id)->delete();
@@ -349,24 +297,6 @@ class SisUSuarioController extends Controller {
                     }
                 }
             }
-        	if(property_exists($datos, "user_clients")){
-        		$medios = array_filter($datos->user_clients, function($v){return $v !== null;});
-        		UsersClients::where("user_id", $data->id)->delete();
-        		foreach ($medios as $key => $value) {
-        			
-        			if($value != null){            				
-        				$item = UsersClients::where("user_id", $data->id)->where("client_id", $value)->first();
-
-        				if(!$item)
-            				$item = new UsersClients;
-
-            			$item->user_id     = $data->id;
-            			$item->client_id   = $value;         			
-
-            			$item->save();
-            		}
-        		}
-        	}
 			$success = true;
 		}  
 		return $success;     						
@@ -381,7 +311,7 @@ class SisUSuarioController extends Controller {
 	 * <code> Respuesta Error json(array("status": 404, "messages": "No hay resultados"),status) </code>
 	 */
 	public function show($id){
-		$data = SisUSuario::with("SisUsuariosGrupos","SisUsuariosRfcs", "SisUsuariosContactos", "SisUsuariosClues", "SisUsuariosNotificaciones")->find($id);
+		$data = SisUSuario::with("SisUsuariosGrupos","municipios","localidades", "SisUsuariosContactos", "SisUsuariosClues", "SisUsuariosNotificaciones")->find($id);
 
 		if(!$data){
 			return Response::json(array("status"=> 404,"messages" => "No hay resultados"),404);
@@ -390,16 +320,17 @@ class SisUSuarioController extends Controller {
 			return Response::json(array("status" => 200, "messages" => "Operación realizada con exito", "data" => $data), 200);
 		}
 	}
-	
-	/**
-	 * Elimine el registro especificado del la base de datos (softdelete).
-	 *
-	 * @param  int  $id que corresponde al identificador del dato a eliminar
-	 *
-	 * @return Response
-	 * <code style="color:green"> Respuesta Ok json(array("status": 200, "messages": "Operación realizada con exito", "data": array(resultado)),status) </code>
-	 * <code> Respuesta Error json(array("status": 500, "messages": "Error interno del servidor"),status) </code>
-	 */
+
+    /**
+     * Elimine el registro especificado del la base de datos (softdelete).
+     *
+     * @param  int $id que corresponde al identificador del dato a eliminar
+     *
+     * @return Response
+     * <code style="color:green"> Respuesta Ok json(array("status": 200, "messages": "Operación realizada con exito", "data": array(resultado)),status) </code>
+     * <code> Respuesta Error json(array("status": 500, "messages": "Error interno del servidor"),status) </code>
+     * @throws \Exception
+     */
 	public function destroy($id){
 		$success = false;
         DB::beginTransaction();

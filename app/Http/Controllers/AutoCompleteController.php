@@ -88,7 +88,7 @@ class AutoCompleteController extends ApiController
 
         $acompaniantes = Acompaniantes::select('personas_id')->get();
 
-        $data =  Personas::whereNotIn('id', $acompaniantes)
+        $data =  Personas::with('municipios','localidades','derechohabientes', 'estados_embarazos')->whereNotIn('id', $acompaniantes)
             ->where(function($query) use ($parametros) {
             $query->where('id','LIKE',"%".$parametros['term']."%");
         });

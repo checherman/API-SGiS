@@ -4,6 +4,7 @@ namespace App;
 
 namespace App\Models\Catalogos;
 use App\Models\BaseModel;
+use App\Models\Sistema\SisUsuario;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Municipios extends BaseModel
@@ -38,5 +39,10 @@ class Municipios extends BaseModel
     public function personas()
     {
         return $this->hasMany(Personas::class);
+    }
+
+    public function SisUsuario()
+    {
+        return $this->hasMany(SisUsuario::class);
     }
 }
