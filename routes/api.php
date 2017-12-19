@@ -80,7 +80,7 @@ Route::middleware('tokenPermiso')->prefix("v1")->group(function(){
     //Route::get("descargar-app",                     "v1\Sistema\VersionAppController@descargarApp");
 
     //Reportes y Dashboard
-    Route::resource("dashboard",   			        "V1\Dashboard\DashboardController");
+    Route::get("dashboard",   			            "V1\Dashboard\DashboardController@index");
     Route::get("reportes/incidencias",              "V1\Reportes\ReporteController@incidencias");
     Route::get("reportes/estado-fuerza",            "V1\Reportes\ReporteController@estadoFuerza");
 });
