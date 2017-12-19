@@ -99,6 +99,7 @@ class IncidenciaController extends Controller
             else{
                 $order = "created_at"; $orden = "desc";
             }
+
             if($pagina == 0 || $pagina == null){
                 $pagina = 1;
             }
@@ -110,6 +111,7 @@ class IncidenciaController extends Controller
             if(array_key_exists('buscar', $datos)){
                 $columna = $datos['columna'];
                 $valor   = $datos['valor'];
+
                 if(!$edoIncidencia == null) {
                     $data = Incidencias::select("incidencias.*")->with("pacientes.personas", "pacientes.acompaniantes.personas")
                         ->with("movimientos_incidencias", "referencias", "altas_incidencias", "estados_incidencias")
@@ -128,8 +130,9 @@ class IncidenciaController extends Controller
 
                 $search = trim($valor);
                 $keyword = $search;
+
                 $data = $data->whereNested(function($query) use ($keyword){
-                    $query->where("id", "LIKE", '%'.$keyword.'%');
+                    $query->where("incidencias.id", "LIKE", '%'.$keyword.'%');
                 });
 
                 $total = $data->get();
@@ -190,6 +193,7 @@ class IncidenciaController extends Controller
 
             $value->antiguedad = $antiguedad;
         }
+
         $combosEstadosIncidencia = Incidencias::all();
         foreach($combosEstadosIncidencia as $mov) {
             if (!in_array($mov->estados_incidencias['nombre'], $estadosIncidencias)) {
@@ -453,6 +457,8 @@ class IncidenciaController extends Controller
                         //si existe actualizar
                         if(property_exists($valuePaciente, "personas_id_viejo") && !$valuePaciente->personas_id_viejo == null){
                             $persona = Personas::find($valuePaciente->personas_id_viejo);
+                        }else{
+                            $persona = Personas::find($valuePaciente->personas_id);
                         }
 
                         if(property_exists($valuePaciente, "personas")){
@@ -482,10 +488,13 @@ class IncidenciaController extends Controller
                                 if (property_exists($detallePersonas, "id")) {
                                     if(!$valuePaciente->id == null || !$valuePaciente->id == ""){
                                         $paciente = Pacientes::find($valuePaciente->id);
-                                    }else
-                                        $paciente = new Pacientes;
-                                } else
-                                    $paciente = new Pacientes;
+                                    }else{
+                                        if(property_exists($valuePaciente, "personas_id_viejo") && !$valuePaciente->personas_id_viejo == null){
+                                            $paciente = Pacientes::where('personas_id', $valuePaciente->personas_id_viejo)->first();
+                                        }else
+                                            $paciente = new Pacientes;
+                                    }
+                                }
 
                                 $paciente->personas_id = $persona->id;
 
@@ -715,7 +724,6 @@ class IncidenciaController extends Controller
                             if(is_array($valueReferencia))
                                 $valueReferencia = (object) $valueReferencia;
 
-
                             //comprobar que el dato que se envio no exista o este borrado, si existe y esta borrado poner en activo nuevamente
                             if(property_exists($valueReferencia, "id") && !$valueReferencia->id == null) {
                                 DB::update("update referencias set deleted_at = null where id = '$valueReferencia->id' and incidencias_id = '$data->id' ");
@@ -745,31 +753,39 @@ class IncidenciaController extends Controller
                                             //comprobar si el value es un array, si es convertirlo a object mas facil para manejar.
                                             if(is_array($value))
                                                 $value = (object) $value;
-                                            //comprobar que el dato que se envio no exista o este borrado, si existe y esta borrado poner en activo nuevamente
-                                            foreach($value as $img){
-                                                //comprobar si el value es un array, si es convertirlo a object mas facil para manejar.
-                                                if(is_array($img))
-                                                    $img = (object) $img;
 
-                                                if ($img->es_url == false){
-                                                    $multimedia = new Multimedias;
+                                            if(property_exists($value, "id")) {
+                                                DB::update("update multimedias set deleted_at = null where id = $value->id and referencias_id = $referencia->id");
+                                                //si existe actualizar
+                                                $multimedia = Multimedias::where("id", $value->id)->where("referencias_id", $referencia->id)->first();
 
-                                                    $multimedia->referencias_id                   = $referencia->id;
-                                                    $multimedia->tipo                             = "imagen";
-                                                    $multimedia->url                              = $this->convertir_imagen($img->foto, 'referencias', $referencia->id);
+                                                $multimedia->referencias_id                   = $referencia->id;
+                                                $multimedia->tipo                             = "imagen";
+                                                $multimedia->url                              = $value->url;
 
-                                                    $multimedia->save();
-                                                }else{
-                                                    if (file_exists(public_path()."/adjunto/referencias/".$img->foto)){
-                                                        DB::update("update multimedias set deleted_at = null where url = '$img->foto' and referencias_id = $referencia->id");
+                                                $multimedia->save();
+                                            }else{
+                                                foreach($value as $img){
+                                                    //comprobar si el value es un array, si es convertirlo a object mas facil para manejar.
+                                                    if(is_array($img))
+                                                        $img = (object) $img;
+
+                                                    if ($img->es_url == false){
+                                                        $multimedia = new Multimedias;
+
+                                                        $multimedia->referencias_id                   = $referencia->id;
+                                                        $multimedia->tipo                             = "imagen";
+                                                        $multimedia->url                              = $this->convertir_imagen($img->foto, 'referencias', $referencia->id);
+
+                                                        $multimedia->save();
+                                                    }else{
+                                                        if (file_exists(public_path()."/adjunto/referencias/".$img->foto)){
+                                                            DB::update("update multimedias set deleted_at = null where url = '$img->foto' and referencias_id = $referencia->id");
+                                                        }
                                                     }
+
                                                 }
-
                                             }
-
-
-
-
                                         }
                                     }
                                 }
