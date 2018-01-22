@@ -29,30 +29,43 @@ use App\Models\Catalogos\SubCategoriasCie10;
 class GrupoCie10Controller extends Controller
 {
     /**
-     * Muestra una lista de los recurso según los parametros a procesar en la petición.
+     * @api {get} /grupos-cie10 1.Listar Grupos Cie10
+     * @apiVersion 1.0.0
+     * @apiName GetGrupoCie10
+     * @apiGroup Catalogo/GrupoCie10Controller
      *
-     * <h3>Lista de parametros Request:</h3>
-     * <Ul>Paginación
-     * <Li> <code>$pagina</code> numero del puntero(offset) para la sentencia limit </ li>
-     * <Li> <code>$limite</code> numero de filas a mostrar por página</ li>
-     * </Ul>
-     * <Ul>Busqueda
-     * <Li> <code>$valor</code> string con el valor para hacer la busqueda</ li>
-     * <Li> <code>$order</code> campo de la base de datos por la que se debe ordenar la información. Por Defaul es ASC, pero si se antepone el signo - es de manera DESC</ li>
-     * </Ul>
+     * @apiDescription Muestra una lista de los recurso según los parametros a procesar en la petición
      *
-     * GruposCie10 ordenamiento con respecto a id:
-     * <code>
-     * http://url?pagina=1&limite=5&order=id ASC
-     * </code>
-     * <code>
-     * http://url?pagina=1&limite=5&order=-id DESC
-     * </code>
+     * @apiPermission Admin
      *
-     * Todo Los parametros son opcionales, pero si existe pagina debe de existir tambien limite
-     * @return Response
-     * <code style="color:green"> Respuesta Ok json(array("status": 200, "messages": "Operación realizada con exito", "data": array(resultado)),status) </code>
-     * <code> Respuesta Error json(array("status": 404, "messages": "No hay resultados"),status) </code>
+     * @apiParam {Number} pagina Numero del puntero(offset) para la sentencia limit.
+     * @apiParam {Number} limite Numero de filas a mostrar por página.
+     * @apiParam {Boolean} buscar Mandar por defecto true, para realizar la busqueda.
+     *
+     * @apiParam {String} valor Valor para hacer la busqueda.
+     * @apiParam {String} order Campo de la base de datos por la que se debe ordenar la información. Por Default es ASC, pero si se antepone el signo - es de manera DESC.
+     *
+     * @apiParamExample {json} Ordenamiento - Ejemplo:
+    http://url?pagina=1&limite=5&order=id ASC
+    http://url?pagina=1&limite=5&order=id DESC
+    Todo Los parametros son opcionales, pero si existe pagina debe de existir tambien limite
+     *
+     * @apiParamExample {json} Busqueda - Ejemplo:
+    http://url?valor=busqueda&buscar=true
+     *
+     * @apiSuccess {Object[]} data Lista.
+     * @apiSuccess {String} messages Mensaje de Operación realizada con exito.
+     * @apiSuccess {Number} status Estatus 200.
+     * @apiSuccess {Number} total Total de datos devueltos.
+     *
+     * @apiSuccessExample Respuesta exitosa:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "data": [{},{}...],
+     *       "messages": "Operación realizada con exito",
+     *       "status": 200,
+     *       "total": TotalDeDatosDevueltos
+     *     }
      */
     public function index(){
         $datos = Request::all();
@@ -118,10 +131,39 @@ class GrupoCie10Controller extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * @api {post} /grupos-cie10 2.Crea nuevo GrupoCie10
+     * @apiVersion 1.0.0
+     * @apiName PostGrupoCie10
+     * @apiGroup Catalogo/GrupoCie10Controller
+     * @apiPermission Admin
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @apiDescription Crea una nuevo GrupoCie10.
+     *
+     * @apiParam {json} datos json con datos agregar.
+     * @apiParamExample {json} Request-Ejemplo:
+     *     {
+     *        "nombre":"Grupo01",
+     *        "codigo":"A00-A09",
+     *        "categorias_cie10": [
+     *           {
+     *              "nombre":"categoria 1 cie10",
+     *              "codigo":"A00",
+     *              "sub_categorias_cie10":[
+     *                 {
+     *                    "nombre":"subcategoria 1 cie10",
+     *                    "codigo":"A00.1"
+     *                 },
+     *                 {
+     *                    "nombre":"subcategoria 2 cie10",
+     *                    "codigo":"A00.2"
+     *                 }
+     *              ]
+     *           }
+     *        ]
+     *     }
+     *
+     * @apiSuccess {String} id         informacion de la nueva Cartera de Servicio.
+     *
      */
     public function store(Request $request)
     {
@@ -160,14 +202,33 @@ class GrupoCie10Controller extends Controller
         }
     }
 
+
     /**
-     * Devuelve la información del registro especificado.
+     * @api {get} /grupos-cie10/:id 3.Consulta datos de un GrupoCie10
+     * @apiVersion 1.0.0
+     * @apiName ShowGrupoCie10
+     * @apiGroup Catalogo/GrupoCie10Controller
      *
-     * @param  int  $id que corresponde al identificador del recurso a mostrar
+     * @apiDescription Muestra una lista de los recurso según los parametros a procesar en la petición
      *
-     * @return Response
-     * <code style="color:green"> Respuesta Ok json(array("status": 200, "messages": "Operación realizada con exito", "data": array(resultado)),status) </code>
-     * <code> Respuesta Error json(array("status": 404, "messages": "No hay resultados"),status) </code>
+     * @apiPermission Admin
+     *
+     * @apiParamExample {json} Ejemplo de uso:
+    http://url/1
+     *
+     * @apiSuccess {Object[]} data Lista.
+     * @apiSuccess {String} messages Mensaje de Operación realizada con exito.
+     * @apiSuccess {Number} status Estatus 200.
+     * @apiSuccess {Number} total Total de datos devueltos.
+     *
+     * @apiSuccessExample Respuesta exitosa:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "data": [{},{}...],
+     *       "messages": "Operación realizada con exito",
+     *       "status": 200,
+     *       "total": TotalDeDatosDevueltos
+     *     }
      */
     public function show($id){
         $data = GruposCie10::with('CategoriasCie10')->find($id);
@@ -181,15 +242,38 @@ class GrupoCie10Controller extends Controller
     }
 
     /**
-     * Actualizar el  registro especificado en el la base de datos
+     * @api {put} /grupos-cie10/:id 4.Actualiza GrupoCie10
+     * @apiVersion 1.0.0
+     * @apiName PutGrupoCie10
+     * @apiGroup Catalogo/GrupoCie10Controller
+     * @apiPermission Admin
      *
-     * <h4>Request</h4>
-     * Recibe un Input Request con el json de los datos
+     * @apiDescription Actualiza un GrupoCie10.
      *
-     * @param  int  $id que corresponde al identificador del dato a actualizar
-     * @return Response
-     * <code style="color:green"> Respuesta Ok json(array("status": 200, "messages": "Operación realizada con exito", "data": array(resultado)),status) </code>
-     * <code> Respuesta Error json(array("status": 304, "messages": "No modificado"),status) </code>
+     * @apiParam {number} id del GrupoCie10 que se quiere editar.
+     * @apiParam {json} datos json con datos editar.
+     * @apiParamExample {json} Request-Ejemplo:
+     *     {
+     *        "nombre":"Grupo01",
+     *        "codigo":"A00-A09",
+     *        "categorias_cie10": [
+     *           {
+     *              "nombre":"categoria 1 cie10",
+     *              "codigo":"A00",
+     *              "sub_categorias_cie10":[
+     *                 {
+     *                    "nombre":"subcategoria 1 cie10",
+     *                    "codigo":"A00.1"
+     *                 },
+     *                 {
+     *                    "nombre":"subcategoria 2 cie10",
+     *                    "codigo":"A00.2"
+     *                 }
+     *              ]
+     *           }
+     *        ]
+     *     }
+     **
      */
     public function update($id){
         $datos = Input::json()->all();
@@ -227,13 +311,16 @@ class GrupoCie10Controller extends Controller
     }
 
     /**
-     * Elimine el registro especificado del la base de datos (softdelete).
+     * @api {destroy} /grupos-cie10/:id 5.Elimina GrupoCie10
+     * @apiVersion 1.0.0
+     * @apiName DestroyGrupoCie10
+     * @apiGroup Catalogo/GrupoCie10Controller
+     * @apiPermission Admin
      *
-     * @param  int  $id que corresponde al identificador del dato a eliminar
+     * @apiDescription Actualiza un GrupoCie10.
      *
-     * @return Response
-     * <code style="color:green"> Respuesta Ok json(array("status": 200, "messages": "Operación realizada con exito", "data": array(resultado)),status) </code>
-     * <code> Respuesta Error json(array("status": 500, "messages": "Error interno del servidor"),status) </code>
+     * @apiParam {number} id del GrupoCie10 que se quiere editar.
+     **
      */
     public function destroy($id)
     {
@@ -259,12 +346,56 @@ class GrupoCie10Controller extends Controller
     }
 
     /**
-     * Validad los parametros recibidos, Esto no tiene ruta de acceso es un metodo privado del controlador.
+     * @api /grupos-cie10 6.ValidarParametros
+     * @apiVersion 1.0.0
+     * @apiName GrupoCie10ValidarParametros
+     * @apiGroup Catalogo/GrupoCie10Controller
+     * @apiPermission Admin
      *
-     * @param  Request  $request que corresponde a los parametros enviados por el cliente
+     * @apiDescription Metodo que valida los parametros.
      *
-     * @return Response
-     * <code> Respuesta Error json con los errores encontrados </code>
+     * @apiParam {json} request datos del request a validar.
+     * @apiParamExample {json} Request-Ejemplo:
+     *     {
+     *        "nombre":"Grupo01",
+     *        "codigo":"A00-A09",
+     *        "categorias_cie10": [
+     *           {
+     *              "nombre":"categoria 1 cie10",
+     *              "codigo":"A00",
+     *              "sub_categorias_cie10":[
+     *                 {
+     *                    "nombre":"subcategoria 1 cie10",
+     *                    "codigo":"A00.1"
+     *                 },
+     *                 {
+     *                    "nombre":"subcategoria 2 cie10",
+     *                    "codigo":"A00.2"
+     *                 }
+     *              ]
+     *           }
+     *        ]
+     *     }
+     *
+     * @apiSuccess {json} data datos del objeto que se va a crear.
+     * @apiSuccessExample {json} Success-Response:
+     *     {
+     *        "data": {
+     *           ...
+     *        }
+     *     }
+     *
+     * @apiError {json} error respuesta con errores.
+     * @apiErrorExample {json} Respuesta Errores-Ejemplo
+     *     {
+     *        "error": {
+     *           "nombre": [
+     *              "unique"
+     *           ]
+     *        },
+     *        "code": 409
+     *     }
+     *
      */
     private function ValidarParametros($key, $id, $request){
 
@@ -302,6 +433,49 @@ class GrupoCie10Controller extends Controller
         }
     }
 
+    /**
+     * @api /grupos-cie10 7.AgregarDatos
+     * @apiVersion 1.0.0
+     * @apiName GrupoCie10AgregarDatos
+     * @apiGroup Catalogo/GrupoCie10Controller
+     * @apiPermission Admin
+     *
+     * @apiDescription Metodo que agrega datos.
+     *
+     * @apiParam {json} data datos del Modelo.
+     * @apiParam {json} datos json con datos agregar.
+     * @apiParamExample {json} Request-Ejemplo:
+     *     {
+     *        "nombre":"Grupo01",
+     *        "codigo":"A00-A09",
+     *        "categorias_cie10": [
+     *           {
+     *              "nombre":"categoria 1 cie10",
+     *              "codigo":"A00",
+     *              "sub_categorias_cie10":[
+     *                 {
+     *                    "nombre":"subcategoria 1 cie10",
+     *                    "codigo":"A00.1"
+     *                 },
+     *                 {
+     *                    "nombre":"subcategoria 2 cie10",
+     *                    "codigo":"A00.2"
+     *                 }
+     *              ]
+     *           }
+     *        ]
+     *     }
+     *
+     *
+     * @apiSuccess {json} data datos del objeto que se va a crear.
+     * @apiSuccessExample {json} Success-Response:
+     *     {
+     *        "data": {
+     *           ...
+     *        }
+     *     }
+     *
+     */
     private function AgregarDatos($datos, $data){
         //verificar si existe resguardos, en caso de que exista proceder a guardarlo
         if(property_exists($datos, "categorias_cie10")){

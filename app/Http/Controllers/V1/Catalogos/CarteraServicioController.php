@@ -29,30 +29,43 @@ use App\Models\Catalogos\Items;
 class CarteraServicioController extends Controller
 {
     /**
-     * Muestra una lista de los recurso según los parametros a procesar en la petición.
+     * @api {get} /cartera-servicios 1.Listar cartera servicios
+     * @apiVersion 1.0.0
+     * @apiName GetCarteraServicio
+     * @apiGroup Catalogo/CarteraServicioController
      *
-     * <h3>Lista de parametros Request:</h3>
-     * <Ul>Paginación
-     * <Li> <code>$pagina</code> numero del puntero(offset) para la sentencia limit </ li>
-     * <Li> <code>$limite</code> numero de filas a mostrar por página</ li>
-     * </Ul>
-     * <Ul>Busqueda
-     * <Li> <code>$valor</code> string con el valor para hacer la busqueda</ li>
-     * <Li> <code>$order</code> campo de la base de datos por la que se debe ordenar la información. Por Default es ASC, pero si se antepone el signo - es de manera DESC</ li>
-     * </Ul>
+     * @apiDescription Muestra una lista de los recurso según los parametros a procesar en la petición
      *
-     * TiposItems ordenamiento con respecto a id:
-     * <code>
-     * http://url?pagina=1&limite=5&order=id ASC
-     * </code>
-     * <code>
-     * http://url?pagina=1&limite=5&order=-id DESC
-     * </code>
+     * @apiPermission Admin
      *
-     * Todo Los parametros son opcionales, pero si existe pagina debe de existir tambien limite
-     * @return Response
-     * <code style="color:green"> Respuesta Ok json(array("status": 200, "messages": "Operación realizada con exito", "data": array(resultado)),status) </code>
-     * <code> Respuesta Error json(array("status": 404, "messages": "No hay resultados"),status) </code>
+     * @apiParam {Number} pagina Numero del puntero(offset) para la sentencia limit.
+     * @apiParam {Number} limite Numero de filas a mostrar por página.
+     * @apiParam {Boolean} buscar Mandar por defecto true, para realizar la busqueda.
+     *
+     * @apiParam {String} valor Valor para hacer la busqueda.
+     * @apiParam {String} order Campo de la base de datos por la que se debe ordenar la información. Por Default es ASC, pero si se antepone el signo - es de manera DESC.
+     *
+     * @apiParamExample {json} Ordenamiento - Ejemplo:
+    http://url?pagina=1&limite=5&order=id ASC
+    http://url?pagina=1&limite=5&order=id DESC
+    Todo Los parametros son opcionales, pero si existe pagina debe de existir tambien limite
+     *
+     * @apiParamExample {json} Busqueda - Ejemplo:
+    http://url?valor=busqueda&buscar=true
+     *
+     * @apiSuccess {Object[]} data Lista.
+     * @apiSuccess {String} messages Mensaje de Operación realizada con exito.
+     * @apiSuccess {Number} status Estatus 200.
+     * @apiSuccess {Number} total Total de datos devueltos.
+     *
+     * @apiSuccessExample Respuesta exitosa:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "data": [{},{}...],
+     *       "messages": "Operación realizada con exito",
+     *       "status": 200,
+     *       "total": TotalDeDatosDevueltos
+     *     }
      */
     public function index(){
         $datos = Request::all();
@@ -117,10 +130,40 @@ class CarteraServicioController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * @api {post} /cartera-servicios 2.Crea nueva Cartera Servicio
+     * @apiVersion 1.0.0
+     * @apiName PostCarteraServicio
+     * @apiGroup Catalogo/CarteraServicioController
+     * @apiPermission Admin
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @apiDescription Crea una nueva Cartera de Servicio.
+     *
+     * @apiParam {json} datos json con datos agregar.
+     * @apiParamExample {json} Request-Ejemplo:
+     *     {
+     *        "nombre": "Medicamentosss",
+     *        "niveles_cones": [
+     *           {
+     *              "id": 28
+     *           },
+     *           {
+     *              "id": 2
+     *           }
+     *        ],
+     *        "items": [
+     *          "nombre": "Naproxeno",
+     *          {
+     *             "tipos_items_id": "1"
+     *          },
+     *          {
+     *             "nombre": "Paracetamol",
+     *             "tipos_items_id": "1"
+     *          }
+     *        ]
+     *     }
+     *
+     * @apiSuccess {String} id         informacion de la nueva Cartera de Servicio.
+     *
      */
     public function store(Request $request)
     {
@@ -157,13 +200,31 @@ class CarteraServicioController extends Controller
     }
 
     /**
-     * Devuelve la información del registro especificado.
+     * @api {get} /cartera-servicios/:id 3.Consulta datos de una Cartera Servicio
+     * @apiVersion 1.0.0
+     * @apiName ShowCarteraServicio
+     * @apiGroup Catalogo/CarteraServicioController
      *
-     * @param  int  $id que corresponde al identificador del recurso a mostrar
+     * @apiDescription Muestra una lista de los recurso según los parametros a procesar en la petición
      *
-     * @return Response
-     * <code style="color:green"> Respuesta Ok json(array("status": 200, "messages": "Operación realizada con exito", "data": array(resultado)),status) </code>
-     * <code> Respuesta Error json(array("status": 404, "messages": "No hay resultados"),status) </code>
+     * @apiPermission Admin
+     *
+     * @apiParamExample {json} Ejemplo de uso:
+    http://url/1
+     *
+     * @apiSuccess {Object[]} data Lista.
+     * @apiSuccess {String} messages Mensaje de Operación realizada con exito.
+     * @apiSuccess {Number} status Estatus 200.
+     * @apiSuccess {Number} total Total de datos devueltos.
+     *
+     * @apiSuccessExample Respuesta exitosa:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "data": [{},{}...],
+     *       "messages": "Operación realizada con exito",
+     *       "status": 200,
+     *       "total": TotalDeDatosDevueltos
+     *     }
      */
     public function show($id){
         $object = CarteraServicios::with('Items')->find($id);
@@ -183,15 +244,39 @@ class CarteraServicioController extends Controller
     }
 
     /**
-     * Actualizar el  registro especificado en el la base de datos
+     * @api {put} /cartera-servicios/:id 4.Actualiza Cartera Servicio
+     * @apiVersion 1.0.0
+     * @apiName PutCarteraServicio
+     * @apiGroup Catalogo/CarteraServicioController
+     * @apiPermission Admin
      *
-     * <h4>Request</h4>
-     * Recibe un Input Request con el json de los datos
+     * @apiDescription Actualiza una Cartera Servicio.
      *
-     * @param  int  $id que corresponde al identificador del dato a actualizar
-     * @return Response
-     * <code style="color:green"> Respuesta Ok json(array("status": 200, "messages": "Operación realizada con exito", "data": array(resultado)),status) </code>
-     * <code> Respuesta Error json(array("status": 304, "messages": "No modificado"),status) </code>
+     * @apiParam {number} id de la Cartera Servicio que se quiere editar.
+     * @apiParam {json} datos json con datos editar.
+     * @apiParamExample {json} Request-Ejemplo:
+     *     {
+     *        "nombre": "Medicamentosss",
+     *        "niveles_cones": [
+     *           {
+     *              "id": 28
+     *           },
+     *           {
+     *              "id": 2
+     *           }
+     *        ],
+     *        "items": [
+     *          "nombre": "Naproxeno",
+     *          {
+     *             "tipos_items_id": "1"
+     *          },
+     *          {
+     *             "nombre": "Paracetamol",
+     *             "tipos_items_id": "1"
+     *          }
+     *        ]
+     *     }
+     **
      */
     public function update($id){
 
@@ -231,13 +316,16 @@ class CarteraServicioController extends Controller
     }
 
     /**
-     * Elimine el registro especificado del la base de datos (softdelete).
+     * @api {destroy} /cartera-servicios/:id 5.Elimina Cartera Servicio
+     * @apiVersion 1.0.0
+     * @apiName DestroyCarteraServicio
+     * @apiGroup Catalogo/CarteraServicioController
+     * @apiPermission Admin
      *
-     * @param  int  $id que corresponde al identificador del dato a eliminar
+     * @apiDescription Actualiza una Cartera Servicio.
      *
-     * @return Response
-     * <code style="color:green"> Respuesta Ok json(array("status": 200, "messages": "Operación realizada con exito", "data": array(resultado)),status) </code>
-     * <code> Respuesta Error json(array("status": 500, "messages": "Error interno del servidor"),status) </code>
+     * @apiParam {number} id de la Cartera Servicio que se quiere editar.
+     **
      */
     public function destroy($id)
     {
@@ -263,12 +351,57 @@ class CarteraServicioController extends Controller
     }
 
     /**
-     * Validad los parametros recibidos, Esto no tiene ruta de acceso es un metodo privado del controlador.
+     * @api /cartera-servicios 6.ValidarParametros
+     * @apiVersion 1.0.0
+     * @apiName CarteraServicioValidarParametros
+     * @apiGroup Catalogo/CarteraServicioController
+     * @apiPermission Admin
      *
-     * @param  Request  $request que corresponde a los parametros enviados por el cliente
+     * @apiDescription Metodo que valida los parametros.
      *
-     * @return Response
-     * <code> Respuesta Error json con los errores encontrados </code>
+     * @apiParam {json} request datos del request a validar.
+     * @apiParamExample {json} Request-Ejemplo:
+     *     {
+     *        "nombre": "Medicamentosss",
+     *        "niveles_cones": [
+     *           {
+     *              "id": 28
+     *           },
+     *           {
+     *              "id": 2
+     *           }
+     *        ],
+     *        "items": [
+     *          "nombre": "Naproxeno",
+     *          {
+     *             "tipos_items_id": "1"
+     *          },
+     *          {
+     *             "nombre": "Paracetamol",
+     *             "tipos_items_id": "1"
+     *          }
+     *        ]
+     *     }
+     *
+     * @apiSuccess {json} data datos del objeto que se va a crear.
+     * @apiSuccessExample {json} Success-Response:
+     *     {
+     *        "data": {
+     *           ...
+     *        }
+     *     }
+     *
+     * @apiError {json} error respuesta con errores.
+     * @apiErrorExample {json} Respuesta Errores-Ejemplo
+     *     {
+     *        "error": {
+     *           "nombre": [
+     *              "unique"
+     *           ]
+     *        },
+     *        "code": 409
+     *     }
+     *
      */
     private function ValidarParametros($key, $id, $request){
 
@@ -298,6 +431,50 @@ class CarteraServicioController extends Controller
         }
     }
 
+    /**
+     * @api /cartera-servicios 7.AgregarDatos
+     * @apiVersion 1.0.0
+     * @apiName CarteraAgregarDatos
+     * @apiGroup Catalogo/CarteraServicioController
+     * @apiPermission Admin
+     *
+     * @apiDescription Metodo que agrega datos.
+     *
+     * @apiParam {json} data datos del Modelo.
+     * @apiParam {json} datos json con datos agregar.
+     * @apiParamExample {json} Request-Ejemplo:
+     *     {
+     *        "nombre": "Medicamentosss",
+     *        "niveles_cones": [
+     *           {
+     *              "id": 28
+     *           },
+     *           {
+     *              "id": 2
+     *           }
+     *        ],
+     *        "items": [
+     *          "nombre": "Naproxeno",
+     *          {
+     *             "tipos_items_id": "1"
+     *          },
+     *          {
+     *             "nombre": "Paracetamol",
+     *             "tipos_items_id": "1"
+     *          }
+     *        ]
+     *     }
+     *
+     *
+     * @apiSuccess {json} data datos del objeto que se va a crear.
+     * @apiSuccessExample {json} Success-Response:
+     *     {
+     *        "data": {
+     *           ...
+     *        }
+     *     }
+     *
+     */
     private function AgregarDatos($datos, $data){
 
         $success = false;

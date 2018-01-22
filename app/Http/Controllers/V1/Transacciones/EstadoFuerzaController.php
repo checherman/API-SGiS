@@ -29,30 +29,43 @@ use Illuminate\Support\Facades\Input;
 class EstadoFuerzaController extends Controller
 {
     /**
-     * Muestra una lista de los recurso según los parametros a procesar en la petición.
+     * @api {get} /estados-fuerza 1.Listar Estado Fuerza
+     * @apiVersion 1.0.0
+     * @apiName GetEstadoFuerza
+     * @apiGroup Transaccion/EstadoFuerzaController
      *
-     * <h3>Lista de parametros Request:</h3>
-     * <Ul>Paginación
-     * <Li> <code>$pagina</code> numero del puntero(offset) para la sentencia limit </ li>
-     * <Li> <code>$limite</code> numero de filas a mostrar por página</ li>
-     * </Ul>
-     * <Ul>Busqueda
-     * <Li> <code>$valor</code> string con el valor para hacer la busqueda</ li>
-     * <Li> <code>$order</code> campo de la base de datos por la que se debe ordenar la información. Por Defaul es ASC, pero si se antepone el signo - es de manera DESC</ li>
-     * </Ul>
+     * @apiDescription Muestra una lista de los recurso según los parametros a procesar en la petición
      *
-     * Clues ordenamiento con respecto a clues:
-     * <code>
-     * http://url?pagina=1&limite=5&order=id ASC
-     * </code>
-     * <code>
-     * http://url?pagina=1&limite=5&order=-id DESC
-     * </code>
+     * @apiPermission Admin
      *
-     * Todo Los parametros son opcionales, pero si existe pagina debe de existir tambien limite
-     * @return Response
-     * <code style="color:green"> Respuesta Ok json(array("status": 200, "messages": "Operación realizada con exito", "data": array(resultado)),status) </code>
-     * <code> Respuesta Error json(array("status": 404, "messages": "No hay resultados"),status) </code>
+     * @apiParam {Number} pagina Numero del puntero(offset) para la sentencia limit.
+     * @apiParam {Number} limite Numero de filas a mostrar por página.
+     * @apiParam {Boolean} buscar Mandar por defecto true, para realizar la busqueda.
+     *
+     * @apiParam {String} valor Valor para hacer la busqueda.
+     * @apiParam {String} order Campo de la base de datos por la que se debe ordenar la información. Por Default es ASC, pero si se antepone el signo - es de manera DESC.
+     *
+     * @apiParamExample {json} Ordenamiento - Ejemplo:
+    http://url?pagina=1&limite=5&order=id ASC
+    http://url?pagina=1&limite=5&order=id DESC
+    Todo Los parametros son opcionales, pero si existe pagina debe de existir tambien limite
+     *
+     * @apiParamExample {json} Busqueda - Ejemplo:
+    http://url?valor=busqueda&buscar=true
+     *
+     * @apiSuccess {Object[]} data Lista.
+     * @apiSuccess {String} messages Mensaje de Operación realizada con exito.
+     * @apiSuccess {Number} status Estatus 200.
+     * @apiSuccess {Number} total Total de datos devueltos.
+     *
+     * @apiSuccessExample Respuesta exitosa:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "data": [{},{}...],
+     *       "messages": "Operación realizada con exito",
+     *       "status": 200,
+     *       "total": TotalDeDatosDevueltos
+     *     }
      */
     public function index(){
         $datos = Request::all();
@@ -118,15 +131,47 @@ class EstadoFuerzaController extends Controller
 
 
     /**
-     * Actualizar el  registro especificado en el la base de datos
+     * @api {put} /estados-fuerza/:id 3.Actualiza EstadoFuerza
+     * @apiVersion 1.0.0
+     * @apiName PutEstadoFuerza
+     * @apiGroup Transaccion/EstadoFuerzaController
+     * @apiPermission Admin
      *
-     * <h4>Request</h4>
-     * Recibe un Input Request con el json de los datos
+     * @apiDescription Actualiza un EstadoFuerza.
      *
-     * @param  int $id que corresponde al identificador del dato a actualizar
-     * @return Response
-     * <code style="color:green"> Respuesta Ok json(array("status": 200, "messages": "Operación realizada con exito", "data": array(resultado)),status) </code>
-     * <code> Respuesta Error json(array("status": 304, "messages": "No modificado"),status) </code>
+     * @apiParam {number} id del EstadoFuerza que se quiere editar.
+     * @apiParam {json} datos json con datos editar.
+     * @apiParamExample {json} Request-Ejemplo:
+     *     {
+     *        "clues": "CSSSA005773",
+     *        "sis_usuarios_id": 3,
+     *        "usuario": "Luis Alberto Valdez Lescieur",
+     *        "turnos_id": "3",
+     *        "created_at": "2017-08-31 05:05:33",
+     *          "cartera_servicios": [
+     *             {
+     *                "id": 1,
+     *                "nombre": "Personal"
+     *                   "sub_categorias_cie10":[
+     *                      {
+     *                         "id": 8,
+     *                         "nombre": "Enfermera",
+     *                         "cartera_servicios_id": 4,
+     *                         "tipos_items_id": 1,
+     *                         "respuesta": true
+     *                      },
+     *                      {
+     *                         "id": 9,
+     *                         "nombre": "Ginecólogo",
+     *                         "cartera_servicios_id": 4,
+     *                         "tipos_items_id": 1,
+     *                         "respuesta": true
+     *                      },
+     *                 ]
+     *             }
+     *          ]
+     *     }
+     **
      */
     public function update($id)
     {
@@ -153,13 +198,31 @@ class EstadoFuerzaController extends Controller
     }
 
     /**
-     * Devuelve la información del registro especificado.
+     * @api {get} /estados-fuerza/:id 2.Consulta datos de un EstadoFuerza
+     * @apiVersion 1.0.0
+     * @apiName ShowEstadoFuerza
+     * @apiGroup Transaccion/EstadoFuerzaController
      *
-     * @param  int $id que corresponde al identificador del recurso a mostrar
+     * @apiDescription Muestra una lista de los recurso según los parametros a procesar en la petición
      *
-     * @return Response
-     * <code style="color:green"> Respuesta Ok json(array("status": 200, "messages": "Operación realizada con exito", "data": array(resultado)),status) </code>
-     * <code> Respuesta Error json(array("status": 404, "messages": "No hay resultados"),status) </code>
+     * @apiPermission Admin
+     *
+     * @apiParamExample {json} Ejemplo de uso:
+    http://url/1
+     *
+     * @apiSuccess {Object[]} data Lista.
+     * @apiSuccess {String} messages Mensaje de Operación realizada con exito.
+     * @apiSuccess {Number} status Estatus 200.
+     * @apiSuccess {Number} total Total de datos devueltos.
+     *
+     * @apiSuccessExample Respuesta exitosa:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "data": [{},{}...],
+     *       "messages": "Operación realizada con exito",
+     *       "status": 200,
+     *       "total": TotalDeDatosDevueltos
+     *     }
      */
     public function show($id)
     {
@@ -194,6 +257,58 @@ class EstadoFuerzaController extends Controller
         return Response::json(['data' => $data], HttpResponse::HTTP_OK);
     }
 
+    /**
+     * @api /estados-fuerza 4.AgregarDatosRespuesta
+     * @apiVersion 1.0.0
+     * @apiName EstadoFuerzaAgregarDatosRespuesta
+     * @apiGroup Transaccion/EstadoFuerzaController
+     * @apiPermission Admin
+     *
+     * @apiDescription Metodo que agrega datos.
+     *
+     * @apiParam {json} data datos del Modelo.
+     * @apiParam {json} datos json con datos agregar.
+     * @apiParamExample {json} Request-Ejemplo:
+     *     {
+     *        "clues": "CSSSA005773",
+     *        "sis_usuarios_id": 3,
+     *        "usuario": "Luis Alberto Valdez Lescieur",
+     *        "turnos_id": "3",
+     *        "created_at": "2017-08-31 05:05:33",
+     *          "cartera_servicios": [
+     *             {
+     *                "id": 1,
+     *                "nombre": "Personal"
+     *                   "sub_categorias_cie10":[
+     *                      {
+     *                         "id": 8,
+     *                         "nombre": "Enfermera",
+     *                         "cartera_servicios_id": 4,
+     *                         "tipos_items_id": 1,
+     *                         "respuesta": true
+     *                      },
+     *                      {
+     *                         "id": 9,
+     *                         "nombre": "Ginecólogo",
+     *                         "cartera_servicios_id": 4,
+     *                         "tipos_items_id": 1,
+     *                         "respuesta": true
+     *                      },
+     *                 ]
+     *             }
+     *          ]
+     *     }
+     *
+     *
+     * @apiSuccess {json} data datos del objeto que se va a crear.
+     * @apiSuccessExample {json} Success-Response:
+     *     {
+     *        "data": {
+     *           ...
+     *        }
+     *     }
+     *
+     */
     private function AgregarDatosRespuesta($datos, $data)
     {
         $success = false;

@@ -46,30 +46,43 @@ use App\Models\Transacciones\Referencias;
 class IncidenciaController extends Controller
 {
     /**
-     * Muestra una lista de los recurso según los parametros a procesar en la petición.
+     * @api {get} /incidencias 1.Listar Directorio Apoyo
+     * @apiVersion 1.0.0
+     * @apiName GetIncidencia
+     * @apiGroup Transaccion/IncidenciaController
      *
-     * <h3>Lista de parametros Request:</h3>
-     * <Ul>Paginación
-     * <Li> <code>$pagina</code> numero del puntero(offset) para la sentencia limit </ li>
-     * <Li> <code>$limite</code> numero de filas a mostrar por página</ li>
-     * </Ul>
-     * <Ul>Busqueda
-     * <Li> <code>$valor</code> string con el valor para hacer la busqueda</ li>
-     * <Li> <code>$order</code> campo de la base de datos por la que se debe ordenar la información. Por Defaul es ASC, pero si se antepone el signo - es de manera DESC</ li>
-     * </Ul>
+     * @apiDescription Muestra una lista de los recurso según los parametros a procesar en la petición
      *
-     * Ejemplo ordenamiento con respecto a id:
-     * <code>
-     * http://url?pagina=1&limite=5&order=id ASC
-     * </code>
-     * <code>
-     * http://url?pagina=1&limite=5&order=-id DESC
-     * </code>
+     * @apiPermission Admin
      *
-     * Todo Los parametros son opcionales, pero si existe pagina debe de existir tambien limite
-     * @return Response
-     * <code style="color:green"> Respuesta Ok json(array("status": 200, "messages": "Operación realizada con exito", "data": array(resultado)),status) </code>
-     * <code> Respuesta Error json(array("status": 404, "messages": "No hay resultados"),status) </code>
+     * @apiParam {Number} pagina Numero del puntero(offset) para la sentencia limit.
+     * @apiParam {Number} limite Numero de filas a mostrar por página.
+     * @apiParam {Boolean} buscar Mandar por defecto true, para realizar la busqueda.
+     *
+     * @apiParam {String} valor Valor para hacer la busqueda.
+     * @apiParam {String} order Campo de la base de datos por la que se debe ordenar la información. Por Default es ASC, pero si se antepone el signo - es de manera DESC.
+     *
+     * @apiParamExample {json} Ordenamiento - Ejemplo:
+    http://url?pagina=1&limite=5&order=id ASC
+    http://url?pagina=1&limite=5&order=id DESC
+    Todo Los parametros son opcionales, pero si existe pagina debe de existir tambien limite
+     *
+     * @apiParamExample {json} Busqueda - Ejemplo:
+    http://url?valor=busqueda&buscar=true
+     *
+     * @apiSuccess {Object[]} data Lista.
+     * @apiSuccess {String} messages Mensaje de Operación realizada con exito.
+     * @apiSuccess {Number} status Estatus 200.
+     * @apiSuccess {Number} total Total de datos devueltos.
+     *
+     * @apiSuccessExample Respuesta exitosa:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "data": [{},{}...],
+     *       "messages": "Operación realizada con exito",
+     *       "status": 200,
+     *       "total": TotalDeDatosDevueltos
+     *     }
      */
     public function index()
     {
@@ -218,14 +231,90 @@ class IncidenciaController extends Controller
     }
 
     /**
-     * Crear un nuevo registro en la base de datos con los datos enviados
+     * @api {post} /incidencias 2.Crea nueva Incidencia
+     * @apiVersion 1.0.0
+     * @apiName PostIncidencia
+     * @apiGroup Transaccion/IncidenciaController
+     * @apiPermission Admin
      *
-     * <h4>Request</h4>
-     * Recibe un input request tipo json de los datos a almacenar en la tabla correspondiente
+     * @apiDescription Crea una nueva Incidencia.
      *
-     * @return Response
-     * <code style="color:green"> Respuesta Ok json(array("status": 201, "messages": "Creado", "data": array(resultado)),status) </code>
-     * <code> Respuesta Error json(array("status": 500, "messages": "Error interno del servidor"),status) </code>
+     * @apiParam {json} datos json con datos agregar.
+     * @apiParamExample {json} Request-Ejemplo:
+     *     {
+     *        "id": "1812201716028804",
+     *        "motivo_ingreso": "sdfsfsdf",
+     *        "impresion_diagnostica": "sdfsdfsdfsdfsdfsdf",
+     *        "clues": "CSSSA019954",
+     *        "estados_incidencias_id": 1,
+     *        "tieneReferencia": "",
+     *        "pacientes": [
+     *             {
+     *                "id": "",
+     *                "personas_id": "jsiaojdiknaskldna88980",
+     *                "personas_id_viejo": "",
+     *                "personas": {
+     *                   "id": "jsiaojdiknaskldna88980",
+     *                   "nombre": "pruebaaaa",
+     *                   "paterno": "pruebaaaa",
+     *                   "materno": "pruebaaaa",
+     *                   "domicilio": "adadsadsadsa",
+     *                   "fecha_nacimiento": "1990-02-15",
+     *                   "telefono": "965485232",
+     *                   "estados_embarazos_id": "2",
+     *                   "derechohabientes_id": "3",
+     *                   "municipios_id": "3",
+     *                   "localidades_id": "420"
+     *                },
+     *                "acompaniantes": {
+     *                   "id": "",
+     *                   "personas_id": "asdsadasd78",
+     *                   "parentescos_id": "10",
+     *                   "esResponsable": 1,
+     *                   "personas": {
+     *                      "id": "asdsadasd78",
+     *                      "nombre": "Luis",
+     *                      "paterno": "Valdez",
+     *                      "materno": "Lescieur",
+     *                      "domicilio": "Conocido",
+     *                      "telefono": "965485232"
+     *                },
+     *             }
+     *          ],
+     *          "movimientos_incidencias": [
+     *             {
+     *                "id": "",
+     *                "turnos_id": "3",
+     *                "ubicaciones_pacientes_id": "6",
+     *                "estados_pacientes_id": "1",
+     *                "triage_colores_id": "2",
+     *                "subcategorias_cie10_id": 7354,
+     *                "medico_reporta_id": null,
+     *                "indicaciones": null,
+     *                "reporte_medico": null,
+     *                "diagnostico_egreso": null,
+     *                "observacion_trabajo_social": null,
+     *                "metodos_planificacion_id": null
+     *             }
+     *         ],
+     *          "referencias": [
+     *             {
+     *                "id": "",
+     *                "medico_refiere_id": "",
+     *                "diagnostico": "",
+     *                "resumen_clinico": "",
+     *                "clues_origen": "",
+     *                "clues_destino": "CSSSA019954",
+     *                "multimedias": {
+     *                   "img": []
+     *                },
+     *                "esContrareferencia": 0
+     *             }
+     *         ]
+     *     }
+     *
+     * @apiSuccess {String} id         informacion de la nueva Incidencia.
+     *
      */
     public function store()
     {
@@ -261,13 +350,31 @@ class IncidenciaController extends Controller
     }
 
     /**
-     * Devuelve la información del registro especificado.
+     * @api {get} /incidencias/:id 3.Consulta datos de una Incidencia.
+     * @apiVersion 1.0.0
+     * @apiName ShowIncidencia
+     * @apiGroup Transaccion/IncidenciaController
      *
-     * @param  int  $id que corresponde al identificador del recurso a mostrar
+     * @apiDescription Muestra una lista de los recurso según los parametros a procesar en la petición
      *
-     * @return Response
-     * <code style="color:green"> Respuesta Ok json(array("status": 200, "messages": "Operación realizada con exito", "data": array(resultado)),status) </code>
-     * <code> Respuesta Error json(array("status": 404, "messages": "No hay resultados"),status) </code>
+     * @apiPermission Admin
+     *
+     * @apiParamExample {json} Ejemplo de uso:
+    http://url/1
+     *
+     * @apiSuccess {Object[]} data Lista.
+     * @apiSuccess {String} messages Mensaje de Operación realizada con exito.
+     * @apiSuccess {Number} status Estatus 200.
+     * @apiSuccess {Number} total Total de datos devueltos.
+     *
+     * @apiSuccessExample Respuesta exitosa:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "data": [{},{}...],
+     *       "messages": "Operación realizada con exito",
+     *       "status": 200,
+     *       "total": TotalDeDatosDevueltos
+     *     }
      */
     public function show($id){
         $data = Incidencias::where('id',$id)
@@ -305,15 +412,92 @@ class IncidenciaController extends Controller
     }
 
     /**
-     * Actualizar el  registro especificado en el la base de datos
+     * @api {put} /incidencias/:id 4.Actualiza Incidencia
+     * @apiVersion 1.0.0
+     * @apiName PutIncidencia
+     * @apiGroup Transaccion/IncidenciaController
+     * @apiPermission Admin
      *
-     * <h4>Request</h4>
-     * Recibe un Input Request con el json de los datos
+     * @apiDescription Actualiza una Incidencia.
      *
-     * @param  int  $id que corresponde al identificador del dato a actualizar
-     * @return Response
-     * <code style="color:green"> Respuesta Ok json(array("status": 200, "messages": "Operación realizada con exito", "data": array(resultado)),status) </code>
-     * <code> Respuesta Error json(array("status": 304, "messages": "No modificado"),status) </code>
+     * @apiParam {number} id de la Incidencia que se quiere editar.
+     * @apiParam {json} datos json con datos editar.
+     * @apiParamExample {json} Request-Ejemplo:
+     *     {
+     *        "id": "1812201716028804",
+     *        "motivo_ingreso": "sdfsfsdf",
+     *        "impresion_diagnostica": "sdfsdfsdfsdfsdfsdf",
+     *        "clues": "CSSSA019954",
+     *        "estados_incidencias_id": 1,
+     *        "tieneReferencia": "",
+     *        "pacientes": [
+     *             {
+     *                "id": 549,
+     *                "personas_id": "jsiaojdiknaskldna88980",
+     *                "personas_id_viejo": "",
+     *                "personas": {
+     *                   "id": "jsiaojdiknaskldna88980",
+     *                   "nombre": "pruebaaaa",
+     *                   "paterno": "pruebaaaa",
+     *                   "materno": "pruebaaaa",
+     *                   "domicilio": "adadsadsadsa",
+     *                   "fecha_nacimiento": "1990-02-15",
+     *                   "telefono": "965485232",
+     *                   "estados_embarazos_id": "2",
+     *                   "derechohabientes_id": "3",
+     *                   "municipios_id": "3",
+     *                   "localidades_id": "420"
+     *                },
+     *                "acompaniantes": {
+     *                   "id": 578,
+     *                   "personas_id": "asdsadasd78",
+     *                   "parentescos_id": "10",
+     *                   "esResponsable": 1,
+     *                   "personas": {
+     *                      "id": "asdsadasd78",
+     *                      "nombre": "Luis",
+     *                      "paterno": "Valdez",
+     *                      "materno": "Lescieur",
+     *                      "domicilio": "Conocido",
+     *                      "telefono": "965485232"
+     *                },
+     *             }
+     *          ],
+     *          "movimientos_incidencias": [
+     *             {
+     *                "id": 412,
+     *                "incidencias_id": "1812201716028804",
+     *                "turnos_id": "3",
+     *                "ubicaciones_pacientes_id": "6",
+     *                "estados_pacientes_id": "1",
+     *                "triage_colores_id": "2",
+     *                "subcategorias_cie10_id": 7354,
+     *                "medico_reporta_id": null,
+     *                "indicaciones": null,
+     *                "reporte_medico": null,
+     *                "diagnostico_egreso": null,
+     *                "observacion_trabajo_social": null,
+     *                "metodos_planificacion_id": null,
+     *                "antiguedad": "4D 21hrs 55mins "
+     *             }
+     *         ],
+     *         "referencias": [
+     *             {
+     *                "id": "",
+     *                "medico_refiere_id": "medina",
+     *                "diagnostico": "asdfsadf",
+     *                "resumen_clinico": "rwerwe",
+     *                "clues_origen": "CSCRO000015",
+     *                "clues_destino": "CSSSA019954",
+     *                "multimedias": {
+     *                   "img": []
+     *                },
+     *                "esContrareferencia": 0
+     *             }
+     *         ],
+     *         "altas_incidencias": []
+     *     }
+     **
      */
     public function update($id){
         $datos = Request::json()->all();
@@ -342,13 +526,16 @@ class IncidenciaController extends Controller
     }
 
     /**
-     * Elimine el registro especificado del la base de datos (softdelete).
+     * @api {destroy} /incidencias/:id 5.Elimina Incidencia
+     * @apiVersion 1.0.0
+     * @apiName DestroyIncidencia
+     * @apiGroup Transaccion/IncidenciaController
+     * @apiPermission Admin
      *
-     * @param  int  $id que corresponde al identificador del dato a eliminar
+     * @apiDescription Actualiza una Incidencia.
      *
-     * @return Response
-     * <code style="color:green"> Respuesta Ok json(array("status": 200, "messages": "Operación realizada con exito", "data": array(resultado)),status) </code>
-     * <code> Respuesta Error json(array("status": 500, "messages": "Error interno del servidor"),status) </code>
+     * @apiParam {number} id de la Incidencia que se quiere editar.
+     **
      */
     public function destroy($id)
     {
@@ -372,12 +559,110 @@ class IncidenciaController extends Controller
     }
 
     /**
-     * Validad los parametros recibidos, Esto no tiene ruta de acceso es un metodo privado del controlador.
+     * @api /incidencias 6.ValidarParametros
+     * @apiVersion 1.0.0
+     * @apiName IncidenciaValidarParametros
+     * @apiGroup Transaccion/IncidenciaController
+     * @apiPermission Admin
      *
-     * @param  Request  $request que corresponde a los parametros enviados por el cliente
+     * @apiDescription Metodo que valida los parametros.
      *
-     * @return Response
-     * <code> Respuesta Error json con los errores encontrados </code>
+     * @apiParam {json} request datos del request a validar.
+     * @apiParamExample {json} Request-Ejemplo:
+     *     {
+     *        "id": "1812201716028804",
+     *        "motivo_ingreso": "sdfsfsdf",
+     *        "impresion_diagnostica": "sdfsdfsdfsdfsdfsdf",
+     *        "clues": "CSSSA019954",
+     *        "estados_incidencias_id": 1,
+     *        "tieneReferencia": "",
+     *        "pacientes": [
+     *             {
+     *                "id": 549,
+     *                "personas_id": "jsiaojdiknaskldna88980",
+     *                "personas_id_viejo": "",
+     *                "personas": {
+     *                   "id": "jsiaojdiknaskldna88980",
+     *                   "nombre": "pruebaaaa",
+     *                   "paterno": "pruebaaaa",
+     *                   "materno": "pruebaaaa",
+     *                   "domicilio": "adadsadsadsa",
+     *                   "fecha_nacimiento": "1990-02-15",
+     *                   "telefono": "965485232",
+     *                   "estados_embarazos_id": "2",
+     *                   "derechohabientes_id": "3",
+     *                   "municipios_id": "3",
+     *                   "localidades_id": "420"
+     *                },
+     *                "acompaniantes": {
+     *                   "id": 578,
+     *                   "personas_id": "asdsadasd78",
+     *                   "parentescos_id": "10",
+     *                   "esResponsable": 1,
+     *                   "personas": {
+     *                      "id": "asdsadasd78",
+     *                      "nombre": "Luis",
+     *                      "paterno": "Valdez",
+     *                      "materno": "Lescieur",
+     *                      "domicilio": "Conocido",
+     *                      "telefono": "965485232"
+     *                },
+     *             }
+     *          ],
+     *          "movimientos_incidencias": [
+     *             {
+     *                "id": 412,
+     *                "incidencias_id": "1812201716028804",
+     *                "turnos_id": "3",
+     *                "ubicaciones_pacientes_id": "6",
+     *                "estados_pacientes_id": "1",
+     *                "triage_colores_id": "2",
+     *                "subcategorias_cie10_id": 7354,
+     *                "medico_reporta_id": null,
+     *                "indicaciones": null,
+     *                "reporte_medico": null,
+     *                "diagnostico_egreso": null,
+     *                "observacion_trabajo_social": null,
+     *                "metodos_planificacion_id": null,
+     *                "antiguedad": "4D 21hrs 55mins "
+     *             }
+     *         ],
+     *         "referencias": [
+     *             {
+     *                "id": "",
+     *                "medico_refiere_id": "medina",
+     *                "diagnostico": "asdfsadf",
+     *                "resumen_clinico": "rwerwe",
+     *                "clues_origen": "CSCRO000015",
+     *                "clues_destino": "CSSSA019954",
+     *                "multimedias": {
+     *                   "img": []
+     *                },
+     *                "esContrareferencia": 0
+     *             }
+     *         ],
+     *         "altas_incidencias": []
+     *     }
+     *
+     * @apiSuccess {json} data datos del objeto que se va a crear.
+     * @apiSuccessExample {json} Success-Response:
+     *     {
+     *        "data": {
+     *           ...
+     *        }
+     *     }
+     *
+     * @apiError {json} error respuesta con errores.
+     * @apiErrorExample {json} Respuesta Errores-Ejemplo
+     *     {
+     *        "error": {
+     *           "nombre": [
+     *              "unique"
+     *           ]
+     *        },
+     *        "code": 409
+     *     }
+     *
      */
     private function ValidarParametros($key, $id, $request){
 
@@ -428,6 +713,103 @@ class IncidenciaController extends Controller
         return $str;
     }
 
+    /**
+     * @api /incidencias 7.AgregarDatos
+     * @apiVersion 1.0.0
+     * @apiName IncidenciaAgregarDatos
+     * @apiGroup Transaccion/IncidenciaController
+     * @apiPermission Admin
+     *
+     * @apiDescription Metodo que agrega datos.
+     *
+     * @apiParam {json} data datos del Modelo.
+     * @apiParam {json} datos json con datos agregar.
+     * @apiParamExample {json} Request-Ejemplo:
+     *     {
+     *        "id": "1812201716028804",
+     *        "motivo_ingreso": "sdfsfsdf",
+     *        "impresion_diagnostica": "sdfsdfsdfsdfsdfsdf",
+     *        "clues": "CSSSA019954",
+     *        "estados_incidencias_id": 1,
+     *        "tieneReferencia": "",
+     *        "pacientes": [
+     *             {
+     *                "id": 549,
+     *                "personas_id": "jsiaojdiknaskldna88980",
+     *                "personas_id_viejo": "",
+     *                "personas": {
+     *                   "id": "jsiaojdiknaskldna88980",
+     *                   "nombre": "pruebaaaa",
+     *                   "paterno": "pruebaaaa",
+     *                   "materno": "pruebaaaa",
+     *                   "domicilio": "adadsadsadsa",
+     *                   "fecha_nacimiento": "1990-02-15",
+     *                   "telefono": "965485232",
+     *                   "estados_embarazos_id": "2",
+     *                   "derechohabientes_id": "3",
+     *                   "municipios_id": "3",
+     *                   "localidades_id": "420"
+     *                },
+     *                "acompaniantes": {
+     *                   "id": 578,
+     *                   "personas_id": "asdsadasd78",
+     *                   "parentescos_id": "10",
+     *                   "esResponsable": 1,
+     *                   "personas": {
+     *                      "id": "asdsadasd78",
+     *                      "nombre": "Luis",
+     *                      "paterno": "Valdez",
+     *                      "materno": "Lescieur",
+     *                      "domicilio": "Conocido",
+     *                      "telefono": "965485232"
+     *                },
+     *             }
+     *          ],
+     *          "movimientos_incidencias": [
+     *             {
+     *                "id": 412,
+     *                "incidencias_id": "1812201716028804",
+     *                "turnos_id": "3",
+     *                "ubicaciones_pacientes_id": "6",
+     *                "estados_pacientes_id": "1",
+     *                "triage_colores_id": "2",
+     *                "subcategorias_cie10_id": 7354,
+     *                "medico_reporta_id": null,
+     *                "indicaciones": null,
+     *                "reporte_medico": null,
+     *                "diagnostico_egreso": null,
+     *                "observacion_trabajo_social": null,
+     *                "metodos_planificacion_id": null,
+     *                "antiguedad": "4D 21hrs 55mins "
+     *             }
+     *         ],
+     *         "referencias": [
+     *             {
+     *                "id": "",
+     *                "medico_refiere_id": "medina",
+     *                "diagnostico": "asdfsadf",
+     *                "resumen_clinico": "rwerwe",
+     *                "clues_origen": "CSCRO000015",
+     *                "clues_destino": "CSSSA019954",
+     *                "multimedias": {
+     *                   "img": []
+     *                },
+     *                "esContrareferencia": 0
+     *             }
+     *         ],
+     *         "altas_incidencias": []
+     *     }
+     *
+     *
+     * @apiSuccess {json} data datos del objeto que se va a crear.
+     * @apiSuccessExample {json} Success-Response:
+     *     {
+     *        "data": {
+     *           ...
+     *        }
+     *     }
+     *
+     */
     private function AgregarDatos($datos, $data){
 
         $movimientos_incidencias = null;
@@ -736,6 +1118,7 @@ class IncidenciaController extends Controller
                             $referencia->medico_refiere_id              = $valueReferencia->medico_refiere_id;
                             $referencia->diagnostico                    = $valueReferencia->diagnostico;
                             $referencia->resumen_clinico                = $valueReferencia->resumen_clinico;
+                            $referencia->esIngreso                      = $valueReferencia->esIngreso;
 
                             $referencia->clues_origen                   = is_array($valueReferencia->clues_origen)?$valueReferencia->clues_origen['clues']:$valueReferencia->clues_origen;
                             $referencia->clues_destino                  = is_array($valueReferencia->clues_destino)?$valueReferencia->clues_destino['clues']:$valueReferencia->clues_destino;
@@ -814,13 +1197,12 @@ class IncidenciaController extends Controller
                     if($datos->estados_incidencias_id == 1){
                         $tipo = 1;
                         $mensajeSMS = "Ingreso de paciente ". $detallePacientes[0]["personas"]["nombre"] . " " . $detallePacientes[0]["personas"]["paterno"] . " " . $detallePacientes[0]["personas"]["materno"] ." en ". $clues->nombre . ", triage: " . $triage->nombre;
-                        //if($triage->nombre == "Rojo"){
                         $mensajeSMS = $mensajeSMS ." - ". $cie10->nombre;
-                        //}
+
                     }else{
                         $tipo = 2;
-                        $mensajeSMS = "Se atendió a la paciente ". $detallePacientes[0]["personas"]["nombre"] . " " . $detallePacientes[0]["personas"]["paterno"] . " en " . $detallePacientes[0]["personas"]["materno"] ." en ". $clues->nombre;
-                        $mensajeSMS = $mensajeSMS ." - ". $triage->nombre;
+                        $mensajeSMS = "Se atendio a la paciente ". $detallePacientes[0]["personas"]["nombre"] . " " . $detallePacientes[0]["personas"]["paterno"] . " " . $detallePacientes[0]["personas"]["materno"] ." en ". $clues->nombre;
+                        $mensajeSMS = $mensajeSMS ." , triage: ". $triage->nombre;
                         $mensajeSMS = $mensajeSMS ." - ". $cie10->nombre;
                     }
 
@@ -854,7 +1236,7 @@ class IncidenciaController extends Controller
             if(!$altas_incidencias == null){
                 $tipo = 4;
 
-                $mensajeSMS = "Se dio de alta a la paciente ". $detallePacientes[0]["personas"]["nombre"] . " " . $detallePacientes[0]["personas"]["paterno"] . " " . $detallePacientes[0]["personas"]["materno"];
+                $mensajeSMS = "Se dio de alta a la paciente ". $detallePacientes[0]["personas"]["nombre"] . " " . $detallePacientes[0]["personas"]["paterno"] . " " . $detallePacientes[0]["personas"]["materno"] . " en " . $clues->nombre;
 
                 $mensaje->put('titulo', "Se dio de alta a la paciente ". $detallePacientes[0]["personas"]["nombre"] . " " . $detallePacientes[0]["personas"]["paterno"] . " " . $detallePacientes[0]["personas"]["materno"]);
                 $mensaje->put('mensaje', $usuarioActual->nombre." reporto una alta del folio ". $data->id);
@@ -869,7 +1251,6 @@ class IncidenciaController extends Controller
             $notificacion = new Notificaciones;
             $notificacion->tipo                = $tipo;
             $notificacion->mensaje             = $mensaje;
-
 
             if ($notificacion->save()){
                 $usuarios = SisUsuariosNotificaciones::
@@ -904,18 +1285,27 @@ class IncidenciaController extends Controller
     }
 
     /**
-     * Actualizar el  registro especificado en el la base de datos
+     * @api /incidencias 8.convertir_imagen
+     * @apiVersion 1.0.0
+     * @apiName IncidenciaAgregarDatos
+     * @apiGroup Transaccion/IncidenciaController
+     * @apiPermission Admin
      *
-     * <h4>Request</h4>
-     * Recibe un Input Request con el json de los datos
+     * @apiDescription Metodo convertir_imagen.
      *
-     * @param $data
-     * @param $nombre
-     * @param $i
-     * @return Response <code style="color:green"> Respuesta Ok json(array("status": 200, "messages": "Operación realizada con exito", "data": array(resultado)),status) </code>
-     * <code style="color:green"> Respuesta Ok json(array("status": 200, "messages": "Operación realizada con exito", "data": array(resultado)),status) </code>
-     * <code> Respuesta Error json(array("status": 304, "messages": "No modificado"),status) </code>
-     * @internal param int $id que corresponde al identificador del dato a actualizar
+     * @apiParam {json} data datos del Modelo.
+     * @apiParam {string} nombre nombre.
+     * @apiParam {string} i.
+     *
+     *
+     * @apiSuccess {json} data datos del objeto que se va a crear.
+     * @apiSuccessExample {json} Success-Response:
+     *     {
+     *        "data": {
+     *           ...
+     *        }
+     *     }
+     *
      */
     public function convertir_imagen($data, $nombre, $i){
         try{

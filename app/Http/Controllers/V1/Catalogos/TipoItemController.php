@@ -23,30 +23,43 @@ use App\Models\Catalogos\TiposItems;
 class TipoItemController extends ApiController
 {
     /**
-     * Muestra una lista de los recurso según los parametros a procesar en la petición.
+     * @api {get} /tipos-items 1.Listar tipos items
+     * @apiVersion 1.0.0
+     * @apiName GetTipoItem
+     * @apiGroup Catalogo/TipoItemController
      *
-     * <h3>Lista de parametros Request:</h3>
-     * <Ul>Paginación
-     * <Li> <code>$pagina</code> numero del puntero(offset) para la sentencia limit </ li>
-     * <Li> <code>$limite</code> numero de filas a mostrar por página</ li>
-     * </Ul>
-     * <Ul>Busqueda
-     * <Li> <code>$valor</code> string con el valor para hacer la busqueda</ li>
-     * <Li> <code>$order</code> campo de la base de datos por la que se debe ordenar la información. Por Default es ASC, pero si se antepone el signo - es de manera DESC</ li>
-     * </Ul>
+     * @apiDescription Muestra una lista de los recurso según los parametros a procesar en la petición
      *
-     * TiposItems ordenamiento con respecto a id:
-     * <code>
-     * http://url?pagina=1&limite=5&order=id ASC
-     * </code>
-     * <code>
-     * http://url?pagina=1&limite=5&order=-id DESC
-     * </code>
+     * @apiPermission Admin
      *
-     * Todo Los parametros son opcionales, pero si existe pagina debe de existir tambien limite
-     * @return Response
-     * <code style="color:green"> Respuesta Ok json(array("status": 200, "messages": "Operación realizada con exito", "data": array(resultado)),status) </code>
-     * <code> Respuesta Error json(array("status": 404, "messages": "No hay resultados"),status) </code>
+     * @apiParam {Number} pagina Numero del puntero(offset) para la sentencia limit.
+     * @apiParam {Number} limite Numero de filas a mostrar por página.
+     * @apiParam {Boolean} buscar Mandar por defecto true, para realizar la busqueda.
+     *
+     * @apiParam {String} valor Valor para hacer la busqueda.
+     * @apiParam {String} order Campo de la base de datos por la que se debe ordenar la información. Por Default es ASC, pero si se antepone el signo - es de manera DESC.
+     *
+     * @apiParamExample {json} Ordenamiento - Ejemplo:
+    http://url?pagina=1&limite=5&order=id ASC
+    http://url?pagina=1&limite=5&order=id DESC
+    Todo Los parametros son opcionales, pero si existe pagina debe de existir tambien limite
+     *
+     * @apiParamExample {json} Busqueda - Ejemplo:
+    http://url?valor=busqueda&buscar=true
+     *
+     * @apiSuccess {Object[]} data Lista.
+     * @apiSuccess {String} messages Mensaje de Operación realizada con exito.
+     * @apiSuccess {Number} status Estatus 200.
+     * @apiSuccess {Number} total Total de datos devueltos.
+     *
+     * @apiSuccessExample Respuesta exitosa:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "data": [{},{}...],
+     *       "messages": "Operación realizada con exito",
+     *       "status": 200,
+     *       "total": TotalDeDatosDevueltos
+     *     }
      */
     public function index(){
         $datos = Request::all();
@@ -112,10 +125,19 @@ class TipoItemController extends ApiController
     }
 
     /**
-     * Store a newly created resource in storage.
+     * @api {post} /tipos-items 2.Crea nuevo Item
+     * @apiVersion 1.0.0
+     * @apiName PostTipoItem
+     * @apiGroup Catalogo/TipoItemController
+     * @apiPermission Admin
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @apiDescription Crea un nuevo tipo Item.
+     *
+     * @apiParam {String} nombre Nombre del Tipo Item.
+     * @apiParam {String} descripcion Descripcion del Tipo Item.
+     *
+     * @apiSuccess {String} id         informacion del nuevo Tipo Item.
+     *
      */
     public function store(Request $request)
     {
@@ -149,10 +171,31 @@ class TipoItemController extends ApiController
     }
 
     /**
-     * Display the specified resource.
+     * @api {get} /tipos-items/:id 3.Consulta datos de un Tipo Item
+     * @apiVersion 1.0.0
+     * @apiName ShowTipoItem
+     * @apiGroup Catalogo/TipoItemController
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @apiDescription Muestra una lista de los recurso según los parametros a procesar en la petición
+     *
+     * @apiPermission Admin
+     *
+     * @apiParamExample {json} Ejemplo de uso:
+    http://url/1
+     *
+     * @apiSuccess {Object[]} data Lista.
+     * @apiSuccess {String} messages Mensaje de Operación realizada con exito.
+     * @apiSuccess {Number} status Estatus 200.
+     * @apiSuccess {Number} total Total de datos devueltos.
+     *
+     * @apiSuccessExample Respuesta exitosa:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "data": [{},{}...],
+     *       "messages": "Operación realizada con exito",
+     *       "status": 200,
+     *       "total": TotalDeDatosDevueltos
+     *     }
      */
     public function show($id)
     {
@@ -166,11 +209,18 @@ class TipoItemController extends ApiController
     }
 
     /**
-     * Update the specified resource in storage.
+     * @api {put} /tipos-items/:id 4.Actualiza Tipo Item
+     * @apiVersion 1.0.0
+     * @apiName PutTipoItem
+     * @apiGroup Catalogo/TipoItemController
+     * @apiPermission Admin
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @apiDescription Actualiza un Tipo Item.
+     *
+     * @apiParam {number} id del Tipo Item que se quiere editar.
+     * @apiParam {String} nombre Nombre del Tipo Item.
+     * @apiParam {String} descripcion Descripcion del Tipo Item.
+     **
      */
     public function update(Request $request, $id)
     {
@@ -206,10 +256,16 @@ class TipoItemController extends ApiController
     }
 
     /**
-     * Remove the specified resource from storage.
+     * @api {destroy} /tipos-items/:id 5.Elimina Tipo Item
+     * @apiVersion 1.0.0
+     * @apiName DestroyTipoItem
+     * @apiGroup Catalogo/TipoItemController
+     * @apiPermission Admin
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @apiDescription Elimina un Tipo Item.
+     *
+     * @apiParam {number} id del Tipo Item que se quiere editar.
+     **
      */
     public function destroy($id)
     {

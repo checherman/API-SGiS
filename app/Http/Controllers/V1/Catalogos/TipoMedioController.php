@@ -21,33 +21,46 @@ use App\Models\Catalogos\TiposMedios;
  *
  */
 class TipoMedioController extends Controller {
-	 
-	/**
-	 * Muestra una lista de los recurso según los parametros a procesar en la petición.
-	 *
-	 * <h3>Lista de parametros Request:</h3>
-	 * <Ul>Paginación
-	 * <Li> <code>$pagina</code> numero del puntero(offset) para la sentencia limit </ li>
-	 * <Li> <code>$limite</code> numero de filas a mostrar por página</ li>	 
-	 * </Ul>
-	 * <Ul>Busqueda
-	 * <Li> <code>$valor</code> string con el valor para hacer la busqueda</ li>
-	 * <Li> <code>$order</code> campo de la base de datos por la que se debe ordenar la información. Por Defaul es ASC, pero si se antepone el signo - es de manera DESC</ li>	 
-	 * </Ul>
-	 *
-	 * TiposMedios ordenamiento con respecto a id:
-	 * <code>
-	 * http://url?pagina=1&limite=5&order=id ASC 
-	 * </code>
-	 * <code>
-	 * http://url?pagina=1&limite=5&order=-id DESC
-	 * </code>
-	 *
-	 * Todo Los parametros son opcionales, pero si existe pagina debe de existir tambien limite
-	 * @return Response 
-	 * <code style="color:green"> Respuesta Ok json(array("status": 200, "messages": "Operación realizada con exito", "data": array(resultado)),status) </code>
-	 * <code> Respuesta Error json(array("status": 404, "messages": "No hay resultados"),status) </code>
-	 */
+
+    /**
+     * @api {get} /tipos-medios 1.Listar tipos medios
+     * @apiVersion 1.0.0
+     * @apiName GetTipoMedio
+     * @apiGroup Catalogo/TipoMedioController
+     *
+     * @apiDescription Muestra una lista de los recurso según los parametros a procesar en la petición
+     *
+     * @apiPermission Admin
+     *
+     * @apiParam {Number} pagina Numero del puntero(offset) para la sentencia limit.
+     * @apiParam {Number} limite Numero de filas a mostrar por página.
+     * @apiParam {Boolean} buscar Mandar por defecto true, para realizar la busqueda.
+     *
+     * @apiParam {String} valor Valor para hacer la busqueda.
+     * @apiParam {String} order Campo de la base de datos por la que se debe ordenar la información. Por Default es ASC, pero si se antepone el signo - es de manera DESC.
+     *
+     * @apiParamExample {json} Ordenamiento - Ejemplo:
+    http://url?pagina=1&limite=5&order=id ASC
+    http://url?pagina=1&limite=5&order=id DESC
+    Todo Los parametros son opcionales, pero si existe pagina debe de existir tambien limite
+     *
+     * @apiParamExample {json} Busqueda - Ejemplo:
+    http://url?valor=busqueda&buscar=true
+     *
+     * @apiSuccess {Object[]} data Lista.
+     * @apiSuccess {String} messages Mensaje de Operación realizada con exito.
+     * @apiSuccess {Number} status Estatus 200.
+     * @apiSuccess {Number} total Total de datos devueltos.
+     *
+     * @apiSuccessExample Respuesta exitosa:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "data": [{},{}...],
+     *       "messages": "Operación realizada con exito",
+     *       "status": 200,
+     *       "total": TotalDeDatosDevueltos
+     *     }
+     */
 	public function index(){
 		$datos = Request::all();
 		
@@ -109,16 +122,21 @@ class TipoMedioController extends Controller {
 		}
 	}
 
-	/**
-	 * Crear un nuevo registro en la base de datos con los datos enviados
-	 *
-	 * <h4>Request</h4>
-	 * Recibe un input request tipo json de los datos a almacenar en la tabla correspondiente
-	 *
-	 * @return Response
-	 * <code style="color:green"> Respuesta Ok json(array("status": 201, "messages": "Creado", "data": array(resultado)),status) </code>
-	 * <code> Respuesta Error json(array("status": 500, "messages": "Error interno del servidor"),status) </code>
-	 */
+    /**
+     * @api {post} /tipos-medios 2.Crea nuevo Medio
+     * @apiVersion 1.0.0
+     * @apiName PostTipoMedio
+     * @apiGroup Catalogo/TipoMedioController
+     * @apiPermission Admin
+     *
+     * @apiDescription Crea un nuevo tipo Medio.
+     *
+     * @apiParam {String} nombre Nombre del Tipo Medio.
+     * @apiParam {String} descripcion Descripcion del Tipo Medio.
+     *
+     * @apiSuccess {String} id         informacion del nuevo Tipo Medio.
+     *
+     */
 	public function store(){
 		$this->ValidarParametros(Input::json()->all());			
 		$datos = (object) Input::json()->all();	
@@ -144,18 +162,33 @@ class TipoMedioController extends Controller {
 		
 	}
 
-	
-	/**
-	 * Actualizar el  registro especificado en el la base de datos
-	 *
-	 * <h4>Request</h4>
-	 * Recibe un Input Request con el json de los datos
-	 *
-	 * @param  int  $id que corresponde al identificador del dato a actualizar 	 
-	 * @return Response
-	 * <code style="color:green"> Respuesta Ok json(array("status": 200, "messages": "Operación realizada con exito", "data": array(resultado)),status) </code>
-	 * <code> Respuesta Error json(array("status": 304, "messages": "No modificado"),status) </code>
-	 */
+    /**
+     * @api {get} /tipos-medios/:id 3.Consulta datos de un Tipo Medio
+     * @apiVersion 1.0.0
+     * @apiName ShowTipoMedio
+     * @apiGroup Catalogo/TipoMedioController
+     *
+     * @apiDescription Muestra una lista de los recurso según los parametros a procesar en la petición
+     *
+     * @apiPermission Admin
+     *
+     * @apiParamExample {json} Ejemplo de uso:
+    http://url/1
+     *
+     * @apiSuccess {Object[]} data Lista.
+     * @apiSuccess {String} messages Mensaje de Operación realizada con exito.
+     * @apiSuccess {Number} status Estatus 200.
+     * @apiSuccess {Number} total Total de datos devueltos.
+     *
+     * @apiSuccessExample Respuesta exitosa:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "data": [{},{}...],
+     *       "messages": "Operación realizada con exito",
+     *       "status": 200,
+     *       "total": TotalDeDatosDevueltos
+     *     }
+     */
 	public function update($id){
 		$this->ValidarParametros(Input::json()->all());	
 
@@ -195,15 +228,21 @@ class TipoMedioController extends Controller {
 		}  
 		return $success;     						
 	}
-	/**
-	 * Devuelve la información del registro especificado.
-	 *
-	 * @param  int  $id que corresponde al identificador del recurso a mostrar
-	 *
-	 * @return Response
-	 * <code style="color:green"> Respuesta Ok json(array("status": 200, "messages": "Operación realizada con exito", "data": array(resultado)),status) </code>
-	 * <code> Respuesta Error json(array("status": 404, "messages": "No hay resultados"),status) </code>
-	 */
+	
+    /**
+     * @api {put} /tipos-medios/:id 4.Actualiza Tipo Medio
+     * @apiVersion 1.0.0
+     * @apiName PutTipoMedio
+     * @apiGroup Catalogo/TipoMedioController
+     * @apiPermission Admin
+     *
+     * @apiDescription Actualiza un Tipo Medio.
+     *
+     * @apiParam {number} id del Tipo Medio que se quiere editar.
+     * @apiParam {String} nombre Nombre del Tipo Medio.
+     * @apiParam {String} descripcion Descripcion del Tipo Medio.
+     **
+     */
 	public function show($id){
 		$data = TiposMedios::find($id);			
 		
@@ -214,16 +253,19 @@ class TipoMedioController extends Controller {
 			return Response::json(array("status" => 200, "messages" => "Operación realizada con exito", "data" => $data), 200);
 		}
 	}
-	
-	/**
-	 * Elimine el registro especificado del la base de datos (softdelete).
-	 *
-	 * @param  int  $id que corresponde al identificador del dato a eliminar
-	 *
-	 * @return Response
-	 * <code style="color:green"> Respuesta Ok json(array("status": 200, "messages": "Operación realizada con exito", "data": array(resultado)),status) </code>
-	 * <code> Respuesta Error json(array("status": 500, "messages": "Error interno del servidor"),status) </code>
-	 */
+
+    /**
+     * @api {destroy} /tipos-medios/:id 5.Elimina Tipo Medio
+     * @apiVersion 1.0.0
+     * @apiName DestroyTipoMedio
+     * @apiGroup Catalogo/TipoMedioController
+     * @apiPermission Admin
+     *
+     * @apiDescription Elimina un Tipo Medio.
+     *
+     * @apiParam {number} id del Tipo Medio que se quiere editar.
+     **
+     */
 	public function destroy($id){
 		$success = false;
         DB::beginTransaction();
@@ -244,16 +286,50 @@ class TipoMedioController extends Controller {
 			DB::rollback();
 			return Response::json(array("status" => 404, "messages" => "No se encontro el registro"), 404);
 		}
-	}	
+	}
 
-	/**
-	 * Validad los parametros recibidos, Esto no tiene ruta de acceso es un metodo privado del controlador.
-	 *
-	 * @param  Request  $request que corresponde a los parametros enviados por el cliente
-	 *
-	 * @return Response
-	 * <code> Respuesta Error json con los errores encontrados </code>
-	 */
+    /**
+     * @api /estados 6.ValidarParametros
+     * @apiVersion 1.0.0
+     * @apiName TipoMedioValidarParametros
+     * @apiGroup Catalogo/TipoMedioController
+     * @apiPermission Admin
+     *
+     * @apiDescription Metodo que valida los parametros.
+     *
+     * @apiParam {json} request datos del request a validar.
+     * @apiParamExample {json} Request-Ejemplo:
+     *     {
+     *        "data": {
+     *           "nombre": "Nombre",
+     *           "descripcion": "Descripcion",
+     *           "id": id
+     *        }
+     *     }
+     *
+     * @apiSuccess {json} data datos del objeto que se va a crear.
+     * @apiSuccessExample {json} Success-Response:
+     *     {
+     *        "data": {
+     *           "nombre": "Trnsdsdsdsdsdo 11",
+     *           "nombre": "Trnsdsdsdsdsdo 11",
+     *           "descripcion": "8:00:00",
+     *           "id": 11
+     *        }
+     *     }
+     *
+     * @apiError {json} error respuesta con errores.
+     * @apiErrorExample {json} Respuesta Errores-Ejemplo
+     *     {
+     *        "error": {
+     *           "nombre": [
+     *              "unique"
+     *           ]
+     *        },
+     *        "code": 409
+     *     }
+     *
+     */
 	private function ValidarParametros($request){
 		$rules = [
 			"nombre" => "required|min:3"

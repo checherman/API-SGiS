@@ -25,30 +25,43 @@ use App\Models\Catalogos\Cargo;
 class CargoController extends ApiController
 {
     /**
-     * Muestra una lista de los recurso según los parametros a procesar en la petición.
+     * @api {get} /cargos 1.Listar cargos
+     * @apiVersion 1.0.0
+     * @apiName GetCargos
+     * @apiGroup CargoController
      *
-     * <h3>Lista de parametros Request:</h3>
-     * <Ul>Paginación
-     * <Li> <code>$pagina</code> numero del puntero(offset) para la sentencia limit </ li>
-     * <Li> <code>$limite</code> numero de filas a mostrar por página</ li>
-     * </Ul>
-     * <Ul>Busqueda
-     * <Li> <code>$valor</code> string con el valor para hacer la busqueda</ li>
-     * <Li> <code>$order</code> campo de la base de datos por la que se debe ordenar la información. Por Default es ASC, pero si se antepone el signo - es de manera DESC</ li>
-     * </Ul>
+     * @apiDescription Muestra una lista de los recurso según los parametros a procesar en la petición
      *
-     * Cargos ordenamiento con respecto a id:
-     * <code>
-     * http://url?pagina=1&limite=5&order=id ASC
-     * </code>
-     * <code>
-     * http://url?pagina=1&limite=5&order=-id DESC
-     * </code>
+     * @apiPermission Admin
      *
-     * Todo Los parametros son opcionales, pero si existe pagina debe de existir tambien limite
-     * @return Response
-     * <code style="color:green"> Respuesta Ok json(array("status": 200, "messages": "Operación realizada con exito", "data": array(resultado)),status) </code>
-     * <code> Respuesta Error json(array("status": 404, "messages": "No hay resultados"),status) </code>
+     * @apiParam {Number} pagina Numero del puntero(offset) para la sentencia limit.
+     * @apiParam {Number} limite Numero de filas a mostrar por página.
+     * @apiParam {Boolean} buscar Mandar por defecto true, para realizar la busqueda.
+     *
+     * @apiParam {String} valor Valor para hacer la busqueda.
+     * @apiParam {String} order Campo de la base de datos por la que se debe ordenar la información. Por Default es ASC, pero si se antepone el signo - es de manera DESC.
+     *
+     * @apiParamExample {json} Ordenamiento - Ejemplo:
+    http://url?pagina=1&limite=5&order=id ASC
+    http://url?pagina=1&limite=5&order=id DESC
+    Todo Los parametros son opcionales, pero si existe pagina debe de existir tambien limite
+     *
+     * @apiParamExample {json} Busqueda - Ejemplo:
+    http://url?valor=busqueda&buscar=true
+     *
+     * @apiSuccess {Object[]} data Lista.
+     * @apiSuccess {String} messages Mensaje de Operación realizada con exito.
+     * @apiSuccess {Number} status Estatus 200.
+     * @apiSuccess {Number} total Total de datos devueltos.
+     *
+     * @apiSuccessExample Respuesta exitosa:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "data": [{},{}...],
+     *       "messages": "Operación realizada con exito",
+     *       "status": 200,
+     *       "total": TotalDeDatosDevueltos
+     *     }
      */
     public function index(){
         $datos = Request::all();
@@ -114,10 +127,19 @@ class CargoController extends ApiController
     }
 
     /**
-     * Store a newly created resource in storage.
+     * @api {post} /cargos 2.Crea nuevo cargo
+     * @apiVersion 1.0.0
+     * @apiName PostCargo
+     * @apiGroup CargoController
+     * @apiPermission Admin
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @apiDescription Crea un nuevo cargo.
+     *
+     * @apiParam {String} nombre Nombre del Cargo.
+     * @apiParam {String} descripcion Descripcion del Cargo.
+     *
+     * @apiSuccess {String} id         informacion del nuevo cargo.
+     *
      */
     public function store(Request $request)
     {
@@ -150,10 +172,31 @@ class CargoController extends ApiController
     }
 
     /**
-     * Display the specified resource.
+     * @api {get} /cargos/:id 3.Consulta datos de un cargo
+     * @apiVersion 1.0.0
+     * @apiName ShowCargo
+     * @apiGroup CargoController
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @apiDescription Muestra una lista de los recursos según los parametros a procesar en la petición
+     *
+     * @apiPermission Admin
+     *
+     * @apiParamExample {json} Ejemplo de uso:
+    http://url/1
+     *
+     * @apiSuccess {Object[]} data Lista.
+     * @apiSuccess {String} messages Mensaje de Operación realizada con exito.
+     * @apiSuccess {Number} status Estatus 200.
+     * @apiSuccess {Number} total Total de datos devueltos.
+     *
+     * @apiSuccessExample Respuesta exitosa:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "data": [{},{}...],
+     *       "messages": "Operación realizada con exito",
+     *       "status": 200,
+     *       "total": TotalDeDatosDevueltos
+     *     }
      */
     public function show($id)
     {
@@ -167,11 +210,18 @@ class CargoController extends ApiController
     }
 
     /**
-     * Update the specified resource in storage.
+     * @api {put} /cargos/:id 4.Actualiza cargo
+     * @apiVersion 1.0.0
+     * @apiName PutCargo
+     * @apiGroup CargoController
+     * @apiPermission Admin
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @apiDescription Actualiza un cargo.
+     *
+     * @apiParam {number} id del cargo que se quiere editar.
+     * @apiParam {String} nombre Nombre del Cargo.
+     * @apiParam {String} descripcion Descripcion del Cargo.
+     **
      */
     public function update(Request $request, $id)
     {
@@ -207,10 +257,16 @@ class CargoController extends ApiController
     }
 
     /**
-     * Remove the specified resource from storage.
+     * @api {destroy} /cargos/:id 5.Elimina cargo
+     * @apiVersion 1.0.0
+     * @apiName DestroyCargo
+     * @apiGroup CargoController
+     * @apiPermission Admin
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @apiDescription Actualiza un cargo.
+     *
+     * @apiParam {number} id del Cargo que se quiere editar.
+     **
      */
     public function destroy($id)
     {

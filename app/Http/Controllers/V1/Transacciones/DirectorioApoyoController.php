@@ -26,30 +26,43 @@ use \Validator,\Hash, \Response, \DB;
 class DirectorioApoyoController extends Controller
 {
     /**
-     * Muestra una lista de los recurso según los parametros a procesar en la petición.
+     * @api {get} /directorio-apoyos 1.Listar Directorio Apoyo
+     * @apiVersion 1.0.0
+     * @apiName GetDirectorioApoyo
+     * @apiGroup Transaccion/DirectorioApoyoController
      *
-     * <h3>Lista de parametros Request:</h3>
-     * <Ul>Paginación
-     * <Li> <code>$pagina</code> numero del puntero(offset) para la sentencia limit </ li>
-     * <Li> <code>$limite</code> numero de filas a mostrar por página</ li>
-     * </Ul>
-     * <Ul>Busqueda
-     * <Li> <code>$valor</code> string con el valor para hacer la busqueda</ li>
-     * <Li> <code>$order</code> campo de la base de datos por la que se debe ordenar la información. Por Defaul es ASC, pero si se antepone el signo - es de manera DESC</ li>
-     * </Ul>
+     * @apiDescription Muestra una lista de los recurso según los parametros a procesar en la petición
      *
-     * Clues ordenamiento con respecto a clues:
-     * <code>
-     * http://url?pagina=1&limite=5&order=id ASC
-     * </code>
-     * <code>
-     * http://url?pagina=1&limite=5&order=-id DESC
-     * </code>
+     * @apiPermission Admin
      *
-     * Todo Los parametros son opcionales, pero si existe pagina debe de existir tambien limite
-     * @return Response
-     * <code style="color:green"> Respuesta Ok json(array("status": 200, "messages": "Operación realizada con exito", "data": array(resultado)),status) </code>
-     * <code> Respuesta Error json(array("status": 404, "messages": "No hay resultados"),status) </code>
+     * @apiParam {Number} pagina Numero del puntero(offset) para la sentencia limit.
+     * @apiParam {Number} limite Numero de filas a mostrar por página.
+     * @apiParam {Boolean} buscar Mandar por defecto true, para realizar la busqueda.
+     *
+     * @apiParam {String} valor Valor para hacer la busqueda.
+     * @apiParam {String} order Campo de la base de datos por la que se debe ordenar la información. Por Default es ASC, pero si se antepone el signo - es de manera DESC.
+     *
+     * @apiParamExample {json} Ordenamiento - Ejemplo:
+    http://url?pagina=1&limite=5&order=id ASC
+    http://url?pagina=1&limite=5&order=id DESC
+    Todo Los parametros son opcionales, pero si existe pagina debe de existir tambien limite
+     *
+     * @apiParamExample {json} Busqueda - Ejemplo:
+    http://url?valor=busqueda&buscar=true
+     *
+     * @apiSuccess {Object[]} data Lista.
+     * @apiSuccess {String} messages Mensaje de Operación realizada con exito.
+     * @apiSuccess {Number} status Estatus 200.
+     * @apiSuccess {Number} total Total de datos devueltos.
+     *
+     * @apiSuccessExample Respuesta exitosa:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "data": [{},{}...],
+     *       "messages": "Operación realizada con exito",
+     *       "status": 200,
+     *       "total": TotalDeDatosDevueltos
+     *     }
      */
     public function index(){
         $datos = Request::all();
@@ -117,10 +130,40 @@ class DirectorioApoyoController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * @api {post} /directorio-apoyos 2.Crea nuevo DirectorioApoyo
+     * @apiVersion 1.0.0
+     * @apiName PostDirectorioApoyo
+     * @apiGroup Transaccion/DirectorioApoyoController
+     * @apiPermission Admin
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @apiDescription Crea una nuevo DirectorioApoyo.
+     *
+     * @apiParam {json} datos json con datos agregar.
+     * @apiParamExample {json} Request-Ejemplo:
+     *     {
+     *          "institucion": "dif",
+     *          "direccion": "sads",
+     *          "responsable": "erwe",
+     *          "telefono": "0894089423089",
+     *          "correo": "asd@email.com",
+     *          "municipios_id": "1",
+     *          "localidades_id": "1",
+     *          "apoyos": [
+     *             {
+     *                "id": 1,
+     *                "nombre": "Ambulancia",
+     *                "descripcion": "para traslado de embarazadas"
+     *             },
+     *             {
+     *                "id": 2,
+     *                "nombre": "Camillas",
+     *                "descripcion": "de palacio municipals"
+     *             },
+     *          ]
+     *     }
+     *
+     * @apiSuccess {String} id         informacion de la nuevo DirectorioApoyo.
+     *
      */
     public function store(Request $request)
     {
@@ -163,10 +206,31 @@ class DirectorioApoyoController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * @api {get} /directorio-apoyos/:id 3.Consulta datos de un DirectorioApoyo
+     * @apiVersion 1.0.0
+     * @apiName ShowDirectorioApoyo
+     * @apiGroup Transaccion/DirectorioApoyoController
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @apiDescription Muestra una lista de los recurso según los parametros a procesar en la petición
+     *
+     * @apiPermission Admin
+     *
+     * @apiParamExample {json} Ejemplo de uso:
+    http://url/1
+     *
+     * @apiSuccess {Object[]} data Lista.
+     * @apiSuccess {String} messages Mensaje de Operación realizada con exito.
+     * @apiSuccess {Number} status Estatus 200.
+     * @apiSuccess {Number} total Total de datos devueltos.
+     *
+     * @apiSuccessExample Respuesta exitosa:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "data": [{},{}...],
+     *       "messages": "Operación realizada con exito",
+     *       "status": 200,
+     *       "total": TotalDeDatosDevueltos
+     *     }
      */
     public function show($id)
     {
@@ -187,11 +251,39 @@ class DirectorioApoyoController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * @api {put} /directorio-apoyos/:id 4.Actualiza DirectorioApoyo
+     * @apiVersion 1.0.0
+     * @apiName PutDirectorioApoyo
+     * @apiGroup Transaccion/DirectorioApoyoController
+     * @apiPermission Admin
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @apiDescription Actualiza un DirectorioApoyo.
+     *
+     * @apiParam {number} id de la DirectorioApoyo que se quiere editar.
+     * @apiParam {json} datos json con datos editar.
+     * @apiParamExample {json} Request-Ejemplo:
+     *     {
+     *          "institucion": "dif",
+     *          "direccion": "sads",
+     *          "responsable": "erwe",
+     *          "telefono": "0894089423089",
+     *          "correo": "asd@email.com",
+     *          "municipios_id": "1",
+     *          "localidades_id": "1",
+     *          "apoyos": [
+     *             {
+     *                "id": 1,
+     *                "nombre": "Ambulancia",
+     *                "descripcion": "para traslado de embarazadas"
+     *             },
+     *             {
+     *                "id": 2,
+     *                "nombre": "Camillas",
+     *                "descripcion": "de palacio municipals"
+     *             },
+     *          ]
+     *     }
+     **
      */
     public function update(Request $request, $id)
     {
@@ -240,10 +332,16 @@ class DirectorioApoyoController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * @api {destroy} /directorio-apoyos/:id 5.Elimina DirectorioApoyo
+     * @apiVersion 1.0.0
+     * @apiName DestroyDirectorioApoyo
+     * @apiGroup Transaccion/DirectorioApoyoController
+     * @apiPermission Admin
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @apiDescription Actualiza un DirectorioApoyo.
+     *
+     * @apiParam {number} id del DirectorioApoyo que se quiere editar.
+     **
      */
     public function destroy($id)
     {
@@ -256,12 +354,57 @@ class DirectorioApoyoController extends Controller
     }
 
     /**
-     * Validad los parametros recibidos, Esto no tiene ruta de acceso es un metodo privado del controlador.
+     * @api /directorio-apoyos 6.ValidarParametros
+     * @apiVersion 1.0.0
+     * @apiName DirectorioApoyoValidarParametros
+     * @apiGroup Transaccion/DirectorioApoyoController
+     * @apiPermission Admin
      *
-     * @param  Request  $request que corresponde a los parametros enviados por el cliente
+     * @apiDescription Metodo que valida los parametros.
      *
-     * @return Response
-     * <code> Respuesta Error json con los errores encontrados </code>
+     * @apiParam {json} request datos del request a validar.
+     * @apiParamExample {json} Request-Ejemplo:
+     *     {
+     *          "institucion": "dif",
+     *          "direccion": "sads",
+     *          "responsable": "erwe",
+     *          "telefono": "0894089423089",
+     *          "correo": "asd@email.com",
+     *          "municipios_id": "1",
+     *          "localidades_id": "1",
+     *          "apoyos": [
+     *             {
+     *                "id": 1,
+     *                "nombre": "Ambulancia",
+     *                "descripcion": "para traslado de embarazadas"
+     *             },
+     *             {
+     *                "id": 2,
+     *                "nombre": "Camillas",
+     *                "descripcion": "de palacio municipals"
+     *             },
+     *          ]
+     *     }
+     *
+     * @apiSuccess {json} data datos del objeto que se va a crear.
+     * @apiSuccessExample {json} Success-Response:
+     *     {
+     *        "data": {
+     *           ...
+     *        }
+     *     }
+     *
+     * @apiError {json} error respuesta con errores.
+     * @apiErrorExample {json} Respuesta Errores-Ejemplo
+     *     {
+     *        "error": {
+     *           "nombre": [
+     *              "unique"
+     *           ]
+     *        },
+     *        "code": 409
+     *     }
+     *
      */
     private function ValidarParametros($key, $id, $request){
 
@@ -294,6 +437,50 @@ class DirectorioApoyoController extends Controller
         }
     }
 
+    /**
+     * @api /directorio-apoyos 7.AgregarDatos
+     * @apiVersion 1.0.0
+     * @apiName DirectorioApoyoAgregarDatos
+     * @apiGroup Transaccion/DirectorioApoyoController
+     * @apiPermission Admin
+     *
+     * @apiDescription Metodo que agrega datos.
+     *
+     * @apiParam {json} data datos del Modelo.
+     * @apiParam {json} datos json con datos agregar.
+     * @apiParamExample {json} Request-Ejemplo:
+     *     {
+     *          "institucion": "dif",
+     *          "direccion": "sads",
+     *          "responsable": "erwe",
+     *          "telefono": "0894089423089",
+     *          "correo": "asd@email.com",
+     *          "municipios_id": "1",
+     *          "localidades_id": "1",
+     *          "apoyos": [
+     *             {
+     *                "id": 1,
+     *                "nombre": "Ambulancia",
+     *                "descripcion": "para traslado de embarazadas"
+     *             },
+     *             {
+     *                "id": 2,
+     *                "nombre": "Camillas",
+     *                "descripcion": "de palacio municipals"
+     *             },
+     *          ]
+     *     }
+     *
+     *
+     * @apiSuccess {json} data datos del objeto que se va a crear.
+     * @apiSuccessExample {json} Success-Response:
+     *     {
+     *        "data": {
+     *           ...
+     *        }
+     *     }
+     *
+     */
     private function AgregarDatos($datos, $data){
 
         $success = false;

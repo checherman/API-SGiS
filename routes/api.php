@@ -14,8 +14,8 @@
  *
  */
 
-Route::get("/v1/pdf", 			 "v1\ExportController@getPDF");
-Route::post("/v1/html-pdf", 	 "v1\ExportController@setHTML");
+Route::get("/v1/pdf", 			 "V1\ExportController@getPDF");
+Route::post("/v1/html-pdf", 	 "V1\ExportController@setHTML");
 
 //Autocomplete
 Route::get('/v1/grupo-permiso',             'AutoCompleteController@grupo_permiso');
@@ -29,35 +29,34 @@ Route::get('/v1/usuarios-auto',             'AutoCompleteController@usuarios');
 /**
  * si se tiene un token y expira podemos renovar con el refresh token proporcionado
  */
-Route::post("refresh-token",     "v1\Sistema\SisOauthController@refreshToken");
-Route::post("v1/refresh-token",  "v1\Sistema\SisOauthController@refreshToken");
+Route::post("refresh-token",     "V1\Sistema\SisOauthController@refreshToken");
+Route::post("v1/refresh-token",  "V1\Sistema\SisOauthController@refreshToken");
 /**
  * Obtener el token y refresh token con las credenciales de un usuario y el CLIENT_ID y SECRET_ID de la aplicacion cliente
  */
 
-Route::post("/v1/signin",            "v1\Sistema\SisOauthController@accessToken");
-Route::post("/v1/signin",            "v1\Sistema\SisOauthController@accessToken");
-Route::post('/form-contacto',        'v1\Sistema\SisOauthController@contacto');
+Route::post("/v1/signin",            "V1\Sistema\SisOauthController@accessToken");
+Route::post('/form-contacto',        'V1\Sistema\SisOauthController@contacto');
 
 
 Route::middleware('token')->prefix("v1")->group(function(){
 
-    Route::post("validacion-cuenta",     	"v1\Sistema\SisOauthController@validarCuenta");
-    Route::get("perfil/{id}",				"v1\Sistema\SisOauthController@perfil");
-    Route::put("perfil/{id}",				"v1\Sistema\SisOauthController@actualizarPerfil");
-    Route::put("actualizar-foto/{email}",	"v1\Sistema\SisOauthController@actualizarFoto");
-    Route::get("permiso",   				"v1\Sistema\SisModuloController@permiso");
-    Route::post("permisos-autorizados", 	"v1\Sistema\SisOauthController@permisosAutorizados");
+    Route::post("validacion-cuenta",     	"V1\Sistema\SisOauthController@validarCuenta");
+    Route::get("perfil/{id}",				"V1\Sistema\SisOauthController@perfil");
+    Route::put("perfil/{id}",				"V1\Sistema\SisOauthController@actualizarPerfil");
+    Route::put("actualizar-foto/{email}",	"V1\Sistema\SisOauthController@actualizarFoto");
+    Route::get("permiso",   				"V1\Sistema\SisModuloController@permiso");
+    Route::post("permisos-autorizados", 	"V1\Sistema\SisOauthController@permisosAutorizados");
 
 //    Route::get("descargar-app",   			"v1\Catalogos\CatalogosController@descargarApp");
 //    Route::get("puesto-usuario/{id}",   	"v1\Catalogos\CatalogosController@puestoUsuario");
 //    Route::get("lista-persona/{id}",   		"v1\Catalogos\CatalogosController@personas");
 
-    Route::resource("tipo-medio",         	"v1\Catalogos\TipoMedioController");
-    Route::resource("tipo-red-social", 		"v1\Catalogos\TipoRedSocialController");
+    Route::resource("tipo-medio",         	"V1\Catalogos\TipoMedioController");
+    Route::resource("tipo-red-social", 		"V1\Catalogos\TipoRedSocialController");
 
 
-    Route::resource("notificacion",         "v1\Sistema\NotificacionController");
+    Route::resource("notificacion",         "V1\Sistema\NotificacionController");
 });
 
 //Route::get("/v1/comprimir/{id}", "v1\Catalogos\CatalogosController@comprimir");
@@ -70,12 +69,12 @@ Route::middleware('token')->prefix("v1")->group(function(){
 Route::middleware('tokenPermiso')->prefix("v1")->group(function(){
 
     //sistema
-    Route::resource("sisModulo",  			        "v1\Sistema\SisModuloController");
-    Route::resource("sisUsuario", 			        "v1\Sistema\SisUsuarioController");
-    Route::resource("sisGrupo",   			        "v1\Sistema\SisGrupoController");
-    Route::resource("sisReporte",   		        "v1\Sistema\SisReporteController");
-    Route::resource("sisDashboard",   		        "v1\Sistema\SisDashboardController");
-    Route::resource("version-app",   		        "v1\Sistema\VersionAppController");
+    Route::resource("sisModulo",  			        "V1\Sistema\SisModuloController");
+    Route::resource("sisUsuario", 			        "V1\Sistema\SisUsuarioController");
+    Route::resource("sisGrupo",   			        "V1\Sistema\SisGrupoController");
+    Route::resource("sisReporte",   		        "V1\Sistema\SisReporteController");
+    Route::resource("sisDashboard",   		        "V1\Sistema\SisDashboardController");
+    Route::resource("version-app",   		        "V1\Sistema\VersionAppController");
 
     //Route::get("descargar-app",                     "v1\Sistema\VersionAppController@descargarApp");
 
@@ -91,10 +90,10 @@ Route::middleware('tokenPermiso')->prefix("v1")->group(function(){
  */
 Route::middleware('tokenPermiso')->prefix("v1")->group(function(){
     //catalogos
-    Route::resource("tipo-medio",         	"v1\Catalogos\TipoMedioController",        ['only' => ['show', 'store','update','destroy']]);
-    Route::resource("tipo-red-social", 		"v1\Catalogos\TipoRedSocialController",    ['only' => ['show', 'store','update','destroy']]);
+    Route::resource("tipo-medio",         	"V1\Catalogos\TipoMedioController",        ['only' => ['show', 'store','update','destroy']]);
+    Route::resource("tipo-red-social", 		"V1\Catalogos\TipoRedSocialController",    ['only' => ['show', 'store','update','destroy']]);
 
-    Route::resource("paises", 		   	        "v1\Catalogos\PaisController");
+    Route::resource("paises", 		   	        "V1\Catalogos\PaisController");
     Route::resource("estados",  	   	        "v1\Catalogos\EstadoController");
     Route::resource('clues',                    'V1\Catalogos\CluesController', ['only' => ['index', 'show']]);
     Route::resource('jurisdicciones',           'V1\Catalogos\JurisdiccionController', ['only' => ['index']]);

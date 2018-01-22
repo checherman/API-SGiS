@@ -21,33 +21,46 @@ use App\Models\Catalogos\Estados;
  *
  */
 class EstadoController extends Controller {
-	 
-	/**
-	 * Muestra una lista de los recurso según los parametros a procesar en la petición.
-	 *
-	 * <h3>Lista de parametros Request:</h3>
-	 * <Ul>Paginación
-	 * <Li> <code>$pagina</code> numero del puntero(offset) para la sentencia limit </ li>
-	 * <Li> <code>$limite</code> numero de filas a mostrar por página</ li>	 
-	 * </Ul>
-	 * <Ul>Busqueda
-	 * <Li> <code>$valor</code> string con el valor para hacer la busqueda</ li>
-	 * <Li> <code>$order</code> campo de la base de datos por la que se debe ordenar la información. Por Defaul es ASC, pero si se antepone el signo - es de manera DESC</ li>	 
-	 * </Ul>
-	 *
-	 * Estados ordenamiento con respecto a id:
-	 * <code>
-	 * http://url?pagina=1&limite=5&order=id ASC 
-	 * </code>
-	 * <code>
-	 * http://url?pagina=1&limite=5&order=-id DESC
-	 * </code>
-	 *
-	 * Todo Los parametros son opcionales, pero si existe pagina debe de existir tambien limite
-	 * @return Response 
-	 * <code style="color:green"> Respuesta Ok json(array("status": 200, "messages": "Operación realizada con exito", "data": array(resultado)),status) </code>
-	 * <code> Respuesta Error json(array("status": 404, "messages": "No hay resultados"),status) </code>
-	 */
+
+    /**
+     * @api {get} /estados 1.Listar estados
+     * @apiVersion 1.0.0
+     * @apiName GetEstados
+     * @apiGroup Catalogo/EstadoController
+     *
+     * @apiDescription Muestra una lista de los recurso según los parametros a procesar en la petición
+     *
+     * @apiPermission Admin
+     *
+     * @apiParam {Number} pagina Numero del puntero(offset) para la sentencia limit.
+     * @apiParam {Number} limite Numero de filas a mostrar por página.
+     * @apiParam {Boolean} buscar Mandar por defecto true, para realizar la busqueda.
+     *
+     * @apiParam {String} valor Valor para hacer la busqueda.
+     * @apiParam {String} order Campo de la base de datos por la que se debe ordenar la información. Por Default es ASC, pero si se antepone el signo - es de manera DESC.
+     *
+     * @apiParamExample {json} Ordenamiento - Ejemplo:
+    http://url?pagina=1&limite=5&order=id ASC
+    http://url?pagina=1&limite=5&order=id DESC
+    Todo Los parametros son opcionales, pero si existe pagina debe de existir tambien limite
+     *
+     * @apiParamExample {json} Busqueda - Ejemplo:
+    http://url?valor=busqueda&buscar=true
+     *
+     * @apiSuccess {Object[]} data Lista.
+     * @apiSuccess {String} messages Mensaje de Operación realizada con exito.
+     * @apiSuccess {Number} status Estatus 200.
+     * @apiSuccess {Number} total Total de datos devueltos.
+     *
+     * @apiSuccessExample Respuesta exitosa:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "data": [{},{}...],
+     *       "messages": "Operación realizada con exito",
+     *       "status": 200,
+     *       "total": TotalDeDatosDevueltos
+     *     }
+     */
 	public function index(){
 		$datos = Request::all();
 		// Si existe el paarametro pagina en la url devolver las filas según sea el caso
@@ -122,19 +135,26 @@ class EstadoController extends Controller {
 			
 		}
 
-	} 
-	 /**
-	 * Crear un nuevo registro en la base de datos con los datos enviados
-	 *
-	 * <h4>Request</h4>
-	 * Recibe un input request tipo json de los datos a almacenar en la tabla correspondiente
-	 *
-	 * @return Response
-	 * <code style="color:green"> Respuesta Ok json(array("status": 201, "messages": "Creado", "data": array(resultado)),status) </code>
-	 * <code> Respuesta Error json(array("status": 500, "messages": "Error interno del servidor"),status) </code>
-	 */
+	}
+
+    /**
+     * @api {post} /estados 2.Crea nuevo estado
+     * @apiVersion 1.0.0
+     * @apiName PostEstado
+     * @apiGroup Catalogo/EstadoController
+     * @apiPermission Admin
+     *
+     * @apiDescription Crea un nuevo estado.
+     *
+     * @apiParam {String} nombre Nombre del Estado.
+     * @apiParam {number} paises_id Pais al que pertenece el Estado.
+     *
+     * @apiSuccess {String} id         informacion del nuevo estado.
+     *
+     */
 	public function store(){
-		$this->ValidarParametros(Request::json()->all());	
+		$v = $this->ValidarParametros(Request::json()->all());
+		dd($v);
 		$datos = Input::json();
 		$success = false;
 		
@@ -162,15 +182,33 @@ class EstadoController extends Controller {
 		
 	}
 
-	/**
-	 * Devuelve la información del registro especificado.
-	 *
-	 * @param  int  $id que corresponde al identificador del recurso a mostrar
-	 *
-	 * @return Response
-	 * <code style="color:green"> Respuesta Ok json(array("status": 200, "messages": "Operación realizada con exito", "data": array(resultado)),status) </code>
-	 * <code> Respuesta Error json(array("status": 404, "messages": "No hay resultados"),status) </code>
-	 */
+    /**
+     * @api {get} /estados/:id 3.Consulta datos de un estado
+     * @apiVersion 1.0.0
+     * @apiName ShowEstado
+     * @apiGroup Catalogo/EstadoController
+     *
+     * @apiDescription Muestra una lista de los recurso según los parametros a procesar en la petición
+     *
+     * @apiPermission Admin
+     *
+     * @apiParamExample {json} Ejemplo de uso:
+    http://url/1
+     *
+     * @apiSuccess {Object[]} data Lista.
+     * @apiSuccess {String} messages Mensaje de Operación realizada con exito.
+     * @apiSuccess {Number} status Estatus 200.
+     * @apiSuccess {Number} total Total de datos devueltos.
+     *
+     * @apiSuccessExample Respuesta exitosa:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "data": [{},{}...],
+     *       "messages": "Operación realizada con exito",
+     *       "status": 200,
+     *       "total": TotalDeDatosDevueltos
+     *     }
+     */
 	public function show($id){
 		$data = Estados::find($id);
 
@@ -182,18 +220,20 @@ class EstadoController extends Controller {
 		}
 	}
 
-
-	/**
-	 * Actualizar el  registro especificado en el la base de datos
-	 *
-	 * <h4>Request</h4>
-	 * Recibe un Input Request con el json de los datos
-	 *
-	 * @param  int  $id que corresponde al identificador del dato a actualizar 	 
-	 * @return Response
-	 * <code style="color:green"> Respuesta Ok json(array("status": 200, "messages": "Operación realizada con exito", "data": array(resultado)),status) </code>
-	 * <code> Respuesta Error json(array("status": 304, "messages": "No modificado"),status) </code>
-	 */
+    /**
+     * @api {put} /estados/:id 4.Actualiza estado
+     * @apiVersion 1.0.0
+     * @apiName PutEstado
+     * @apiGroup Catalogo/EstadoController
+     * @apiPermission Admin
+     *
+     * @apiDescription Actualiza un estado.
+     *
+     * @apiParam {number} id del estado que se quiere editar.
+     * @apiParam {String} nombre Nombre del Estado.
+     * @apiParam {number} paises_id Pais al que pertenece el Estado.
+     **
+     */
 	public function update($id){
 		$this->ValidarParametros(Request::json()->all());	
 	
@@ -222,15 +262,18 @@ class EstadoController extends Controller {
 		}
 	}
 
-	/**
-	 * Elimine el registro especificado del la base de datos (softdelete).
-	 *
-	 * @param  int  $id que corresponde al identificador del dato a eliminar
-	 *
-	 * @return Response
-	 * <code style="color:green"> Respuesta Ok json(array("status": 200, "messages": "Operación realizada con exito", "data": array(resultado)),status) </code>
-	 * <code> Respuesta Error json(array("status": 500, "messages": "Error interno del servidor"),status) </code>
-	 */
+    /**
+     * @api {destroy} /estados/:id 5.Elimina estado
+     * @apiVersion 1.0.0
+     * @apiName DestroyEstado
+     * @apiGroup Catalogo/EstadoController
+     * @apiPermission Admin
+     *
+     * @apiDescription Actualiza un estado.
+     *
+     * @apiParam {number} id del estado que se quiere editar.
+     **
+     */
 	public function destroy($id)
 	{
 		$success = false;
@@ -253,14 +296,49 @@ class EstadoController extends Controller {
 		}
 	}
 
-	/**
-	 * Validad los parametros recibidos, Esto no tiene ruta de acceso es un metodo privado del controlador.
-	 *
-	 * @param  Request  $request que corresponde a los parametros enviados por el cliente
-	 *
-	 * @return Response
-	 * <code> Respuesta Error json con los errores encontrados </code>
-	 */
+
+    /**
+     * @api /estados 6.ValidarParametros
+     * @apiVersion 1.0.0
+     * @apiName EstadoValidarParametros
+     * @apiGroup Catalogo/EstadoController
+     * @apiPermission Admin
+     *
+     * @apiDescription Metodo que valida los parametros.
+     *
+     * @apiParam {json} request datos del request a validar.
+     * @apiParamExample {json} Request-Ejemplo:
+     *     {
+     *        "data": {
+     *           "nombre": "Nombre",
+     *           "descripcion": "Descripcion",
+     *           "id": id
+     *        }
+     *     }
+     *
+     * @apiSuccess {json} data datos del objeto que se va a crear.
+     * @apiSuccessExample {json} Success-Response:
+     *     {
+     *        "data": {
+     *           "nombre": "Trnsdsdsdsdsdo 11",
+     *           "nombre": "Trnsdsdsdsdsdo 11",
+     *           "descripcion": "8:00:00",
+     *           "id": 11
+     *        }
+     *     }
+     *
+     * @apiError {json} error respuesta con errores.
+     * @apiErrorExample {json} Respuesta Errores-Ejemplo
+     *     {
+     *        "error": {
+     *           "nombre": [
+     *              "unique"
+     *           ]
+     *        },
+     *        "code": 409
+     *     }
+     *
+     */
 	private function ValidarParametros($request){
 		$rules = [
 			"nombre" => "required|min:3|max:250",

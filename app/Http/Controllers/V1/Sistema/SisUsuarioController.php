@@ -1,5 +1,5 @@
 <?php
-namespace App\Http\Controllers\v1\Sistema;
+namespace App\Http\Controllers\V1\Sistema;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\Input;
 use DB; 
 use Hash;
 use App\Models\Sistema\SisUsuario;
-use App\Models\Sistema\SisUsuariosRfcs;
 use App\Models\Sistema\SisUsuariosContactos;
 use App\Models\Sistema\SisUsuariosEmpresas;
 use App\Models\Sistema\SisUsuariosSucursales;

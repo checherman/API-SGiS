@@ -24,30 +24,43 @@ use App\Models\Catalogos\Parentesco;
 class ParentescoController extends ApiController
 {
     /**
-     * Muestra una lista de los recurso según los parametros a procesar en la petición.
+     * @api {get} /parentescos 1.Listar parentescos
+     * @apiVersion 1.0.0
+     * @apiName GetParentescos
+     * @apiGroup Catalogo/ParentescoController
      *
-     * <h3>Lista de parametros Request:</h3>
-     * <Ul>Paginación
-     * <Li> <code>$pagina</code> numero del puntero(offset) para la sentencia limit </ li>
-     * <Li> <code>$limite</code> numero de filas a mostrar por página</ li>
-     * </Ul>
-     * <Ul>Busqueda
-     * <Li> <code>$valor</code> string con el valor para hacer la busqueda</ li>
-     * <Li> <code>$order</code> campo de la base de datos por la que se debe ordenar la información. Por Default es ASC, pero si se antepone el signo - es de manera DESC</ li>
-     * </Ul>
+     * @apiDescription Muestra una lista de los recurso según los parametros a procesar en la petición
      *
-     * Parentesco ordenamiento con respecto a id:
-     * <code>
-     * http://url?pagina=1&limite=5&order=id ASC
-     * </code>
-     * <code>
-     * http://url?pagina=1&limite=5&order=-id DESC
-     * </code>
+     * @apiPermission Admin
      *
-     * Todo Los parametros son opcionales, pero si existe pagina debe de existir tambien limite
-     * @return Response
-     * <code style="color:green"> Respuesta Ok json(array("status": 200, "messages": "Operación realizada con exito", "data": array(resultado)),status) </code>
-     * <code> Respuesta Error json(array("status": 404, "messages": "No hay resultados"),status) </code>
+     * @apiParam {Number} pagina Numero del puntero(offset) para la sentencia limit.
+     * @apiParam {Number} limite Numero de filas a mostrar por página.
+     * @apiParam {Boolean} buscar Mandar por defecto true, para realizar la busqueda.
+     *
+     * @apiParam {String} valor Valor para hacer la busqueda.
+     * @apiParam {String} order Campo de la base de datos por la que se debe ordenar la información. Por Default es ASC, pero si se antepone el signo - es de manera DESC.
+     *
+     * @apiParamExample {json} Ordenamiento - Ejemplo:
+    http://url?pagina=1&limite=5&order=id ASC
+    http://url?pagina=1&limite=5&order=id DESC
+    Todo Los parametros son opcionales, pero si existe pagina debe de existir tambien limite
+     *
+     * @apiParamExample {json} Busqueda - Ejemplo:
+    http://url?valor=busqueda&buscar=true
+     *
+     * @apiSuccess {Object[]} data Lista.
+     * @apiSuccess {String} messages Mensaje de Operación realizada con exito.
+     * @apiSuccess {Number} status Estatus 200.
+     * @apiSuccess {Number} total Total de datos devueltos.
+     *
+     * @apiSuccessExample Respuesta exitosa:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "data": [{},{}...],
+     *       "messages": "Operación realizada con exito",
+     *       "status": 200,
+     *       "total": TotalDeDatosDevueltos
+     *     }
      */
     public function index(){
         $datos = Request::all();
@@ -113,10 +126,19 @@ class ParentescoController extends ApiController
     }
 
     /**
-     * Store a newly created resource in storage.
+     * @api {post} /parentescos 2.Crea nuevo parentescos
+     * @apiVersion 1.0.0
+     * @apiName PostParentesco
+     * @apiGroup Catalogo/ParentescoController
+     * @apiPermission Admin
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @apiDescription Crea un nuevo Parentesco.
+     *
+     * @apiParam {String} nombre Nombre del Parentesco.
+     * @apiParam {String} descripcion Descripcion del Parentesco.
+     *
+     * @apiSuccess {String} id         informacion del nuevo Parentesco.
+     *
      */
     public function store(Request $request)
     {
@@ -150,10 +172,31 @@ class ParentescoController extends ApiController
     }
 
     /**
-     * Display the specified resource.
+     * @api {get} /parentescos/:id 3.Consulta datos de un Parentesco
+     * @apiVersion 1.0.0
+     * @apiName ShowParentesco
+     * @apiGroup Catalogo/ParentescoController
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @apiDescription Muestra una lista de los recurso según los parametros a procesar en la petición
+     *
+     * @apiPermission Admin
+     *
+     * @apiParamExample {json} Ejemplo de uso:
+    http://url/1
+     *
+     * @apiSuccess {Object[]} data Lista.
+     * @apiSuccess {String} messages Mensaje de Operación realizada con exito.
+     * @apiSuccess {Number} status Estatus 200.
+     * @apiSuccess {Number} total Total de datos devueltos.
+     *
+     * @apiSuccessExample Respuesta exitosa:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "data": [{},{}...],
+     *       "messages": "Operación realizada con exito",
+     *       "status": 200,
+     *       "total": TotalDeDatosDevueltos
+     *     }
      */
     public function show($id)
     {
@@ -167,11 +210,18 @@ class ParentescoController extends ApiController
     }
 
     /**
-     * Update the specified resource in storage.
+     * @api {put} /parentescos/:id 4.Actualiza apoyo
+     * @apiVersion 1.0.0
+     * @apiName PutParentesco
+     * @apiGroup Catalogo/ParentescoController
+     * @apiPermission Admin
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @apiDescription Actualiza un Parentesco.
+     *
+     * @apiParam {number} id del Parentesco que se quiere editar.
+     * @apiParam {String} nombre Nombre del Parentesco.
+     * @apiParam {String} descripcion Descripcion del Parentesco.
+     **
      */
     public function update(Request $request, $id)
     {
@@ -206,10 +256,16 @@ class ParentescoController extends ApiController
     }
 
     /**
-     * Remove the specified resource from storage.
+     * @api {destroy} /parentescos/:id 5.Elimina apoyo
+     * @apiVersion 1.0.0
+     * @apiName DestroyParentesco
+     * @apiGroup Catalogo/ParentescoController
+     * @apiPermission Admin
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @apiDescription Actualiza un Parentesco.
+     *
+     * @apiParam {number} id del Parentesco que se quiere editar.
+     **
      */
     public function destroy($id)
     {

@@ -27,30 +27,43 @@ use \Validator,\Hash, \Response;
 class CensoPersonaController extends ApiController
 {
     /**
-     * Muestra una lista de los recurso según los parametros a procesar en la petición.
+     * @api {get} /censo-personas 1.Listar censo personas
+     * @apiVersion 1.0.0
+     * @apiName GetCensoPersona
+     * @apiGroup Transaccion/CensoPersonaController
      *
-     * <h3>Lista de parametros Request:</h3>
-     * <Ul>Paginación
-     * <Li> <code>$pagina</code> numero del puntero(offset) para la sentencia limit </ li>
-     * <Li> <code>$limite</code> numero de filas a mostrar por página</ li>
-     * </Ul>
-     * <Ul>Busqueda
-     * <Li> <code>$valor</code> string con el valor para hacer la busqueda</ li>
-     * <Li> <code>$order</code> campo de la base de datos por la que se debe ordenar la información. Por Defaul es ASC, pero si se antepone el signo - es de manera DESC</ li>
-     * </Ul>
+     * @apiDescription Muestra una lista de los recurso según los parametros a procesar en la petición
      *
-     * Clues ordenamiento con respecto a clues:
-     * <code>
-     * http://url?pagina=1&limite=5&order=id ASC
-     * </code>
-     * <code>
-     * http://url?pagina=1&limite=5&order=-id DESC
-     * </code>
+     * @apiPermission Admin
      *
-     * Todo Los parametros son opcionales, pero si existe pagina debe de existir tambien limite
-     * @return Response
-     * <code style="color:green"> Respuesta Ok json(array("status": 200, "messages": "Operación realizada con exito", "data": array(resultado)),status) </code>
-     * <code> Respuesta Error json(array("status": 404, "messages": "No hay resultados"),status) </code>
+     * @apiParam {Number} pagina Numero del puntero(offset) para la sentencia limit.
+     * @apiParam {Number} limite Numero de filas a mostrar por página.
+     * @apiParam {Boolean} buscar Mandar por defecto true, para realizar la busqueda.
+     *
+     * @apiParam {String} valor Valor para hacer la busqueda.
+     * @apiParam {String} order Campo de la base de datos por la que se debe ordenar la información. Por Default es ASC, pero si se antepone el signo - es de manera DESC.
+     *
+     * @apiParamExample {json} Ordenamiento - Ejemplo:
+    http://url?pagina=1&limite=5&order=id ASC
+    http://url?pagina=1&limite=5&order=id DESC
+    Todo Los parametros son opcionales, pero si existe pagina debe de existir tambien limite
+     *
+     * @apiParamExample {json} Busqueda - Ejemplo:
+    http://url?valor=busqueda&buscar=true
+     *
+     * @apiSuccess {Object[]} data Lista.
+     * @apiSuccess {String} messages Mensaje de Operación realizada con exito.
+     * @apiSuccess {Number} status Estatus 200.
+     * @apiSuccess {Number} total Total de datos devueltos.
+     *
+     * @apiSuccessExample Respuesta exitosa:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "data": [{},{}...],
+     *       "messages": "Operación realizada con exito",
+     *       "status": 200,
+     *       "total": TotalDeDatosDevueltos
+     *     }
      */
     public function index(){
         $datos = Request::all();
@@ -119,10 +132,22 @@ class CensoPersonaController extends ApiController
     }
 
     /**
-     * Store a newly created resource in storage.
+     * @api {post} /censo-personas 2.Crea nueva Persona
+     * @apiVersion 1.0.0
+     * @apiName PostCensoPersona
+     * @apiGroup Transaccion/CensoPersonaController
+     * @apiPermission Admin
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @apiDescription Crea una nueva Persona.
+     *
+     * @apiParam {String} nombre Nombre.
+     * @apiParam {String} paterno Apellido Paterno.
+     * @apiParam {String} materno Apellido Materno.
+     * @apiParam {String} telefono Telefono.
+     * @apiParam {String} domicilio Domicilio.
+     *
+     * @apiSuccess {String} id         informacion del nuevo apoyo.
+     *
      */
     public function store(Request $request)
     {
@@ -161,10 +186,31 @@ class CensoPersonaController extends ApiController
     }
 
     /**
-     * Display the specified resource.
+     * @api {get} /censo-personas/:id 3.Consulta datos de una Persona
+     * @apiVersion 1.0.0
+     * @apiName ShowCensoPersona
+     * @apiGroup Transaccion/CensoPersonaController
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @apiDescription Muestra una lista de los recurso según los parametros a procesar en la petición
+     *
+     * @apiPermission Admin
+     *
+     * @apiParamExample {json} Ejemplo de uso:
+    http://url/1
+     *
+     * @apiSuccess {Object[]} data Lista.
+     * @apiSuccess {String} messages Mensaje de Operación realizada con exito.
+     * @apiSuccess {Number} status Estatus 200.
+     * @apiSuccess {Number} total Total de datos devueltos.
+     *
+     * @apiSuccessExample Respuesta exitosa:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "data": [{},{}...],
+     *       "messages": "Operación realizada con exito",
+     *       "status": 200,
+     *       "total": TotalDeDatosDevueltos
+     *     }
      */
     public function show($id)
     {
@@ -177,11 +223,21 @@ class CensoPersonaController extends ApiController
     }
 
     /**
-     * Update the specified resource in storage.
+     * @api {put} /censo-personas/:id 4.Actualiza apoyo
+     * @apiVersion 1.0.0
+     * @apiName PutCensoPersona
+     * @apiGroup Transaccion/CensoPersonaController
+     * @apiPermission Admin
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @apiDescription Actualiza una Persona.
+     *
+     * @apiParam {number} id de la Persona que se quiere editar.
+     * @apiParam {String} nombre Nombre.
+     * @apiParam {String} paterno Apellido Paterno.
+     * @apiParam {String} materno Apellido Materno.
+     * @apiParam {String} telefono Telefono.
+     * @apiParam {String} domicilio Domicilio.
+     **
      */
     public function update(Request $request, $id)
     {
@@ -230,10 +286,16 @@ class CensoPersonaController extends ApiController
     }
 
     /**
-     * Remove the specified resource from storage.
+     * @api {destroy} /censo-personas/:id 5.Elimina Persona
+     * @apiVersion 1.0.0
+     * @apiName DestroyCensoPersona
+     * @apiGroup Transaccion/CensoPersonaController
+     * @apiPermission Admin
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @apiDescription Elimina una Persona.
+     *
+     * @apiParam {number} id de la Persona que se quiere editar.
+     **
      */
     public function destroy($id)
     {

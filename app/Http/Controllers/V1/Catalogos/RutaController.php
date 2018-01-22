@@ -26,30 +26,43 @@ use App\Models\Catalogos\Rutas;
 class RutaController extends Controller
 {
     /**
-     * Muestra una lista de los recurso según los parametros a procesar en la petición.
+     * @api {get} /rutas 1.Listar rutas
+     * @apiVersion 1.0.0
+     * @apiName GetRutas
+     * @apiGroup Catalogo/RutaController
      *
-     * <h3>Lista de parametros Request:</h3>
-     * <Ul>Paginación
-     * <Li> <code>$pagina</code> numero del puntero(offset) para la sentencia limit </ li>
-     * <Li> <code>$limite</code> numero de filas a mostrar por página</ li>
-     * </Ul>
-     * <Ul>Busqueda
-     * <Li> <code>$valor</code> string con el valor para hacer la busqueda</ li>
-     * <Li> <code>$order</code> campo de la base de datos por la que se debe ordenar la información. Por Defaul es ASC, pero si se antepone el signo - es de manera DESC</ li>
-     * </Ul>
+     * @apiDescription Muestra una lista de los recurso según los parametros a procesar en la petición
      *
-     * Apoyos ordenamiento con respecto a id:
-     * <code>
-     * http://url?pagina=1&limite=5&order=id ASC
-     * </code>
-     * <code>
-     * http://url?pagina=1&limite=5&order=-id DESC
-     * </code>
+     * @apiPermission Admin
      *
-     * Todo Los parametros son opcionales, pero si existe pagina debe de existir tambien limite
-     * @return Response
-     * <code style="color:green"> Respuesta Ok json(array("status": 200, "messages": "Operación realizada con exito", "data": array(resultado)),status) </code>
-     * <code> Respuesta Error json(array("status": 404, "messages": "No hay resultados"),status) </code>
+     * @apiParam {Number} pagina Numero del puntero(offset) para la sentencia limit.
+     * @apiParam {Number} limite Numero de filas a mostrar por página.
+     * @apiParam {Boolean} buscar Mandar por defecto true, para realizar la busqueda.
+     *
+     * @apiParam {String} valor Valor para hacer la busqueda.
+     * @apiParam {String} order Campo de la base de datos por la que se debe ordenar la información. Por Default es ASC, pero si se antepone el signo - es de manera DESC.
+     *
+     * @apiParamExample {json} Ordenamiento - Ejemplo:
+    http://url?pagina=1&limite=5&order=id ASC
+    http://url?pagina=1&limite=5&order=id DESC
+    Todo Los parametros son opcionales, pero si existe pagina debe de existir tambien limite
+     *
+     * @apiParamExample {json} Busqueda - Ejemplo:
+    http://url?valor=busqueda&buscar=true
+     *
+     * @apiSuccess {Object[]} data Lista.
+     * @apiSuccess {String} messages Mensaje de Operación realizada con exito.
+     * @apiSuccess {Number} status Estatus 200.
+     * @apiSuccess {Number} total Total de datos devueltos.
+     *
+     * @apiSuccessExample Respuesta exitosa:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "data": [{},{}...],
+     *       "messages": "Operación realizada con exito",
+     *       "status": 200,
+     *       "total": TotalDeDatosDevueltos
+     *     }
      */
     public function index(){
         $datos = Request::all();
@@ -115,10 +128,27 @@ class RutaController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * @api {post} /rutas 2.Crea nuevo rutas
+     * @apiVersion 1.0.0
+     * @apiName PostRuta
+     * @apiGroup Catalogo/RutaController
+     * @apiPermission Admin
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @apiDescription Crea un nuevo Ruta.
+     *
+     * @apiParam {String} nombre Nombre del Ruta.
+     * @apiParam {String} clues_origen Unidad medica de Origen.
+     * @apiParam {String} clues_destino Unidad medica de Destino.
+     * @apiParam {String} tiempo_traslado Tiempo de traslaoo entre unidades medicas.
+     * @apiParam {String} distancia_traslado Distancia de traslaoo entre unidades medicas.
+     * @apiParam {String} observaciones Observaciones del Ruta.
+     * @apiParam {String} numeroLatitud_origen Latitud de Unidad medica de Origen.
+     * @apiParam {String} numeroLongitud_origen Longitud de Unidad medica de Origen.
+     * @apiParam {String} numeroLatitud_destino Latitud de Unidad medica de Destino.
+     * @apiParam {String} numeroLongitud_destino Longitud de Unidad medica de Destino.
+     *
+     * @apiSuccess {String} id         informacion del nuevo Ruta.
+     *
      */
     public function store(Request $request)
     {
@@ -160,10 +190,31 @@ class RutaController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * @api {get} /rutas/:id 3.Consulta datos de un apoyo
+     * @apiVersion 1.0.0
+     * @apiName ShowRutas
+     * @apiGroup Catalogo/RutaController
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @apiDescription Muestra una lista de los recurso según los parametros a procesar en la petición
+     *
+     * @apiPermission Admin
+     *
+     * @apiParamExample {json} Ejemplo de uso:
+    http://url/1
+     *
+     * @apiSuccess {Object[]} data Lista.
+     * @apiSuccess {String} messages Mensaje de Operación realizada con exito.
+     * @apiSuccess {Number} status Estatus 200.
+     * @apiSuccess {Number} total Total de datos devueltos.
+     *
+     * @apiSuccessExample Respuesta exitosa:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "data": [{},{}...],
+     *       "messages": "Operación realizada con exito",
+     *       "status": 200,
+     *       "total": TotalDeDatosDevueltos
+     *     }
      */
     public function show($id)
     {
@@ -177,11 +228,26 @@ class RutaController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * @api {put} /rutas/:id 4.Actualiza apoyo
+     * @apiVersion 1.0.0
+     * @apiName PutRuta
+     * @apiGroup Catalogo/RutaController
+     * @apiPermission Admin
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @apiDescription Actualiza un Ruta.
+     *
+     * @apiParam {number} id del Ruta que se quiere editar.
+     * @apiParam {String} nombre Nombre del Ruta.
+     * @apiParam {String} clues_origen Unidad medica de Origen.
+     * @apiParam {String} clues_destino Unidad medica de Destino.
+     * @apiParam {String} tiempo_traslado Tiempo de traslaoo entre unidades medicas.
+     * @apiParam {String} distancia_traslado Distancia de traslaoo entre unidades medicas.
+     * @apiParam {String} observaciones Observaciones del Ruta.
+     * @apiParam {String} numeroLatitud_origen Latitud de Unidad medica de Origen.
+     * @apiParam {String} numeroLongitud_origen Longitud de Unidad medica de Origen.
+     * @apiParam {String} numeroLatitud_destino Latitud de Unidad medica de Destino.
+     * @apiParam {String} numeroLongitud_destino Longitud de Unidad medica de Destino.
+     **
      */
     public function update(Request $request, $id)
     {
@@ -234,10 +300,16 @@ class RutaController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * @api {destroy} /rutas/:id 5.Elimina apoyo
+     * @apiVersion 1.0.0
+     * @apiName DestroyRuta
+     * @apiGroup Catalogo/RutaController
+     * @apiPermission Admin
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @apiDescription Elimina un Ruta.
+     *
+     * @apiParam {number} id del Ruta que se quiere editar.
+     **
      */
     public function destroy($id)
     {

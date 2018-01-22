@@ -27,30 +27,43 @@ use App\Models\Catalogos\Municipios;
 class MunicipioController extends ApiController
 {
     /**
-     * Muestra una lista de los recursos según los parametros a procesar en la petición.
+     * @api {get} /municipios 1.Listar municipios
+     * @apiVersion 1.0.0
+     * @apiName GetMunicipio
+     * @apiGroup Catalogo/MunicipioController
      *
-     * <h3>Lista de parametros Request:</h3>
-     * <Ul>Paginación
-     * <Li> <code>$pagina</code> numero del puntero(offset) para la sentencia limit </ li>
-     * <Li> <code>$limite</code> numero de filas a mostrar por página</ li>
-     * </Ul>
-     * <Ul>Busqueda
-     * <Li> <code>$valor</code> string con el valor para hacer la busqueda</ li>
-     * <Li> <code>$order</code> campo de la base de data por la que se debe ordenar la información. Por Defaul es ASC</ li>
-     * </Ul>
+     * @apiDescription Muestra una lista de los recurso según los parametros a procesar en la petición
      *
-     * Conceptos ordenamiento con respecto a id:
-     * <code>
-     * http://url?pagina=1&limite=5&order=id ASC
-     * </code>
-     * <code>
-     * http://url?pagina=1&limite=5&order=-id DESC
-     * </code>
+     * @apiPermission Admin
      *
-     * Todo Los parametros son opcionales, pero si existe pagina debe de existir tambien limite
-     * @return Response
-     * <code style="color:green"> Respuesta Ok json(array("status": 200, "messages": "Operación realizada con exito", "data": array(resultado)),status) </code>
-     * <code> Respuesta Error json(array("status": 404, "messages": "No hay resultados"),status) </code>
+     * @apiParam {Number} pagina Numero del puntero(offset) para la sentencia limit.
+     * @apiParam {Number} limite Numero de filas a mostrar por página.
+     * @apiParam {Boolean} buscar Mandar por defecto true, para realizar la busqueda.
+     *
+     * @apiParam {String} valor Valor para hacer la busqueda.
+     * @apiParam {String} order Campo de la base de datos por la que se debe ordenar la información. Por Default es ASC, pero si se antepone el signo - es de manera DESC.
+     *
+     * @apiParamExample {json} Ordenamiento - Ejemplo:
+    http://url?pagina=1&limite=5&order=id ASC
+    http://url?pagina=1&limite=5&order=id DESC
+    Todo Los parametros son opcionales, pero si existe pagina debe de existir tambien limite
+     *
+     * @apiParamExample {json} Busqueda - Ejemplo:
+    http://url?valor=busqueda&buscar=true
+     *
+     * @apiSuccess {Object[]} data Lista.
+     * @apiSuccess {String} messages Mensaje de Operación realizada con exito.
+     * @apiSuccess {Number} status Estatus 200.
+     * @apiSuccess {Number} total Total de datos devueltos.
+     *
+     * @apiSuccessExample Respuesta exitosa:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "data": [{},{}...],
+     *       "messages": "Operación realizada con exito",
+     *       "status": 200,
+     *       "total": TotalDeDatosDevueltos
+     *     }
      */
     public function index()
     {
@@ -62,7 +75,7 @@ class MunicipioController extends ApiController
                     ->orWhere('clave','LIKE',"%".$parametros['q']."%");
             });
         } else {
-            $data =  Municipios::getModel()->with('jurisdicciones');
+            $data =  Municipios::with('jurisdicciones');
         }
 
         if(isset($parametros['page'])){
@@ -77,10 +90,22 @@ class MunicipioController extends ApiController
     }
 
     /**
-     * Store a newly created resource in storage.
+     * @api {post} /municipios 2.Crea nuevo municipio
+     * @apiVersion 1.0.0
+     * @apiName PostMunicipio
+     * @apiGroup Catalogo/MunicipioController
+     * @apiPermission Admin
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @apiDescription Crea un nuevo Municipio.
+     *
+     * @apiParam {number} id                 id del Municipio que se quiere editar.
+     * @apiParam {String} clave              clave del Municipio.
+     * @apiParam {String} nombre             Nombre del Municipio.
+     * @apiParam {number} jurisdicciones_id  jurisdiccion a la que pertenece el Municipio.
+     * @apiParam {number} entidades_id       entidad a la que pertenece el Municipio.
+     *
+     * @apiSuccess {String} id         informacion del nuevo Municipio.
+     *
      */
     public function store(Request $request)
     {
@@ -114,28 +139,20 @@ class MunicipioController extends ApiController
     }
 
     /**
-     * Display the specified resource.
+     * @api {put} /municipios/:id 4.Actualiza Municipio
+     * @apiVersion 1.0.0
+     * @apiName PutMunicipio
+     * @apiGroup Catalogo/MunicipioController
+     * @apiPermission Admin
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        $data = Municipios::find($id);
-
-        if(!$data){
-            return $this->respuestaError('No se encuentra el recurso que esta buscando.', 404);
-        }
-
-        return $this->respuestaVerTodo($data);
-    }
-
-    /**
-     * Update the specified resource in storage.
+     * @apiDescription Actualiza un Municipio.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @apiParam {number} id                 id del Municipio que se quiere editar.
+     * @apiParam {String} clave              clave del Municipio.
+     * @apiParam {String} nombre             Nombre del Municipio.
+     * @apiParam {number} jurisdicciones_id  jurisdiccion a la que pertenece el Municipio.
+     * @apiParam {number} entidades_id       entidad a la que pertenece el Municipio.
+     **
      */
     public function update(Request $request, $id)
     {
@@ -174,10 +191,54 @@ class MunicipioController extends ApiController
     }
 
     /**
-     * Remove the specified resource from storage.
+     * @api {get} /municipios/:id 3.Consulta datos de un Municipio
+     * @apiVersion 1.0.0
+     * @apiName ShowMunicipio
+     * @apiGroup Catalogo/MunicipioController
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @apiDescription Muestra una lista de los recurso según los parametros a procesar en la petición
+     *
+     * @apiPermission Admin
+     *
+     * @apiParamExample {json} Ejemplo de uso:
+    http://url/1
+     *
+     * @apiSuccess {Object[]} data Lista.
+     * @apiSuccess {String} messages Mensaje de Operación realizada con exito.
+     * @apiSuccess {Number} status Estatus 200.
+     * @apiSuccess {Number} total Total de datos devueltos.
+     *
+     * @apiSuccessExample Respuesta exitosa:
+     *     HTTP/1.1 200 OK
+     *     {
+     *       "data": [{},{}...],
+     *       "messages": "Operación realizada con exito",
+     *       "status": 200,
+     *       "total": TotalDeDatosDevueltos
+     *     }
+     */
+    public function show($id)
+    {
+        $data = Municipios::find($id);
+
+        if(!$data){
+            return $this->respuestaError('No se encuentra el recurso que esta buscando.', 404);
+        }
+
+        return $this->respuestaVerTodo($data);
+    }
+
+    /**
+     * @api {destroy} /municipios/:id 5.Elimina Municipio
+     * @apiVersion 1.0.0
+     * @apiName DestroyMunicipio
+     * @apiGroup Catalogo/MunicipioController
+     * @apiPermission Admin
+     *
+     * @apiDescription Actualiza un Municipio.
+     *
+     * @apiParam {number} id del Municipio que se quiere editar.
+     **
      */
     public function destroy($id)
     {
