@@ -110,7 +110,7 @@ class IncidenciaController extends Controller
                 $order = str_replace("-", "", $order);
             }
             else{
-                $order = "created_at"; $orden = "desc";
+                $order = "incidencias.created_at"; $orden = "desc";
             }
 
             if($pagina == 0 || $pagina == null){
@@ -125,63 +125,55 @@ class IncidenciaController extends Controller
                 $columna = $datos['columna'];
                 $valor   = $datos['valor'];
 
-                if(!$edoIncidencia == null) {
-                    $data = Incidencias::select("incidencias.*")->with("pacientes.personas", "pacientes.acompaniantes.personas")
-                        ->with("movimientos_incidencias", "referencias", "altas_incidencias", "estados_incidencias")
-                        ->join('incidencia_clue', 'incidencia_clue.incidencias_id', '=', 'incidencias.id')
-                        ->where('incidencia_clue.clues',$cluesH)
-                        ->orderBy($order, $orden);
+                $data = Incidencias::select('incidencias.*')
+                    ->join('incidencia_paciente', 'incidencia_paciente.incidencias_id', '=', 'incidencias.id')
+                    ->join('pacientes', 'incidencia_paciente.pacientes_id', '=', 'pacientes.id')
+                    ->join('personas', 'pacientes.personas_id', '=', 'personas.id')
+                    ->with("pacientes.personas","pacientes.acompaniantes.personas")
+                    ->with("movimientos_incidencias", "referencias", "altas_incidencias", "estados_incidencias");
+
+                if(!$edoIncidencia == null){
+                    $data = $data->join('incidencia_clue', 'incidencia_clue.incidencias_id', '=', 'incidencias.id')
+                                ->where('incidencia_clue.clues',$cluesH)
+                                ->where('estados_incidencias_id', $edoIncidencia)
+                                ->orderBy($order, $orden);
                 }else{
-                    $data = Incidencias::select("incidencias.*")->with("pacientes.personas", "pacientes.acompaniantes.personas")
-                        ->with("movimientos_incidencias", "referencias", "altas_incidencias", "estados_incidencias")
-                        ->join('estados_incidencias', 'estados_incidencias.id', '=', 'incidencias.estados_incidencias_id')
-                        ->where('incidencias.estados_incidencias_id',$edoIncidencia)
-                        ->join('incidencia_clue', 'incidencia_clue.incidencias_id', '=', 'incidencias.id')
-                        ->where('incidencia_clue.clues',$cluesH)
-                        ->orderBy($order, $orden);
+                    $data = $data->join('incidencia_clue', 'incidencia_clue.incidencias_id', '=', 'incidencias.id')
+                            ->where('incidencia_clue.clues',$cluesH)
+                            ->orderBy($order, $orden);
                 }
 
                 $search = trim($valor);
                 $keyword = $search;
 
                 $data = $data->whereNested(function($query) use ($keyword){
-                    $query->where("incidencias.id", "LIKE", '%'.$keyword.'%');
+                    $query->where("incidencias.id", "LIKE", '%'.$keyword.'%')
+                            ->orWhere("personas.nombre", "LIKE", '%'.$keyword.'%')
+                            ->orWhere("personas.paterno", "LIKE", '%'.$keyword.'%')
+                            ->orWhere("personas.materno", "LIKE", '%'.$keyword.'%');
                 });
 
                 $total = $data->get();
                 $data = $data->skip($pagina-1)->take($datos['limite'])->get();
             }else{
+
+                $data = Incidencias::select('incidencias.*')
+                    ->with("pacientes.personas","pacientes.acompaniantes.personas")
+                    ->with("movimientos_incidencias", "referencias", "altas_incidencias", "estados_incidencias");
+
                 if(!$edoIncidencia == null){
-                    $data = Incidencias::select("incidencias.*")->with("pacientes.personas", "pacientes.acompaniantes.personas")
-                        ->with("movimientos_incidencias", "referencias", "altas_incidencias", "estados_incidencias")
-                        ->join('estados_incidencias', 'estados_incidencias.id', '=', 'incidencias.estados_incidencias_id')
-                        ->where('incidencias.estados_incidencias_id',$edoIncidencia)
-                        ->join('incidencia_clue', 'incidencia_clue.incidencias_id', '=', 'incidencias.id')
+                    $data = $data->join('incidencia_clue', 'incidencia_clue.incidencias_id', '=', 'incidencias.id')
                         ->where('incidencia_clue.clues',$cluesH)
-                        ->skip($pagina-1)->take($datos['limite'])->orderBy('incidencias.id', $orden)
-                        ->get();
-
-                    $total = Incidencias::select("incidencias.*")->with("pacientes.personas", "pacientes.acompaniantes.personas")
-                        ->with("movimientos_incidencias", "referencias", "altas_incidencias", "estados_incidencias")
-                        ->join('estados_incidencias', 'estados_incidencias.id', '=', 'incidencias.estados_incidencias_id')
-                        ->where('incidencias.estados_incidencias_id',$edoIncidencia)
-                        ->join('incidencia_clue', 'incidencia_clue.incidencias_id', '=', 'incidencias.id')
-                        ->where('incidencia_clue.clues',$cluesH)
-                        ->get();
+                        ->where('estados_incidencias_id', $edoIncidencia)
+                        ->orderBy($order, $orden);
                 }else{
-                    $data = Incidencias::select("incidencias.*")->with("pacientes.personas", "pacientes.acompaniantes.personas")
-                        ->with("movimientos_incidencias", "referencias", "altas_incidencias", "estados_incidencias")
-                        ->join('incidencia_clue', 'incidencia_clue.incidencias_id', '=', 'incidencias.id')
+                    $data = $data->join('incidencia_clue', 'incidencia_clue.incidencias_id', '=', 'incidencias.id')
                         ->where('incidencia_clue.clues',$cluesH)
-                        ->skip($pagina-1)->take($datos['limite'])->orderBy($order, $orden)
-                        ->get();
-
-                    $total = Incidencias::select("incidencias.*")->with("pacientes.personas", "pacientes.acompaniantes.personas")
-                        ->with("movimientos_incidencias", "referencias", "altas_incidencias", "estados_incidencias")
-                        ->join('incidencia_clue', 'incidencia_clue.incidencias_id', '=', 'incidencias.id')
-                        ->where('incidencia_clue.clues',$cluesH)
-                        ->get();
+                        ->orderBy($order, $orden);
                 }
+                $total = $data->get();
+                $data = $data->skip($pagina-1)->take($datos['limite'])->orderBy('incidencias.id', $orden)
+                    ->get();
             }
 
         }
@@ -217,7 +209,6 @@ class IncidenciaController extends Controller
         $estadosIncidencias = array_map("unserialize", array_unique(array_map("serialize", $estadosIncidencias)));
 
         $data[count($data)] = array("estados_incidencias" => array_values($estadosIncidencias));
-        //$data[count($data)] = array("estados_incidencias" => $estadosIncidencias);
 
         if(!$data){
             return Response::json(array("status" => 404,"messages" => "No hay resultados"), 404);
@@ -1181,12 +1172,13 @@ class IncidenciaController extends Controller
             $obj =  JWTAuth::parseToken()->getPayload();
             $usuarioActual = SisUsuario::where("email", $obj->get('email'))->first();
 
-            $clues = Clues::select("nombre")->where("clues", $datos->clues)->first();
+            $clues = Clues::select("abreviacion", "nombre")->where("clues", $datos->clues)->first();
 
             $mensaje = collect();
             $mensajeSMS = "";
             $tipo = null;
             $mensaje->put('usuario', $usuarioActual);
+
 
             if(!$movimientos_incidencias == null){
 
@@ -1196,12 +1188,23 @@ class IncidenciaController extends Controller
                 if ($datos->movimientos_incidencias[sizeof($datos->movimientos_incidencias)-1]["id"] == ""){
                     if($datos->estados_incidencias_id == 1){
                         $tipo = 1;
-                        $mensajeSMS = "Ingreso de paciente ". $detallePacientes[0]["personas"]["nombre"] . " " . $detallePacientes[0]["personas"]["paterno"] . " " . $detallePacientes[0]["personas"]["materno"] ." en ". $clues->nombre . ", triage: " . $triage->nombre;
-                        $mensajeSMS = $mensajeSMS ." - ". $cie10->nombre;
 
+                        if(!$clues->abreviacion == NULL){
+                            $mensajeSMS = "Ingreso de la paciente ". $detallePacientes[0]["personas"]["nombre"] . " " . $detallePacientes[0]["personas"]["paterno"] . " " . $detallePacientes[0]["personas"]["materno"] ." en ". $clues->abreviacion . ", triage: " . $triage->nombre;
+                        }else{
+                            $mensajeSMS = "Ingreso de la paciente ". $detallePacientes[0]["personas"]["nombre"] . " " . $detallePacientes[0]["personas"]["paterno"] . " " . $detallePacientes[0]["personas"]["materno"] ." en ". $clues->nombre . ", triage: " . $triage->nombre;
+                        }
+
+                        $mensajeSMS = $mensajeSMS ." - ". $cie10->nombre;
                     }else{
                         $tipo = 2;
-                        $mensajeSMS = "Se atendio a la paciente ". $detallePacientes[0]["personas"]["nombre"] . " " . $detallePacientes[0]["personas"]["paterno"] . " " . $detallePacientes[0]["personas"]["materno"] ." en ". $clues->nombre;
+
+                        if(!$clues->abreviacion == NULL){
+                            $mensajeSMS = "Se atendio a la paciente ". $detallePacientes[0]["personas"]["nombre"] . " " . $detallePacientes[0]["personas"]["paterno"] . " " . $detallePacientes[0]["personas"]["materno"] ." en ". $clues->abreviacion;
+                        }else{
+                            $mensajeSMS = "Se atendio a la paciente ". $detallePacientes[0]["personas"]["nombre"] . " " . $detallePacientes[0]["personas"]["paterno"] . " " . $detallePacientes[0]["personas"]["materno"] ." en ". $clues->nombre;
+                        }
+
                         $mensajeSMS = $mensajeSMS ." , triage: ". $triage->nombre;
                         $mensajeSMS = $mensajeSMS ." - ". $cie10->nombre;
                     }

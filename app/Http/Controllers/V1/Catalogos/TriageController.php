@@ -38,8 +38,8 @@ class TriageController extends Controller
         $parametros = Input::only('q','page','per_page');
         if ($parametros['q']) {
             $data =  Triage::where(function($query) use ($parametros) {
-                $query->where('id','LIKE',"%".$parametros['q']."%")
-                    ->orWhere('nombre','LIKE',"%".$parametros['q']."%");
+                $query->where('id','LIKE',"%".$parametros."%")
+                    ->orWhere('nombre','LIKE',"%".$parametros."%");
             });
         } else {
             $data =  Triage::getModel()->with('triageSintomas');

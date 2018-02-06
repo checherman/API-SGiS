@@ -96,9 +96,9 @@ class EstadoEmbarazoController extends ApiController
                 $search = trim($valor);
                 $keyword = $search;
                 $data = $data->whereNested(function($query) use ($keyword){
-                    $query->where('id','LIKE',"%".$keyword['q']."%")
-                        ->orWhere('nombre','LIKE',"%".$keyword['q']."%")
-                        ->orWhere('descripcion','LIKE',"%".$keyword['q']."%");
+                    $query->where('id','LIKE',"%".$keyword."%")
+                        ->orWhere('nombre','LIKE',"%".$keyword."%")
+                        ->orWhere('descripcion','LIKE',"%".$keyword."%");
                 });
 
                 $total = $data->get();

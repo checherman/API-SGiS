@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\V1\Catalogos;
+namespace App\Http\Controllers\v1\Catalogos;
 
 use App\Http\Requests;
 use App\Models\Catalogos\TiposNotificaciones;

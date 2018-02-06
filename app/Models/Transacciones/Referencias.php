@@ -12,7 +12,7 @@ class Referencias extends BaseModel
     public $incrementing = true;
 
     protected $table = "referencias";
-    protected $fillable = ["id", "incidencias_id", "medico_refiere_id", "diagnostico", "resumen_clinico", "clues_origen", "clues_destino", "img", "esContrareferencia"];
+    protected $fillable = ["id", "incidencias_id", "medico_refiere_id", "diagnostico", "resumen_clinico", "clues_origen", "clues_destino", "img", "esIngreso"];
     protected $hidden = ["updated_at", "deleted_at"];
 
     public function incidencias()

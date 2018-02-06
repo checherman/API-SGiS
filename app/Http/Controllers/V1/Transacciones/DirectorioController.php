@@ -35,7 +35,8 @@ class DirectorioController extends Controller
         if ($parametros['q']) {
              $usuarios =  Usuario::with('cargos','clues')->where('su',false)->whereNull('password')
                  ->where(function($query) use ($parametros) {
-                 $query->where('id','LIKE',"%".$parametros['q']."%")->orWhere(DB::raw("CONCAT(nombre,' ',paterno,' ',materno)"),'LIKE',"%".$parametros['q']."%");
+                 $query->where('id','LIKE',"%".$parametros['q']."%")
+                     ->orWhere(DB::raw("CONCAT(nombre,' ',paterno,' ',materno)"),'LIKE',"%".$parametros['q']."%");
              });
         } else {
              $usuarios =  Usuario::with('cargos','clues')->where('su',false)->whereNull('password');

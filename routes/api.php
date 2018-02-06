@@ -108,7 +108,7 @@ Route::middleware('tokenPermiso')->prefix("v1")->group(function(){
     Route::resource('parentescos',                  'V1\Catalogos\ParentescoController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
     Route::resource('metodos-planificacion',        'V1\Catalogos\MetodoPlanificacionController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
     Route::resource('tipos-items',                  'V1\Catalogos\TipoItemController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
-    Route::resource("tipos-notificaciones",         "v1\Catalogos\TipoNotificacionController",    ['only' => ['index', 'show', 'store','update','destroy']]);
+    Route::resource("tipos-notificaciones",         "V1\Catalogos\TipoNotificacionController",    ['only' => ['index', 'show', 'store','update','destroy']]);
     Route::resource('turnos',                       'V1\Catalogos\TurnoController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
     Route::resource('cargos',                       'V1\Catalogos\CargoController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
     Route::resource('apoyos',                       'V1\Catalogos\ApoyoController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);

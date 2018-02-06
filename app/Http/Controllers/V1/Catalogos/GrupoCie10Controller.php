@@ -102,9 +102,9 @@ class GrupoCie10Controller extends Controller
                 $search = trim($valor);
                 $keyword = $search;
                 $data = $data->whereNested(function($query) use ($keyword){
-                    $query->where('id','LIKE',"%".$keyword['q']."%")
-                        ->orWhere('codigo','LIKE',"%".$keyword['q']."%")
-                        ->orWhere('nombre','LIKE',"%".$keyword['q']."%");
+                    $query->where('id','LIKE',"%".$keyword."%")
+                        ->orWhere('codigo','LIKE',"%".$keyword."%")
+                        ->orWhere('nombre','LIKE',"%".$keyword."%");
                 });
 
                 $total = $data->get();
