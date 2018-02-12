@@ -12,8 +12,6 @@ use DB;
 use Hash;
 use App\Models\Sistema\SisUsuario;
 use App\Models\Sistema\SisUsuariosContactos;
-use App\Models\Sistema\SisUsuariosEmpresas;
-use App\Models\Sistema\SisUsuariosSucursales;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 /**
@@ -232,7 +230,13 @@ class SisUSuarioController extends Controller {
 		$data->spam 			 = property_exists($datos, "spam") 				? $datos->spam 					: $data->spam;
 		$data->localidades_id 	 = property_exists($datos, "localidades_id") 	? $datos->localidades_id 		: $data->localidades_id;
 		$data->estados_id 		 = property_exists($datos, "estados_id") 		? $datos->estados_id 			: $data->estados_id;
-		$data->municipios_id 	 = property_exists($datos, "municipios_id") 	? $datos->municipios_id 		: $data->municipios_id;	
+		$data->municipios_id 	 = property_exists($datos, "municipios_id") 	? $datos->municipios_id 		: $data->municipios_id;
+
+        if($datos->permisos != ''){
+            if(count($datos->permisos) > 0) {
+                $data->permisos = json_encode($datos->permisos);
+            }
+        }
 
         if ($data->save()) {
         	if(property_exists($datos, "sis_usuarios_grupos")){
@@ -309,16 +313,31 @@ class SisUSuarioController extends Controller {
 	 * <code style="color:green"> Respuesta Ok json(array("status": 200, "messages": "Operación realizada con exito", "data": array(resultado)),status) </code>
 	 * <code> Respuesta Error json(array("status": 404, "messages": "No hay resultados"),status) </code>
 	 */
-	public function show($id){
-		$data = SisUSuario::with("SisUsuariosGrupos","municipios","localidades", "SisUsuariosContactos", "SisUsuariosClues", "SisUsuariosNotificaciones")->find($id);
+    public function show($id){
+        $data = SisUSuario::with("SisUsuariosGrupos","municipios","localidades", "SisUsuariosContactos", "SisUsuariosClues", "SisUsuariosNotificaciones")->find($id);
 
-		if(!$data){
-			return Response::json(array("status"=> 404,"messages" => "No hay resultados"),404);
-		} 
-		else {	
-			return Response::json(array("status" => 200, "messages" => "Operación realizada con exito", "data" => $data), 200);
-		}
-	}
+        if(!$data){
+            return Response::json(array("status"=> 404,"messages" => "No hay resultados"),404);
+        }
+        else {
+            $permiso=[];
+            if(isset($data->SisUsuariosGrupos)){
+                foreach($data->SisUsuariosGrupos as $value){
+                    if(isset($value->permisos)){
+                        foreach(json_decode($value->permisos, true) as $k => $v){
+                            if($v==1){
+                                if(!array_key_exists($k, $permiso)) {
+                                    $permiso[$k] = $v;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            $data->permisos_grupos = json_encode($permiso);
+            return Response::json(array("status" => 200, "messages" => "Operación realizada con exito", "data" => $data), 200);
+        }
+    }
 
     /**
      * Elimine el registro especificado del la base de datos (softdelete).

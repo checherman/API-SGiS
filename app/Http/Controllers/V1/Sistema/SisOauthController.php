@@ -38,22 +38,22 @@ use App\Models\Sistema\SucursalConfiguracion;
 */
 class SisOauthController extends Controller {
 
-	/**
-	 * Renueva el token de acceso si ya caduco
-	 *
-	 * <h4>Input</h4>
-	 * Recibe un input request con el refresh_token
-	 *
-	 * @return Response
-	 * <code style="color:green"> Respuesta Ok json(array("access_token": "token", "access_token": "token"),status) </code>
-	 * <code> Respuesta Error json(array(error), status) </code>
-	*/
-	public function refreshToken(Request $request){
+    /**
+     * Renueva el token de acceso si ya caduco
+     *
+     * <h4>Input</h4>
+     * Recibe un input request con el refresh_token
+     *
+     * @return Response
+     * <code style="color:green"> Respuesta Ok json(array("access_token": "token", "access_token": "token"),status) </code>
+     * <code> Respuesta Error json(array(error), status) </code>
+     */
+    public function refreshToken(Request $request){
         try{
             $token =  JWTAuth::parseToken()->refresh();
             return response()->json(['access_token' => $token], 200);
         } catch (TokenExpiredException $e) {
-            return response()->json(['error' => 'token_expirado'], 401);  
+            return response()->json(['error' => 'token_expirado'], 401);
         } catch (JWTException $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
@@ -130,20 +130,32 @@ class SisOauthController extends Controller {
 	        //Encriptamos el refresh token para que no quede 100% expuesto en la aplicacion web
 			if($disponible_oaut)
 	        	$refresh_token_encrypted = Crypt::encrypt($api_response->refresh_token);
-			
-	       	//validar cuenta y grupos
-	        $permiso=[]; 
-	       	if(isset($data->SisUsuariosGrupos)){
-				foreach($data->SisUsuariosGrupos as $value){
-					if(isset($value->permisos))
-					foreach(json_decode($value->permisos, true) as $k => $v){
-						if($v==1){
-							if(!in_array($k, $permiso))
-								array_push($permiso, $k);
-						}
-					}
-				}
-			}
+
+            $permiso = []; $permisos_individuales = [];
+            // verificar si no tiene permisos individuales
+            if($data->permisos != ''){
+                foreach(json_decode($data->permisos, true) as $k => $v){
+                    if($v==1){
+                        if(!in_array($k, $permisos_individuales)) {
+                            array_push($permisos_individuales, $k);
+                        }
+                    }
+                }
+            }
+            // validar cuenta y grupos
+            if(isset($data->SisUsuariosGrupos)){
+                foreach($data->SisUsuariosGrupos as $value){
+                    if(isset($value->permisos))
+                        foreach(json_decode($value->permisos, true) as $k => $v){
+                            if($v==1){
+                                if(!in_array($k, $permiso)) {
+                                    array_push($permiso, $k);
+                                }
+                            }
+                        }
+                }
+            }
+            $permisos = array_merge($permiso, $permisos_individuales);
 			
 	        try{
 	        	$claims = [
@@ -580,37 +592,6 @@ class SisOauthController extends Controller {
             	}
         	}		
 
-        	if(property_exists($datos, "sis_usuarios_rfcs")){
-        		$rfcs = array_filter($datos->sis_usuarios_rfcs, function($v){return $v !== null;});
-        		SisUsuariosRfcs::where("sis_usuarios_id", $data->id)->delete();
-        		foreach ($rfcs as $key => $value) {
-        			$value = (object) $value;
-        			if($value != null){
-        				DB::update("update sis_usuarios_rfcs set deleted_at = null where sis_usuarios_id = $id and rfc = '$value->rfc' ");
-        				$item = SisUsuariosRfcs::where("sis_usuarios_id", $data->id)->where("rfc", $value->rfc)->first();
-
-        				if(!$item)
-            				$item = new SisUsuariosRfcs;
-
-            			$item->sis_usuarios_id = $data->id;
-            			$item->tipo_persona    = $value->tipo_persona;
-            			$item->razon_social    = $value->razon_social;
-            			$item->rfc 			   = $value->rfc;
-            			$item->paises_id 	   = $value->paises_id;
-            			$item->estados_id 	   = $value->estados_id;
-            			$item->municipios_id   = $value->municipios_id;
-            			$item->localidad 	   = $value->localidad;
-            			$item->colonia 		   = $value->colonia;
-            			$item->calle 		   = $value->calle;
-            			$item->numero_exterior = $value->numero_exterior;
-            			$item->numero_interior = $value->numero_interior;
-            			$item->codigo_postal   = $value->codigo_postal;
-            			$item->email 		   = $value->email;
-
-            			$item->save();
-            		}
-        		}
-        	}
         	if(property_exists($datos, "sis_usuarios_contactos")){
         		$medios = array_filter($datos->sis_usuarios_contactos, function($v){return $v !== null;});
         		SisUsuariosContactos::where("sis_usuarios_id", $data->id)->delete();
@@ -626,24 +607,6 @@ class SisOauthController extends Controller {
             			$item->sis_usuarios_id = $data->id;
             			$item->tipos_medios_id = $value->tipos_medios_id;
             			$item->valor           = $value->valor;	            			
-
-            			$item->save();
-            		}
-        		}
-        	}
-        	if(property_exists($datos, "user_clients")){
-        		$medios = array_filter($datos->user_clients, function($v){return $v !== null;});
-        		UsersClients::where("user_id", $data->id)->delete();
-        		foreach ($medios as $key => $value) {
-        			
-        			if($value != null){            				
-        				$item = UsersClients::where("user_id", $data->id)->where("client_id", $value)->first();
-
-        				if(!$item)
-            				$item = new UsersClients;
-
-            			$item->user_id     = $data->id;
-            			$item->client_id   = $value;         			
 
             			$item->save();
             		}

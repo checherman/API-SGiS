@@ -230,24 +230,16 @@ class SisGrupoController extends Controller {
                 }
             }
 
-            $grupo = SisGrupo::find($id);
-            $grupo->permisos = null;
-            $temporal = $grupo->permisos;
-            $grupo->save();
-
             $data = SisGrupo::find($id);
+            $borrado = DB::table("sis_grupos")
+                ->where("id", $id)
+                ->update(["permisos" => NULL]);
+
             $data->nombre = $datos->get("nombre");
             $data->permisos = json_encode($permisos);
 
-            if ($data->save()) {
-                if($data->permisos == null){
-                    $restore = SisGrupo::find($id);
-                    $restore->permisos = $temporal;
-                    $restore->save();
-                }
+            if ($data->save())
                 $success = true;
-            }
-
         }
         catch (\Exception $e){
             return Response::json($e->getMessage(), 500);
