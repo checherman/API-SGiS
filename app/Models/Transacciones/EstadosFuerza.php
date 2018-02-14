@@ -22,7 +22,7 @@ class EstadosFuerza extends BaseModel
 
     public function respuesta_estados_fuerza()
     {
-        return $this->hasMany(RespuestasEstadosFuerza::class)->with('cartera_servicios','items');
+        return $this->hasMany(RespuestasEstadosFuerza::class)->with('cartera_servicios', 'items');
     }
 
     public function clues()

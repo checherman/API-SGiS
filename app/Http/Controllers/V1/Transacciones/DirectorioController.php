@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response as HttpResponse;
 
 use App\Http\Requests;
-use App\Models\Sistema\Usuario;
+use App\Models\Sistema\SisUsuario;
 use Illuminate\Support\Facades\Input;
 use \Validator,\Hash, \Response, \DB;
 /**
@@ -33,7 +33,7 @@ class DirectorioController extends Controller
     {
         $parametros = Input::only('q','page','per_page');
         if ($parametros['q']) {
-             $usuarios =  Usuario::with('cargos','clues')->where('su',false)->whereNull('password')
+             $usuarios =  SisUsuario::with('cargos','clues')->where('su',false)->whereNull('password')
                  ->where(function($query) use ($parametros) {
                  $query->where('id','LIKE',"%".$parametros['q']."%")
                      ->orWhere(DB::raw("CONCAT(nombre,' ',paterno,' ',materno)"),'LIKE',"%".$parametros['q']."%");

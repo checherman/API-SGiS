@@ -36,6 +36,11 @@ class AltasIncidencias extends BaseModel
         return $this->belongsTo(Incidencias::class);
     }
 
+    public function visitas_puerperales()
+    {
+        return $this->hasMany(VisitasPuerperales::class);
+    }
+
     public function estados_pacientes()
     {
         return $this->belongsTo(EstadosPacientes::class);

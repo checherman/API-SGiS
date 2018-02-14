@@ -14,7 +14,7 @@ class RespuestasEstadosFuerza extends BaseModel
     public $incrementing = true;
 
     protected $table = "respuestas_estados_fuerza";
-    protected $fillable = ["id", "estados_fuerza_id_id", "cartera_servicios_id", "items_id", "respuesta"];
+    protected $fillable = ["id", "estados_fuerza_id", "cartera_servicios_id", "items_id", "respuesta"];
     protected $hidden = ["updated_at", "deleted_at"];
 
 
