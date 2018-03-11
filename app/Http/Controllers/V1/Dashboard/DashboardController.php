@@ -13,38 +13,70 @@ class DashboardController
         $datos = array();
         $cluesH = Request::header('clues');
 
+        $data = Incidencias::select('incidencias.*');
 
-        //Triage 1.-Verde 2.-Amarillo 3.-Rojo
-        $totalVerde = Incidencias::select('incidencias.*')->with("pacientes.personas", "pacientes.acompaniantes.personas")
-            ->with("movimientos_incidencias", "referencias", "altas_incidencias", "estados_incidencias")->join('movimientos_incidencias', 'movimientos_incidencias.incidencias_id', '=', 'incidencias.id')
-            ->where('movimientos_incidencias.triage_colores_id', 1)
-            ->join('incidencia_clue', 'incidencia_clue.incidencias_id', '=', 'incidencias.id')
-            ->where('incidencia_clue.clues',$cluesH)->count();
+        $data = $data->join('incidencia_clue', 'incidencia_clue.incidencias_id', '=', 'incidencias.id')
+            ->where('incidencia_clue.clues', $cluesH);
 
-        $totalAmarillo = Incidencias::select('incidencias.*')->with("pacientes.personas", "pacientes.acompaniantes.personas")
-            ->with("movimientos_incidencias", "referencias", "altas_incidencias", "estados_incidencias")->join('movimientos_incidencias', 'movimientos_incidencias.incidencias_id', '=', 'incidencias.id')
-            ->where('movimientos_incidencias.triage_colores_id', 2)
-            ->join('incidencia_clue', 'incidencia_clue.incidencias_id', '=', 'incidencias.id')
-            ->where('incidencia_clue.clues',$cluesH)->count();
+        $data = $data->join('movimientos_incidencias as M', 'M.incidencias_id', '=', 'incidencias.id')
+            ->whereNull('M.medico_reporta_id')
+            ->whereNull('M.reporte_medico')
+            ->whereNull('M.indicaciones');
 
-        $totalRojo = Incidencias::select('incidencias.*')->with("pacientes.personas", "pacientes.acompaniantes.personas")
-            ->with("movimientos_incidencias", "referencias", "altas_incidencias", "estados_incidencias")->join('movimientos_incidencias', 'movimientos_incidencias.incidencias_id', '=', 'incidencias.id')
-            ->where('movimientos_incidencias.triage_colores_id', 3)
-            ->join('incidencia_clue', 'incidencia_clue.incidencias_id', '=', 'incidencias.id')
-            ->where('incidencia_clue.clues',$cluesH)->count();
+
+        $data = $data->get();
+
+        $totalVerde = 0;
+        $totalAmarillo = 0;
+        $totalRojo = 0;
+
+        foreach ($data as $d => $value){
+            if($data[$d]->movimientos_incidencias[sizeof($data[$d]->movimientos_incidencias)-1]["triage_colores_id"] == 1){
+                $totalVerde = $totalVerde + 1;
+            }
+            if($data[$d]->movimientos_incidencias[sizeof($data[$d]->movimientos_incidencias)-1]["triage_colores_id"] == 2){
+                $totalAmarillo = $totalAmarillo + 1;
+            }
+            if($data[$d]->movimientos_incidencias[sizeof($data[$d]->movimientos_incidencias)-1]["triage_colores_id"] == 3){
+                $totalRojo = $totalRojo + 1;
+            }
+        }
+        $totalTriage = $totalVerde + $totalAmarillo + $totalRojo;
 
         $triage = array();
         array_push($triage, ['nombre' => 'Verde', 'total' => $totalVerde]);
         array_push($triage, ['nombre' => 'Amarillo', 'total' => $totalAmarillo]);
         array_push($triage, ['nombre' => 'Rojo', 'total' => $totalRojo]);
-
-
-
-
-
-
-
+        array_push($datos, ['totalTriage' => $totalTriage]);
         array_push($datos, ['triage' => $triage]);
+
+
+        $totalMejoria = Incidencias::select('incidencias.*')
+            ->join('incidencia_clue', 'incidencia_clue.incidencias_id', '=', 'incidencias.id')
+            ->where('incidencia_clue.clues', $cluesH)
+            ->join('altas_incidencias as A', 'A.incidencias_id', '=', 'incidencias.id')
+            ->where('A.tipos_altas_id', 1)->count();
+
+        $totalVoluntaria = Incidencias::select('incidencias.*')
+            ->join('incidencia_clue', 'incidencia_clue.incidencias_id', '=', 'incidencias.id')
+            ->where('incidencia_clue.clues', $cluesH)
+            ->join('altas_incidencias as B', 'B.incidencias_id', '=', 'incidencias.id')
+            ->where('B.tipos_altas_id', 2)->count();
+
+        $totalDefunsion = Incidencias::select('incidencias.*')
+            ->join('incidencia_clue', 'incidencia_clue.incidencias_id', '=', 'incidencias.id')
+            ->where('incidencia_clue.clues', $cluesH)
+            ->join('altas_incidencias as C', 'C.incidencias_id', '=', 'incidencias.id')
+            ->where('C.tipos_altas_id', 3)->count();
+
+        $totalAltas = $totalMejoria + $totalVoluntaria + $totalDefunsion;
+
+        $altas = array();
+        array_push($altas, ['nombre' => 'Mejoria', 'total' => $totalMejoria]);
+        array_push($altas, ['nombre' => 'Voluntaria', 'total' => $totalVoluntaria]);
+        array_push($altas, ['nombre' => 'Defunsion', 'total' => $totalDefunsion]);
+        array_push($datos, ['totalAltas' => $totalAltas]);
+        array_push($datos, ['altas' => $altas]);
 
         if (!$datos) {
             return Response::json(array("status" => 404, "messages" => "No hay resultados"), 404);

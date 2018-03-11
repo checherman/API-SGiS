@@ -1,6 +1,7 @@
 <?php namespace App\Models\Sistema;
 
 use App\Models\BaseModel;
+use App\Models\Catalogos\Cargo;
 use App\Models\Catalogos\Clues;
 use App\Models\Catalogos\Localidades;
 use App\Models\Catalogos\Municipios;
@@ -66,5 +67,10 @@ class SisUsuario extends BaseModel {
     public function localidades()
     {
         return $this->belongsTo(Localidades::class);
+    }
+
+    public function cargos()
+    {
+        return $this->belongsTo(Cargo::class);
     }
 }

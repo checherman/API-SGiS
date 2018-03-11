@@ -4,6 +4,7 @@ namespace App;
 namespace App\Models\Transacciones;
 use App\Models\BaseModel;
 
+use App\Models\Catalogos\Clues;
 use App\Models\Catalogos\EstadosPacientes;
 use App\Models\Catalogos\MetodoPlanificacion;
 use App\Models\Catalogos\TiposAltas;
@@ -64,6 +65,14 @@ class AltasIncidencias extends BaseModel
     public function turnos()
     {
         return $this->belongsTo(Turnos::class);
+    }
+
+    public function CluesContrarefiereO(){
+        return $this->belongsTo(Clues::class,'clues_contrarefiere','clues');
+    }
+
+    public function CluesRegresaO(){
+        return $this->belongsTo(Clues::class,'clues_regresa','clues');
     }
 
 }

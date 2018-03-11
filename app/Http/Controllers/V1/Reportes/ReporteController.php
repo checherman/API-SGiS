@@ -9,6 +9,7 @@ use App\Models\Catalogos\NivelesCones;
 use App\Models\Transacciones\EstadosFuerza;
 use App\Models\Transacciones\Incidencias;
 use Illuminate\Support\Facades\DB;
+use PhpParser\Node\Expr\Cast\Object_;
 use \Validator,\Hash, \Response;
 use Request;
 
@@ -33,10 +34,10 @@ class ReporteController extends ExportController {
         //Movimientos
         if(array_key_exists('color_triage', $datos) && $datos['color_triage'] != ""){
             $data = $data->join('movimientos_incidencias as A', 'A.incidencias_id', '=', 'incidencias.id')
-                         ->where('A.triage_colores_id', $datos['color_triage'])
-                         ->whereNull('A.medico_reporta_id')
-                         ->whereNull('A.reporte_medico')
-                         ->whereNull('A.indicaciones');
+                ->where('A.triage_colores_id', $datos['color_triage'])
+                ->whereNull('A.medico_reporta_id')
+                ->whereNull('A.reporte_medico')
+                ->whereNull('A.indicaciones');
 
         }
 
@@ -68,6 +69,16 @@ class ReporteController extends ExportController {
         $total = $data->get();
         $data = $data->get();
 
+
+        //foreach ($data as $d => $value){
+        //    var_dump($data[$d]->movimientos_incidencias[sizeof($data[$d]->movimientos_incidencias)-1]["triage_colores_id"]);
+
+        //    if($data[$d]->movimientos_incidencias[sizeof($data[$d]->movimientos_incidencias)-1]["triage_colores_id"] == $datos['color_triage']){
+        //        var_dump("dfsd");
+        //    }
+        //}
+        //die;
+
         if(!$data){
             return Response::json(array("status" => 404, "messages" => "No hay resultados"), 404);
         }
@@ -87,11 +98,6 @@ class ReporteController extends ExportController {
         if(array_key_exists('fecha_inicio', $datos) && $datos['fecha_inicio'] != ""  && array_key_exists('fecha_fin', $datos) && $datos['fecha_fin'] != ""){
             $data = $data->whereBetween('incidencias.created_at', array($datos['fecha_inicio'], $datos['fecha_fin']));
         }
-
-        //if(array_key_exists('clues', $datos) && $datos['clues'] != ""){
-            //$data = $data->join('incidencia_clue', 'incidencia_clue.incidencias_id', '=', 'incidencias.id')
-                //->where('incidencia_clue.clues', $datos['clues']);
-        //}
 
 
         //Referencias
@@ -167,67 +173,8 @@ class ReporteController extends ExportController {
     public function estadoFuerza(){
         $datos = Request::all();
 
-
-
-
-        $nivelCONE = Clues::select("nivel_cone_id")->where('clues', $datos['clues'])->first();
-        $nivelesCones = NivelesCones::find($nivelCONE->nivel_cone_id);
-
-
-        $ahora = date("Y-m-d h:i:s");
-        $data = collect();
-        $data->put('clues', "");
-        $data->put('sis_usuarios_id', "");
-        $data->put('turnos_id', "");
-        $data->put('created_at', $ahora);
-        $data->put('usuario', "");
-
-        $carteraServicios = $nivelesCones->carteraServicio()->with("items")->get();
-
-        $data->put('cartera_servicios', $carteraServicios);
-
-        //foreach ($data as $key => $value) {
-            //$respuestas_estados_fuerza = DB::table('respuestas_estados_fuerza')->where('estados_fuerza_id', $value->id)->first();
-            //$value->respuestas_estados_fuerza = $respuestas_estados_fuerza->respuesta;
-        //}
-
-
-
-        foreach ($data['cartera_servicios'] as $key => $value) {
-            foreach ($value->items as $keyI => $item) {
-                $respuestas_estados_fuerza = DB::table('respuestas_estados_fuerza')->where('items_id', $item->id)->get();
-                foreach($respuestas_estados_fuerza as $respuestaEstado => $respuesta_item){
-                    //dd($respuesta_item->respuesta);
-                    $item->respuesta = $respuesta_item->respuesta;
-                }
-                //dd($respuestas_estados_fuerza["respuesta"]);
-
-                //$item->respuesta = "";
-            }
-        }
-
-
-
-        $total = $data;
-        //$data = $data->get();
-
-
-        if(!$data){
-            return Response::json(array("status" => 404, "messages" => "No hay resultados"), 404);
-        }
-        else{
-            return Response::json(array("status" => 200, "messages" => "Operación realizada con exito", "data" => $data, "total" => count($total)), 200);
-
-        }
-    }
-
-    public function estadoFuerzaLeve(){
-
-        //--------------------------------------
-        $datos = Request::all();
-
         $data = EstadosFuerza::select('estados_fuerza.*')
-            ->with("clues", "turnos", "sis_usuarios","respuesta_estados_fuerza");
+            ->with("clues", "turnos", "sis_usuarios");
 
         if(array_key_exists('fecha_inicio', $datos) && $datos['fecha_inicio'] != ""  && array_key_exists('fecha_fin', $datos) && $datos['fecha_fin'] != ""){
             $data = $data->whereBetween('estados_fuerza.created_at', array($datos['fecha_inicio'], $datos['fecha_fin']));
@@ -241,13 +188,30 @@ class ReporteController extends ExportController {
             $data = $data->where('turnos_id', $datos['turnos']);
         }
 
-        $total = $data->get();
+        $nivelCONE = Clues::select("nivel_cone_id")->where('clues', $datos['clues'])->first();
+        $nivelesCones = NivelesCones::find($nivelCONE->nivel_cone_id);
+        $carteraServicios = $nivelesCones->carteraServicio()->with("items")->get();
+
         $data = $data->get();
 
-        //foreach ($data as $key => $value) {
-        //$respuestas_estados_fuerza = DB::table('respuestas_estados_fuerza')->where('estados_fuerza_id', $value->id)->first();
-        //$value->respuestas_estados_fuerza = $respuestas_estados_fuerza->respuesta;
-        //}
+        foreach ($data as $key => $value) {
+            $value->cartera_servicios = $carteraServicios;
+            foreach($value->cartera_servicios as $keyCartera => $valueCartera){
+                foreach ($valueCartera->items as $keyI => $item) {
+
+                    $itemG = DB::table('respuestas_estados_fuerza')
+                                ->where('estados_fuerza_id', $value->id)
+                                ->where('cartera_servicios_id', $valueCartera->id)
+                                ->where('items_id', $item->id)->first();
+
+                    $item->respuesta = $itemG->respuesta;
+                }
+
+            }
+        }
+
+
+        $total = $data;
 
 
         if(!$data){
@@ -257,7 +221,7 @@ class ReporteController extends ExportController {
             return Response::json(array("status" => 200, "messages" => "Operación realizada con exito", "data" => $data, "total" => count($total)), 200);
 
         }
-    }
 
+    }
 
 }

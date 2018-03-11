@@ -813,6 +813,7 @@ class IncidenciaController extends Controller
         $data->impresion_diagnostica = $datos['impresion_diagnostica'];
         $data->estados_incidencias_id = $datos['estados_incidencias_id'];
 
+
         if ($data->save()){
             $datos = (object) $datos;
             //verificar si existe paciente, en caso de que exista proceder a guardarlo
@@ -876,6 +877,8 @@ class IncidenciaController extends Controller
                                         DB::insert("insert into incidencia_clue (incidencias_id, clues) VALUE ('$data->id', '$datos->clues')");
                                         DB::insert("insert into incidencia_paciente (incidencias_id, pacientes_id) VALUE ('$data->id', '$paciente->id')");
                                     }else{
+                                        //dd();
+                                        //DB::insert("insert into incidencia_clue (incidencias_id, clues) VALUE ('$data->id', '$datos->clues')");
                                         //DB::update("update incidencia_clue set clues = '$datos->clues' where incidencias_id = '$data->id' and motivo_ingreso = '$data->motivo_ingreso' and impresion_diagnostica = '$data->impresion_diagnostica' ");
                                     }
                                 }
@@ -1115,6 +1118,10 @@ class IncidenciaController extends Controller
                             $referencia->clues_destino                  = is_array($valueReferencia->clues_destino)?$valueReferencia->clues_destino['clues']:$valueReferencia->clues_destino;
 
                             if($referencia->save()){
+                                if (!$valuePaciente->id == null || !$valuePaciente->id == "") {
+                                    DB::insert("insert into incidencia_clue (incidencias_id, clues) VALUE ('$data->id', '$referencia->clues_destino')");
+                                }
+
                                 //verificar si existe multimedias, en caso de que exista proceder a guardarlo
                                 if(property_exists($valueReferencia, "multimedias")){
                                     $medios = array_filter($valueReferencia->multimedias, function($v){return $v !== null;});
@@ -1222,13 +1229,21 @@ class IncidenciaController extends Controller
             if(!$referencia == null){
                 $tipo = 3;
 
-                $cluesOrigen = Clues::where("clues", $referencia->clues_origen)->first();
-                $cluesDestino = Clues::where("clues", $referencia->clues_destino)->first();
+                $cluesOrigen = Clues::select("abreviacion", "nombre")->where("clues", $referencia->clues_origen)->first();
+                $cluesDestino = Clues::select("abreviacion", "nombre")->where("clues", $referencia->clues_destino)->first();
 
-                $mensajeSMS = "REFERENCIA. ". $detallePacientes[0]["personas"]["nombre"] . " " . $detallePacientes[0]["personas"]["paterno"] . " " . $detallePacientes[0]["personas"]["materno"] ." de ". $cluesOrigen->nombre ." -> ". $cluesDestino->nombre . ", triage: " . $triage->nombre;
+                if(!$clues->abreviacion == NULL){
+                    $mensajeSMS = "Referencia. ". $detallePacientes[0]["personas"]["nombre"] . " " . $detallePacientes[0]["personas"]["paterno"] . " " . $detallePacientes[0]["personas"]["materno"] ." de ". $cluesOrigen->abreviacion ." -> ". $cluesDestino->abreviacion . ", triage: " . $triage->nombre;
+                    $mensaje->put('mensaje', $usuarioActual->nombre." realizo una referencia del folio ". $data->id. " de (" . $cluesOrigen->clues . ")-" . $cluesOrigen->nombre  . " a (". $cluesOrigen->clues . ")-" . $cluesOrigen->nombre);
+
+                }else{
+                    $mensajeSMS = "Referencia. ". $detallePacientes[0]["personas"]["nombre"] . " " . $detallePacientes[0]["personas"]["paterno"] . " " . $detallePacientes[0]["personas"]["materno"] ." de ". $cluesOrigen->nombre ." -> ". $cluesDestino->nombre . ", triage: " . $triage->nombre;
+                    $mensaje->put('mensaje', $usuarioActual->nombre." realizo una referencia del folio ". $data->id. " de (" . $cluesOrigen->clues . ")-" . $cluesOrigen->nombre  . " a (". $cluesOrigen->clues . ")-" . $cluesOrigen->nombre);
+
+                }
+
 
                 $mensaje->put('titulo', "Referencia de la paciente " . $detallePacientes[0]["personas"]["nombre"] . " " . $detallePacientes[0]["personas"]["paterno"] . " " . $detallePacientes[0]["personas"]["materno"]);
-                $mensaje->put('mensaje', $usuarioActual->nombre." realizo una referencia del folio ". $data->id. " de (" . $cluesOrigen->clues . ")-" . $cluesOrigen->nombre  . " a (". $cluesOrigen->clues . ")-" . $cluesOrigen->nombre);
                 $mensaje->put('created_at', date('Y-m-d H:i:s'));
                 $mensaje->put('enviado', null);
                 $mensaje->put('leido', null);
@@ -1236,19 +1251,27 @@ class IncidenciaController extends Controller
                 $mensaje->put('referencias', $referencia);
             }
 
-            if(!$altas_incidencias == null){
-                $tipo = 4;
+            //if(!$altas_incidencias == null){
+                //$tipo = 4;
 
-                $mensajeSMS = "Se dio de alta a la paciente ". $detallePacientes[0]["personas"]["nombre"] . " " . $detallePacientes[0]["personas"]["paterno"] . " " . $detallePacientes[0]["personas"]["materno"] . " en " . $clues->nombre;
+                //if(!$clues->abreviacion == NULL){
+                    //$mensajeSMS = "Se dio de alta a la paciente ". $detallePacientes[0]["personas"]["nombre"] . " " . $detallePacientes[0]["personas"]["paterno"] . " " . $detallePacientes[0]["personas"]["materno"] . " en " . $clues->abreviacion;
+                //}else{
+                    //$mensajeSMS = "Se dio de alta a la paciente ". $detallePacientes[0]["personas"]["nombre"] . " " . $detallePacientes[0]["personas"]["paterno"] . " " . $detallePacientes[0]["personas"]["materno"] . " en " . $clues->nombre;
+                //}
 
-                $mensaje->put('titulo', "Se dio de alta a la paciente ". $detallePacientes[0]["personas"]["nombre"] . " " . $detallePacientes[0]["personas"]["paterno"] . " " . $detallePacientes[0]["personas"]["materno"]);
-                $mensaje->put('mensaje', $usuarioActual->nombre." reporto una alta del folio ". $data->id);
-                $mensaje->put('created_at', date('Y-m-d H:i:s'));
-                $mensaje->put('enviado', null);
-                $mensaje->put('leido', null);
+                //if($data->estados_incidencias_id == 5){
+                    //$mensajeSMS = $mensajeSMS . ", requiere visita puerperal";
+                //}
 
-                $mensaje->put('altas_incidencias', $altas_incidencias);
-            }
+                //$mensaje->put('titulo', "Se dio de alta a la paciente ". $detallePacientes[0]["personas"]["nombre"] . " " . $detallePacientes[0]["personas"]["paterno"] . " " . $detallePacientes[0]["personas"]["materno"]);
+                //$mensaje->put('mensaje', $usuarioActual->nombre." reporto una alta del folio ". $data->id);
+                //$mensaje->put('created_at', date('Y-m-d H:i:s'));
+                //$mensaje->put('enviado', null);
+                //$mensaje->put('leido', null);
+
+                //$mensaje->put('altas_incidencias', $altas_incidencias);
+            //}
 
             //Notificaciones
             $notificacion = new Notificaciones;

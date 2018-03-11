@@ -1024,15 +1024,15 @@ class VisitaPuerperalController extends Controller
                                         $valueVisita = (object) $valueVisita;
 
                                     //comprobar que el dato que se envio no exista o este borrado, si existe y esta borrado poner en activo nuevamente
-                                    if(property_exists($valueVisita, "id")){
+                                    if(!$valueVisita->id == null || !$valueVisita->id == ""){
                                         DB::update("update visitas_puerperales set deleted_at = null where id = '$valueVisita->id' and altas_incidencias_id = '$value->id' ");
                                         //si existe actualizar
                                         $visita_puerperio = VisitasPuerperales::where("id", $valueVisita->id)->where("altas_incidencias_id", $value->id)->first();
                                     }else
                                         $visita_puerperio = new VisitasPuerperales;
 
-
                                     $visita_puerperio->altas_incidencias_id            = $value->id;
+
 
                                     $visita_puerperio->fecha_visita                    = $valueVisita->fecha_visita;
                                     $visita_puerperio->seAtendio                       = $valueVisita->seAtendio;

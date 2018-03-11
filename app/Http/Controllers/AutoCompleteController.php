@@ -5,11 +5,13 @@ namespace App\Http\Controllers;
 use App\Http\Requests;
 use App\Models\Catalogos\Jurisdicciones;
 use App\Models\Catalogos\Clues;
+use App\Models\Catalogos\NivelesCones;
 use App\Models\Catalogos\SubCategoriasCie10;
 use App\Models\Sistema\Permiso;
 
 use App\Models\Sistema\SisUsuario;
 use App\Models\Transacciones\Acompaniantes;
+use App\Models\Transacciones\EstadosFuerza;
 use App\Models\Transacciones\Personas;
 use Illuminate\Support\Facades\Input;
 use \Validator,\Hash, \Response;
@@ -50,12 +52,68 @@ class AutoCompleteController extends ApiController
     {
         $parametros = Input::only('term');
 
-        $data =  Clues::with('jurisdicciones')->where(function($query) use ($parametros) {
-            $query->where('clues','LIKE',"%".$parametros['term']."%")
-                ->orWhere('nombre','LIKE',"%".$parametros['term']."%");
-        });
+        $data =  Clues::with('jurisdicciones')
+            ->where("activo", 1)
+            ->where(function($query) use ($parametros) {
+                $query->where('clues','LIKE',"%".$parametros['term']."%")
+                      ->orWhere('nombre','LIKE',"%".$parametros['term']."%");
+            });
 
         $data = $data->get();
+        return $this->respuestaVerTodo($data);
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function clues_fuerza()
+    {
+        $parametros = Input::only('term');
+
+        $data =  Clues::with('jurisdicciones')
+            ->where("activo", 1)
+            ->where(function($query) use ($parametros) {
+                $query->where('clues','LIKE',"%".$parametros['term']."%")
+                    ->orWhere('nombre','LIKE',"%".$parametros['term']."%");
+            });
+
+
+        $data = $data->get();
+        foreach ($data as $keyData => $valueData) {
+            $estadofuerza = EstadosFuerza::select('estados_fuerza.*')->where("clues", $valueData->clues)
+                ->orderBy('created_at', 'desc')->first();
+
+            if($valueData->nivel_cone_id && $estadofuerza){
+
+                $valueData->estado_fuerza = $estadofuerza;
+
+                $nivelCONE = Clues::select("nivel_cone_id")->where('clues', $valueData->clues)->first();
+                $nivelesCones = NivelesCones::find($nivelCONE->nivel_cone_id);
+                $carteraServicios = $nivelesCones->carteraServicio()->with("items")->get();
+
+
+                $valueData->estado_fuerza->cartera_servicios = $carteraServicios;
+                foreach($valueData->estado_fuerza->cartera_servicios as $keyCartera => $valueCartera){
+                        foreach ($valueCartera->items as $keyI => $item) {
+
+                            $itemG = DB::table('respuestas_estados_fuerza')
+                                ->where('estados_fuerza_id', $valueData->estado_fuerza->id)
+                                ->where('cartera_servicios_id', $valueCartera->id)
+                                ->where('items_id', $item->id)->first();
+
+                            $item->respuesta = $itemG->respuesta;
+                        }
+
+                    }
+
+            }else{
+                $valueData->estado_fuerza = "";
+            }
+
+        }
+
         return $this->respuestaVerTodo($data);
     }
 
@@ -124,7 +182,7 @@ class AutoCompleteController extends ApiController
     {
         $parametros = Input::only('term');
 
-        $data =  SisUsuario::where(function($query) use ($parametros) {
+        $data =  SisUsuario::with("SisUsuariosGrupos", "SisUsuariosContactos")->where(function($query) use ($parametros) {
             $query->where('nombre','LIKE',"%".$parametros['term']."%")
                 ->orWhere('username','LIKE',"%".$parametros['term']."%");
         });

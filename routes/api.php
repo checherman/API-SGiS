@@ -20,6 +20,7 @@ Route::post("/v1/html-pdf", 	 "V1\ExportController@setHTML");
 //Autocomplete
 Route::get('/v1/grupo-permiso',             'AutoCompleteController@grupo_permiso');
 Route::get('/v1/clues-auto',                'AutoCompleteController@clues');
+Route::get('/v1/clues-fuerza-auto',         'AutoCompleteController@clues_fuerza');
 Route::get('/v1/jurisdiccion-clues',        'AutoCompleteController@jurisdiccion_clues');
 Route::get('/v1/personas-auto',             'AutoCompleteController@personas');
 Route::get('/v1/subcategoriascie10-auto',   'AutoCompleteController@subcategoriascie10');

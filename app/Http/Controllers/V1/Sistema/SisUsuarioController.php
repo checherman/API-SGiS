@@ -83,7 +83,7 @@ class SisUSuarioController extends Controller {
 			if(array_key_exists("buscar", $datos)){
 				$columna = $datos["columna"];
 				$valor   = $datos["valor"];
-				$data = SisUSuario::with("SisUsuariosGrupos", "SisUsuariosContactos")->orderBy($order, $orden);
+				$data = SisUSuario::where("activo",1)->with("SisUsuariosGrupos", "SisUsuariosContactos")->orderBy($order, $orden);
 				
 				$search = trim($valor);
 				$keyword = $search;
@@ -98,11 +98,11 @@ class SisUSuarioController extends Controller {
 				$data = $data->skip($pagina-1)->take($datos["limite"])->get();
 			}
 			else{
-				$data = SisUSuario::with("SisUsuariosGrupos", "SisUsuariosContactos")->skip($pagina-1)->take($datos["limite"])->orderBy($order, $orden);
+				$data = SisUSuario::where("activo",1)->with("SisUsuariosGrupos", "SisUsuariosContactos")->skip($pagina-1)->take($datos["limite"])->orderBy($order, $orden);
 				if(!$usuario->es_super)
 					$data = $data->whereIn("es_super", 0);
 				$data = $data->get();
-				$total =  SisUSuario::with("SisUsuariosGrupos", "SisUsuariosContactos");
+				$total =  SisUSuario::where("activo",1)->with("SisUsuariosGrupos", "SisUsuariosContactos");
 				if(!$usuario->es_super)
 					$total = $total->whereIn("es_super", 0);
 				$total = $total->get();
@@ -110,7 +110,7 @@ class SisUSuarioController extends Controller {
 			
 		}
 		else{
-			$data = SisUSuario::with("SisUsuariosGrupos", "SisUsuariosContactos");
+			$data = SisUSuario::where("activo",1)->with("SisUsuariosGrupos", "SisUsuariosContactos");
 			if(!$usuario->es_super)
 					$data = $data->whereIn("es_super", 0);
 			$data = $data->get();
@@ -231,6 +231,7 @@ class SisUSuarioController extends Controller {
 		$data->localidades_id 	 = property_exists($datos, "localidades_id") 	? $datos->localidades_id 		: $data->localidades_id;
 		$data->estados_id 		 = property_exists($datos, "estados_id") 		? $datos->estados_id 			: $data->estados_id;
 		$data->municipios_id 	 = property_exists($datos, "municipios_id") 	? $datos->municipios_id 		: $data->municipios_id;
+		$data->cargos_id 	     = property_exists($datos, "cargos_id") 	    ? $datos->cargos_id 		    : $data->cargos_id;
 
         if($datos->permisos != ''){
             if(count($datos->permisos) > 0) {
@@ -314,7 +315,7 @@ class SisUSuarioController extends Controller {
 	 * <code> Respuesta Error json(array("status": 404, "messages": "No hay resultados"),status) </code>
 	 */
     public function show($id){
-        $data = SisUSuario::with("SisUsuariosGrupos","municipios","localidades", "SisUsuariosContactos", "SisUsuariosClues", "SisUsuariosNotificaciones")->find($id);
+        $data = SisUsuario::with("SisUsuariosGrupos", "cargos", "municipios", "localidades", "SisUsuariosContactos", "SisUsuariosClues", "SisUsuariosNotificaciones")->find($id);
 
         if(!$data){
             return Response::json(array("status"=> 404,"messages" => "No hay resultados"),404);
