@@ -9,7 +9,7 @@ use App\Models\Catalogos\NivelesCones;
 use App\Models\Transacciones\EstadosFuerza;
 use App\Models\Transacciones\Incidencias;
 use Illuminate\Support\Facades\DB;
-use PhpParser\Node\Expr\Cast\Object_;
+
 use \Validator,\Hash, \Response;
 use Request;
 
@@ -128,11 +128,12 @@ class ReporteController extends ExportController {
         $datos = Request::all();
 
         $data = Incidencias::select('incidencias.*')->with("pacientes.personas", "pacientes.acompaniantes.personas")
-            ->with("movimientos_incidencias", "referencias", "altas_incidencias", "estados_incidencias");
+            ->with("referencias", "altas_incidencias", "estados_incidencias");
 
 
         if(array_key_exists('fecha_inicio', $datos) && $datos['fecha_inicio'] != ""  && array_key_exists('fecha_fin', $datos) && $datos['fecha_fin'] != ""){
-            $data = $data->whereBetween('incidencias.created_at', array($datos['fecha_inicio'], $datos['fecha_fin']));
+            $data = $data->join('altas_incidencias', 'altas_incidencias.incidencias_id', '=', 'incidencias.id')
+                ->whereBetween('altas_incidencias.created_at', array($datos['fecha_inicio'], $datos['fecha_fin']));
         }
 
         if(array_key_exists('clues', $datos) && $datos['clues'] != ""){

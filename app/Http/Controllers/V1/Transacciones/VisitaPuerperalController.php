@@ -2,26 +2,20 @@
 
 namespace App\Http\Controllers\V1\Transacciones;
 
-use App\Events\NotificacionEvent;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
-use App\Models\Catalogos\SubCategoriasCie10;
-use App\Models\Catalogos\TriageColores;
-use App\Models\Sistema\Notificaciones;
-use App\Models\Sistema\NotificacionesUsuarios;
-use App\Models\Sistema\SisUsuariosNotificaciones;
+
 use App\Models\Transacciones\VisitasPuerperales;
 use DateTime;
 use Illuminate\Http\Response as HttpResponse;
 
 use Request;
-use Tymon\JWTAuth\Facades\JWTAuth;
+
 use \Validator,\Hash, \Response, \DB;
 use Illuminate\Support\Facades\Input;
 
-use App\Models\Catalogos\Clues;
-use App\Models\Sistema\Multimedias;
-use App\Models\Sistema\SisUsuario;
+use Carbon\Carbon;
+
 use App\Models\Transacciones\AltasIncidencias;
 
 use App\Models\Transacciones\Incidencias;
@@ -29,8 +23,6 @@ use App\Models\Transacciones\Pacientes;
 use App\Models\Transacciones\Responsables;
 use App\Models\Transacciones\Personas;
 use App\Models\Transacciones\Acompaniantes;
-use App\Models\Transacciones\MovimientosIncidencias;
-use App\Models\Transacciones\Referencias;
 
 /**
  * Controlador Incidencia
@@ -161,6 +153,9 @@ class VisitaPuerperalController extends Controller
                     ->with("pacientes.personas","pacientes.acompaniantes.personas")
                     ->with("altas_incidencias", "estados_incidencias");
 
+                $data = $data->join('altas_incidencias', 'altas_incidencias.incidencias_id', '=', 'incidencias.id')
+                    ->whereBetween('altas_incidencias.created_at', array(Carbon::now()->subDays(10)->toDateString(), Carbon::now()->toDateString()));
+
                 if(!$edoIncidencia == null){
                     $data = $data->join('incidencia_clue', 'incidencia_clue.incidencias_id', '=', 'incidencias.id')
                         ->where('incidencia_clue.clues',$cluesH)
@@ -198,6 +193,20 @@ class VisitaPuerperalController extends Controller
 
             $value->antiguedad = $antiguedad;
         }
+
+        foreach ($data as $key => $value) {
+            foreach ($value->pacientes as $keyPaciente => $valuePaciente){
+                $dt = Carbon::parse($valuePaciente->personas->fecha_nacimiento);
+                $anioNacimiento = $dt->year;
+                $mesNacimiento = $dt->month;
+                $diaNacimiento = $dt->day;
+
+                $edad = Carbon::createFromDate($anioNacimiento,$mesNacimiento,$diaNacimiento)->age;
+                $valuePaciente->personas->edad = $edad;
+            }
+        }
+
+
 
         if(!$data){
             return Response::json(array("status" => 404,"messages" => "No hay resultados"), 404);
@@ -377,6 +386,16 @@ class VisitaPuerperalController extends Controller
                 $antiguedad = $this->obtenerAntiguedad($diff);
 
                 $value->antiguedad = $antiguedad;
+            }
+
+            foreach ($data->pacientes as $key => $value) {
+                $dt = Carbon::parse($value->personas->fecha_nacimiento);
+                $anioNacimiento = $dt->year;
+                $mesNacimiento = $dt->month;
+                $diaNacimiento = $dt->day;
+
+                $edad = Carbon::createFromDate($anioNacimiento,$mesNacimiento,$diaNacimiento)->age;
+                $value->personas->edad = $edad;
             }
 
             if(count($data->referencias) >= 1){
@@ -971,42 +990,6 @@ class VisitaPuerperalController extends Controller
                         $altas_incidencias->instrucciones_recomendaciones    = $value->instrucciones_recomendaciones;
 
                         if($altas_incidencias->save()){
-                            if(property_exists($value, "multimedias")){
-                                $medios = array_filter($value->multimedias, function($v){return $v !== null;});
-                                Multimedias::where("altas_incidencias_id", $altas_incidencias->id)->delete();
-
-                                foreach ($medios as $key => $value) {
-                                    //validar que el valor no sea null
-                                    if($value != null){
-                                        //comprobar si el value es un array, si es convertirlo a object mas facil para manejar.
-                                        if(is_array($value))
-                                            $value = (object) $value;
-                                        //comprobar que el dato que se envio no exista o este borrado, si existe y esta borrado poner en activo nuevamente
-                                        if(property_exists($value, "id")) {
-                                            DB::update("update multimedias set deleted_at = null where id = $value->id and altas_incidencias_id = $altas_incidencias->id");
-                                            //si existe actualizar
-                                            $multimedia = Multimedias::where("id", $value->id)->where("altas_incidencias_id", $altas_incidencias->id)->first();
-
-                                            $multimedia->altas_incidencias_id             = $altas_incidencias->id;
-                                            $multimedia->tipo                             = "imagen";
-                                            $multimedia->url                              = $value->url;
-                                            $multimedia->save();
-                                        }else{
-                                            foreach($value as $img){
-                                                $multimedia = new Multimedias;
-
-                                                $multimedia->altas_incidencias_id             = $altas_incidencias->id;
-                                                $multimedia->tipo                             = "imagen";
-                                                $multimedia->url                              = $this->convertir_imagen($img["foto"], 'contrareferencias', $altas_incidencias->id);
-
-                                                $multimedia->save();
-                                            }
-
-                                        }
-                                    }
-                                }
-                            }
-
                             if(property_exists($value, "visitas_puerperales")){
                                 //limpiar el arreglo de posibles nullos
                                 $detalleVisitas = array_filter($value->visitas_puerperales, function($v){return $v !== null;});
@@ -1033,7 +1016,6 @@ class VisitaPuerperalController extends Controller
 
                                     $visita_puerperio->altas_incidencias_id            = $value->id;
 
-
                                     $visita_puerperio->fecha_visita                    = $valueVisita->fecha_visita;
                                     $visita_puerperio->seAtendio                       = $valueVisita->seAtendio;
                                     $visita_puerperio->porque                          = $valueVisita->porque;
@@ -1049,52 +1031,6 @@ class VisitaPuerperalController extends Controller
 
             }
 
-        }
-    }
-
-    /**
-     * @api /incidencias 8.convertir_imagen
-     * @apiVersion 1.0.0
-     * @apiName IncidenciaAgregarDatos
-     * @apiGroup Transaccion/IncidenciaController
-     * @apiPermission Admin
-     *
-     * @apiDescription Metodo convertir_imagen.
-     *
-     * @apiParam {json} data datos del Modelo.
-     * @apiParam {string} nombre nombre.
-     * @apiParam {string} i.
-     *
-     *
-     * @apiSuccess {json} data datos del objeto que se va a crear.
-     * @apiSuccessExample {json} Success-Response:
-     *     {
-     *        "data": {
-     *           ...
-     *        }
-     *     }
-     *
-     */
-    public function convertir_imagen($data, $nombre, $i){
-        try{
-
-            $data = base64_decode($data);
-            $im = imagecreatefromstring($data);
-
-            if ($im !== false) {
-                $time = time().rand(11111, 99999);
-                $name = $nombre.$i."_".$time.".jpeg";
-                header('Content-Type: image/pjpeg');
-                imagejpeg($im, public_path() ."/adjunto/".$nombre."/".$name);
-                imagedestroy($im);
-                return $name;
-            }
-            else {
-                return null;
-            }
-        }catch (\Exception $e) {
-
-            return \Response::json(["error" => $e->getMessage(), "nombre" => $nombre], 400);
         }
     }
 }

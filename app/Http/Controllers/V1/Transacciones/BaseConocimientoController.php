@@ -80,7 +80,7 @@ class BaseConocimientoController extends Controller
             if(array_key_exists('buscar', $datos)){
                 $columna = $datos['columna'];
                 $valor   = $datos['valor'];
-                $data = BaseConocimientos::with("triageColor","estados_pacientes","subCategoriaCie10","ubicaciones_pacientes")->orderBy($order,$orden);
+                $data = BaseConocimientos::with("triageColor","estados_pacientes","subCategoriaCie10")->orderBy($order,$orden);
 
                 $search = trim($valor);
                 $keyword = $search;
@@ -93,13 +93,13 @@ class BaseConocimientoController extends Controller
                 $data = $data->skip($pagina-1)->take($datos['limite'])->get();
             }
             else{
-                $data = BaseConocimientos::with("triageColor","estados_pacientes","subCategoriaCie10","ubicaciones_pacientes")->skip($pagina-1)->take($datos['limite'])->orderBy($order, $orden)->get();
+                $data = BaseConocimientos::with("triageColor","estados_pacientes","subCategoriaCie10")->skip($pagina-1)->take($datos['limite'])->orderBy($order, $orden)->get();
                 $total = BaseConocimientos::all();
             }
 
         }
         else{
-            $data = BaseConocimientos::with("triageColor","estados_pacientes","subCategoriaCie10","ubicaciones_pacientes")->get();
+            $data = BaseConocimientos::with("triageColor","estados_pacientes","subCategoriaCie10")->get();
             $total = $data;
         }
 
@@ -130,7 +130,7 @@ class BaseConocimientoController extends Controller
             'proceso'       => 'required'
         ];
 
-        $inputs = Input::only('proceso', 'triage_colores_id', 'subcategorias_cie10_id', 'ubicaciones_pacientes_id', 'estados_pacientes_id');
+        $inputs = Input::only('proceso', 'triage_colores_id', 'subcategorias_cie10_id', 'estados_pacientes_id');
 
         $v = Validator::make($inputs, $reglas, $mensajes);
 
@@ -158,7 +158,7 @@ class BaseConocimientoController extends Controller
      */
     public function show($id)
     {
-        $object = BaseConocimientos::with("triageColor","estados_pacientes","subCategoriaCie10","ubicaciones_pacientes")->find($id);
+        $object = BaseConocimientos::with("triageColor","estados_pacientes","subCategoriaCie10")->find($id);
 
         if(!$object ){
 
@@ -194,7 +194,7 @@ class BaseConocimientoController extends Controller
             return Response::json(['error' => "No se encuentra el recurso que esta buscando."], HttpResponse::HTTP_NOT_FOUND);
         }
 
-        $inputs = Input::only('proceso', 'triage_colores_id', 'subcategorias_cie10_id', 'ubicaciones_pacientes_id', 'estados_pacientes_id');
+        $inputs = Input::only('proceso', 'triage_colores_id', 'subcategorias_cie10_id', 'estados_pacientes_id');
 
         $v = Validator::make($inputs, $reglas, $mensajes);
 
@@ -206,7 +206,6 @@ class BaseConocimientoController extends Controller
             $object->proceso =  $inputs['proceso'];
             $object->triage_colores_id =  $inputs['triage_colores_id'];
             $object->subcategorias_cie10_id =  $inputs['subcategorias_cie10_id'];
-            $object->ubicaciones_pacientes_id =  $inputs['ubicaciones_pacientes_id'];
             $object->estados_pacientes_id =  $inputs['estados_pacientes_id'];
 
             $object->save();

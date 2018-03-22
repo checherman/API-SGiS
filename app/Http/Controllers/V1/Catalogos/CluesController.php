@@ -5,6 +5,7 @@ namespace App\Http\Controllers\V1\Catalogos;
 use App\Http\Controllers\Controller;
 
 use App\Http\Requests;
+use App\Models\Sistema\SisUsuario;
 use Illuminate\Support\Facades\Request;
 use \Validator,\Hash, \Response, \DB;
 
@@ -116,11 +117,14 @@ class CluesController extends Controller
         }
 
         foreach ($data as $key => $value) {
-            $usuarios = Usuario::where("cargos_id", "!=", NULL)->where("clues", $value->clues)
-                ->with("cargos")
+            $directorio = SisUsuario::select('sis_usuarios.*')
+                ->where("cargos_id",">","0")
+                ->with("cargos", "SisUsuariosContactos", "SisUsuariosContactos")
+                ->join('clue_usuario', 'clue_usuario.sis_usuarios_id', '=', 'sis_usuarios.id')
+                ->where('clue_usuario.clues', $value->clues)
                 ->get();
 
-            $value->usuarios = $usuarios;
+            $value->usuarios = $directorio;
         }
 
         if(!$data){

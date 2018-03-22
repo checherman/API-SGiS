@@ -120,6 +120,14 @@ class DirectorioApoyoController extends Controller
             $total = $data;
         }
 
+        foreach ($data as $key => $value) {
+            $apoyos = ApoyoDirectorioApoyo::select("id","nombre","descripcion")->where("directorio_apoyos_id", $value->id)
+                ->join('apoyos', 'apoyos.id', '=', 'apoyo_directorio_apoyo.apoyos_id')
+                ->get();
+
+            $value->apoyos = $apoyos;
+        }
+
         if(!$data){
             return Response::json(array("status" => 404,"messages" => "No hay resultados"), 404);
         }

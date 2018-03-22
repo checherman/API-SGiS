@@ -19,6 +19,8 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 use \Validator,\Hash, \Response, \DB;
 use Illuminate\Support\Facades\Input;
 
+use Carbon\Carbon;
+
 use App\Models\Catalogos\Clues;
 use App\Models\Sistema\Multimedias;
 use App\Models\Sistema\SisUsuario;
@@ -175,7 +177,6 @@ class IncidenciaController extends Controller
                 $data = $data->skip($pagina-1)->take($datos['limite'])->orderBy('incidencias.id', $orden)
                     ->get();
             }
-
         }
         else{
             $data = Incidencias::with("pacientes.personas", "pacientes.acompaniantes.personas")
@@ -191,12 +192,24 @@ class IncidenciaController extends Controller
         }
 
         foreach ($data as $key => $value) {
-            $ahora = new DateTime("Now");
+            $ahora = Carbon::now();
             $created_at = $value->created_at;
             $diff = $created_at->diff($ahora);
             $antiguedad = $this->obtenerAntiguedad($diff);
 
             $value->antiguedad = $antiguedad;
+        }
+
+        foreach ($data as $key => $value) {
+            foreach ($value->pacientes as $keyPaciente => $valuePaciente){
+                $dt = Carbon::parse($valuePaciente->personas->fecha_nacimiento);
+                $anioNacimiento = $dt->year;
+                $mesNacimiento = $dt->month;
+                $diaNacimiento = $dt->day;
+
+                $edad = Carbon::createFromDate($anioNacimiento,$mesNacimiento,$diaNacimiento)->age;
+                $valuePaciente->personas->edad = $edad;
+            }
         }
 
         $combosEstadosIncidencia = Incidencias::all();
@@ -390,6 +403,16 @@ class IncidenciaController extends Controller
                 $antiguedad = $this->obtenerAntiguedad($diff);
 
                 $value->antiguedad = $antiguedad;
+            }
+
+            foreach ($data->pacientes as $key => $value) {
+                $dt = Carbon::parse($value->personas->fecha_nacimiento);
+                $anioNacimiento = $dt->year;
+                $mesNacimiento = $dt->month;
+                $diaNacimiento = $dt->day;
+
+                $edad = Carbon::createFromDate($anioNacimiento,$mesNacimiento,$diaNacimiento)->age;
+                $value->personas->edad = $edad;
             }
 
             if(count($data->referencias) >= 1){
@@ -802,7 +825,6 @@ class IncidenciaController extends Controller
      *
      */
     private function AgregarDatos($datos, $data){
-
         $movimientos_incidencias = null;
         $altas_incidencias = null;
         $referencia = null;
@@ -1105,8 +1127,12 @@ class IncidenciaController extends Controller
                                 DB::update("update referencias set deleted_at = null where id = '$valueReferencia->id' and incidencias_id = '$data->id' ");
                                 //si existe actualizar
                                 $referencia = Referencias::where("id", $valueReferencia->id)->where("incidencias_id", $data->id)->first();
-                            }else
+
+                                $nuevaReferencia = false;
+                            }else{
                                 $referencia = new Referencias;
+                                $nuevaReferencia = true;
+                            }
 
                             $referencia->incidencias_id                 = $data->id;
                             $referencia->medico_refiere_id              = $valueReferencia->medico_refiere_id;
@@ -1118,7 +1144,8 @@ class IncidenciaController extends Controller
                             $referencia->clues_destino                  = is_array($valueReferencia->clues_destino)?$valueReferencia->clues_destino['clues']:$valueReferencia->clues_destino;
 
                             if($referencia->save()){
-                                if (!$valuePaciente->id == null || !$valuePaciente->id == "") {
+                                //dd($nuevaReferencia);
+                                if ($nuevaReferencia) {
                                     DB::insert("insert into incidencia_clue (incidencias_id, clues) VALUE ('$data->id', '$referencia->clues_destino')");
                                 }
 

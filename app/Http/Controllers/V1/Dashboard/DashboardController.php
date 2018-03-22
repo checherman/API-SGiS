@@ -5,6 +5,7 @@ namespace App\Http\Controllers\V1\Dashboard;
 use App\Models\Transacciones\Incidencias;
 use \Validator,\Hash, \Response;
 use Request;
+use Carbon\Carbon;
 
 class DashboardController
 {
@@ -50,7 +51,7 @@ class DashboardController
         array_push($datos, ['totalTriage' => $totalTriage]);
         array_push($datos, ['triage' => $triage]);
 
-
+        //Grafica altas
         $totalMejoria = Incidencias::select('incidencias.*')
             ->join('incidencia_clue', 'incidencia_clue.incidencias_id', '=', 'incidencias.id')
             ->where('incidencia_clue.clues', $cluesH)
@@ -77,6 +78,10 @@ class DashboardController
         array_push($altas, ['nombre' => 'Defunsion', 'total' => $totalDefunsion]);
         array_push($datos, ['totalAltas' => $totalAltas]);
         array_push($datos, ['altas' => $altas]);
+
+        //Promedio hospitalizacion
+        $promedioHospitalizacion = Carbon::now();
+        array_push($datos, ['fdfd' => $promedioHospitalizacion]);
 
         if (!$datos) {
             return Response::json(array("status" => 404, "messages" => "No hay resultados"), 404);
