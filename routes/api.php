@@ -26,6 +26,8 @@ Route::get('/v1/personas-auto',             'AutoCompleteController@personas');
 Route::get('/v1/subcategoriascie10-auto',   'AutoCompleteController@subcategoriascie10');
 Route::get('/v1/usuarios-auto',             'AutoCompleteController@usuarios');
 
+Route::get('/v1/top-cie10',                 'AutoCompleteController@topCie10');
+
 //Inicia bloque de OAUTH
 /**
  * si se tiene un token y expira podemos renovar con el refresh token proporcionado
@@ -135,6 +137,7 @@ Route::middleware('tokenPermiso')->prefix("v1")->group(function(){
     Route::resource('censo-personas',       'V1\Transacciones\CensoPersonaController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
 
     Route::resource('estados-fuerza',       'V1\Transacciones\EstadoFuerzaController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
+    Route::resource('pantalla-informativa', 'V1\Transacciones\PantallaInformativaController', ['only' => ['index']]);
 });
 
 Route::group(array('prefix'=>'v1/subir-archivo' , "middleware" => "token"),function(){

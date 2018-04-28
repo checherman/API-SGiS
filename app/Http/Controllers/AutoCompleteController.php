@@ -12,6 +12,7 @@ use App\Models\Sistema\Permiso;
 use App\Models\Sistema\SisUsuario;
 use App\Models\Transacciones\Acompaniantes;
 use App\Models\Transacciones\EstadosFuerza;
+use App\Models\Transacciones\Incidencias;
 use App\Models\Transacciones\Personas;
 use Illuminate\Support\Facades\Input;
 use \Validator,\Hash, \Response;
@@ -186,6 +187,24 @@ class AutoCompleteController extends ApiController
             $query->where('nombre','LIKE',"%".$parametros['term']."%")
                 ->orWhere('username','LIKE',"%".$parametros['term']."%");
         });
+
+        $data = $data->get();
+        return $this->respuestaVerTodo($data);
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function topCie10()
+    {
+        $data =  Incidencias::select('S.id','S.nombre', 'S.codigo', DB::raw('count(M.subcategorias_cie10_id) as total'))
+            ->join('movimientos_incidencias as M', 'M.incidencias_id', '=', 'incidencias.id')
+            ->join('subcategorias_cie10 as S', 'M.subcategorias_cie10_id', '=', 'S.id')
+            ->groupBy('M.subcategorias_cie10_id')
+            ->orderBy('total', 'DESC')
+            ->limit(10);
 
         $data = $data->get();
         return $this->respuestaVerTodo($data);

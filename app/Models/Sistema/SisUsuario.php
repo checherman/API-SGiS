@@ -47,7 +47,7 @@ class SisUsuario extends BaseModel {
     }
 
     public function SisUsuariosContactos(){
-        return $this->hasMany('App\Models\Sistema\SisUsuariosContactos', 'sis_usuarios_id');
+        return $this->hasMany('App\Models\Sistema\SisUsuariosContactos', 'sis_usuarios_id')->with('TiposMedios');
     }
 
     public function SisUsuariosNotificaciones(){

@@ -119,7 +119,7 @@ class CluesController extends Controller
         foreach ($data as $key => $value) {
             $directorio = SisUsuario::select('sis_usuarios.*')
                 ->where("cargos_id",">","0")
-                ->with("cargos", "SisUsuariosContactos", "SisUsuariosContactos")
+                ->with("cargos", "SisUsuariosContactos")
                 ->join('clue_usuario', 'clue_usuario.sis_usuarios_id', '=', 'sis_usuarios.id')
                 ->where('clue_usuario.clues', $value->clues)
                 ->get();
