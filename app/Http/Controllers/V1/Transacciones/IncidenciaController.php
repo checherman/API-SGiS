@@ -245,77 +245,83 @@ class IncidenciaController extends Controller
      *
      * @apiParam {json} datos json con datos agregar.
      * @apiParamExample {json} Request-Ejemplo:
-     *     {
-     *        "id": "1812201716028804",
-     *        "motivo_ingreso": "sdfsfsdf",
-     *        "impresion_diagnostica": "sdfsdfsdfsdfsdfsdf",
-     *        "clues": "CSSSA019954",
-     *        "estados_incidencias_id": 1,
-     *        "tieneReferencia": "",
-     *        "pacientes": [
-     *             {
-     *                "id": "",
-     *                "personas_id": "jsiaojdiknaskldna88980",
-     *                "personas_id_viejo": "",
-     *                "personas": {
-     *                   "id": "jsiaojdiknaskldna88980",
-     *                   "nombre": "pruebaaaa",
-     *                   "paterno": "pruebaaaa",
-     *                   "materno": "pruebaaaa",
-     *                   "domicilio": "adadsadsadsa",
-     *                   "fecha_nacimiento": "1990-02-15",
-     *                   "telefono": "965485232",
-     *                   "estados_embarazos_id": "2",
-     *                   "derechohabientes_id": "3",
-     *                   "municipios_id": "3",
-     *                   "localidades_id": "420"
-     *                },
-     *                "acompaniantes": {
-     *                   "id": "",
-     *                   "personas_id": "asdsadasd78",
-     *                   "parentescos_id": "10",
-     *                   "esResponsable": 1,
-     *                   "personas": {
-     *                      "id": "asdsadasd78",
-     *                      "nombre": "Luis",
-     *                      "paterno": "Valdez",
-     *                      "materno": "Lescieur",
-     *                      "domicilio": "Conocido",
-     *                      "telefono": "965485232"
-     *                },
-     *             }
-     *          ],
-     *          "movimientos_incidencias": [
-     *             {
-     *                "id": "",
-     *                "turnos_id": "3",
-     *                "ubicaciones_pacientes_id": "6",
-     *                "estados_pacientes_id": "1",
-     *                "triage_colores_id": "2",
-     *                "subcategorias_cie10_id": 7354,
-     *                "medico_reporta_id": null,
-     *                "indicaciones": null,
-     *                "reporte_medico": null,
-     *                "diagnostico_egreso": null,
-     *                "observacion_trabajo_social": null,
-     *                "metodos_planificacion_id": null
-     *             }
-     *         ],
-     *          "referencias": [
-     *             {
-     *                "id": "",
-     *                "medico_refiere_id": "",
-     *                "diagnostico": "",
-     *                "resumen_clinico": "",
-     *                "clues_origen": "",
-     *                "clues_destino": "CSSSA019954",
-     *                "multimedias": {
-     *                   "img": []
-     *                },
-     *                "esContrareferencia": 0
-     *             }
-     *         ]
-     *     }
+     *{
+     *  "no_cargar": true,
+     *  "id": "662018171321593",
+     *  "motivo_ingreso": "<p>Se observa temperatura</p>\n",
+     *  "impresion_diagnostica": "<p>Estable con dilatacion</p>\n",
+     *  "clues": "CSSSA005773",
+     *  "estados_incidencias_id": 1,
+     *  "tieneReferencia": "",
+     *  "pacientes": [
+     *    {
+     *      "id": "",
+     *      "personas_id": "BSUSUS9989",
+     *      "personas_id_viejo": "",
+     *      "personas": {
+     *        "id": "BSUSUS9989",
+     *        "nombre": "Maria",
+     *        "paterno": "Candelaro",
+     *        "materno": "Lopez",
+     *        "domicilio": "Avenida",
+     *        "fecha_nacimiento": "1990-06-06",
+     *        "telefono": "9876541234",
+     *        "estados_embarazos_id": "2",
+     *        "derechohabientes_id": "2",
+     *        "municipios_id": "4",
+     *        "localidades_id": "676"
+     *      },
+     *      "acompaniantes": [
+     *        {
+     *          "id": "",
+     *          "personas_id": "JHSUHISS121212",
+     *          "parentescos_id": "1",
+     *          "esResponsable": 1,
+     *          "personas": {
+     *            "id": "JHSUHISS121212",
+     *            "nombre": "Carlos",
+     *            "paterno": "Perez",
+     *            "materno": "Gomez",
+     *            "telefono": "232323223223",
+     *            "domicilio": "Avenida Central",
+     *            "fecha_nacimiento": null
+     *          }
+     *        }
+     *      ]
+     *    }
+     *  ],
+     *  "movimientos_incidencias": [
+     *    {
+     *      "id": "",
+     *      "turnos_id": "3",
+     *      "ubicaciones_pacientes_id": "3",
+     *      "estados_pacientes_id": "1",
+     *      "triage_colores_id": "2",
+     *      "subcategorias_cie10_id": 7353,
+     *      "top_cie10_id": 7353,
+     *      "medico_reporta_id": null,
+     *      "indicaciones": null,
+     *      "reporte_medico": null,
+     *      "diagnostico_egreso": null,
+     *      "observacion_trabajo_social": null,
+     *      "metodos_planificacion_id": null
+     *    }
+     *  ],
+     *  "referencias": [
+     *    {
+     *      "id": "",
+     *      "medico_refiere_id": "",
+     *      "diagnostico": "",
+     *      "resumen_clinico": "",
+     *      "clues_origen": "",
+     *      "clues_destino": "CSSSA005773",
+     *      "multimedias": {
+     *        "img": []
+     *      },
+     *      "esIngreso": 1
+     *    }
+     *  ]
+     *}
      *
      * @apiSuccess {String} id         informacion de la nueva Incidencia.
      *
@@ -392,7 +398,6 @@ class IncidenciaController extends Controller
         if(!$data){
             return Response::json(array("status" => 204,"messages" => "No hay resultados"), 204);
         }else{
-
             $clues = DB::table('incidencia_clue')->where('incidencias_id', $id)->first();
             $data->clues = $clues->clues;
 
@@ -403,6 +408,7 @@ class IncidenciaController extends Controller
                 $antiguedad = $this->obtenerAntiguedad($diff);
 
                 $value->antiguedad = $antiguedad;
+                $value->top_cie10_id = $value->subcategorias_cie10_id;
             }
 
             foreach ($data->pacientes as $key => $value) {
@@ -437,80 +443,185 @@ class IncidenciaController extends Controller
      * @apiParam {number} id de la Incidencia que se quiere editar.
      * @apiParam {json} datos json con datos editar.
      * @apiParamExample {json} Request-Ejemplo:
-     *     {
-     *        "id": "1812201716028804",
-     *        "motivo_ingreso": "sdfsfsdf",
-     *        "impresion_diagnostica": "sdfsdfsdfsdfsdfsdf",
-     *        "clues": "CSSSA019954",
-     *        "estados_incidencias_id": 1,
-     *        "tieneReferencia": "",
-     *        "pacientes": [
-     *             {
-     *                "id": 549,
-     *                "personas_id": "jsiaojdiknaskldna88980",
-     *                "personas_id_viejo": "",
-     *                "personas": {
-     *                   "id": "jsiaojdiknaskldna88980",
-     *                   "nombre": "pruebaaaa",
-     *                   "paterno": "pruebaaaa",
-     *                   "materno": "pruebaaaa",
-     *                   "domicilio": "adadsadsadsa",
-     *                   "fecha_nacimiento": "1990-02-15",
-     *                   "telefono": "965485232",
-     *                   "estados_embarazos_id": "2",
-     *                   "derechohabientes_id": "3",
-     *                   "municipios_id": "3",
-     *                   "localidades_id": "420"
-     *                },
-     *                "acompaniantes": {
-     *                   "id": 578,
-     *                   "personas_id": "asdsadasd78",
-     *                   "parentescos_id": "10",
-     *                   "esResponsable": 1,
-     *                   "personas": {
-     *                      "id": "asdsadasd78",
-     *                      "nombre": "Luis",
-     *                      "paterno": "Valdez",
-     *                      "materno": "Lescieur",
-     *                      "domicilio": "Conocido",
-     *                      "telefono": "965485232"
-     *                },
-     *             }
-     *          ],
-     *          "movimientos_incidencias": [
-     *             {
-     *                "id": 412,
-     *                "incidencias_id": "1812201716028804",
-     *                "turnos_id": "3",
-     *                "ubicaciones_pacientes_id": "6",
-     *                "estados_pacientes_id": "1",
-     *                "triage_colores_id": "2",
-     *                "subcategorias_cie10_id": 7354,
-     *                "medico_reporta_id": null,
-     *                "indicaciones": null,
-     *                "reporte_medico": null,
-     *                "diagnostico_egreso": null,
-     *                "observacion_trabajo_social": null,
-     *                "metodos_planificacion_id": null,
-     *                "antiguedad": "4D 21hrs 55mins "
-     *             }
-     *         ],
-     *         "referencias": [
-     *             {
-     *                "id": "",
-     *                "medico_refiere_id": "medina",
-     *                "diagnostico": "asdfsadf",
-     *                "resumen_clinico": "rwerwe",
-     *                "clues_origen": "CSCRO000015",
-     *                "clues_destino": "CSSSA019954",
-     *                "multimedias": {
-     *                   "img": []
-     *                },
-     *                "esContrareferencia": 0
-     *             }
-     *         ],
-     *         "altas_incidencias": []
-     *     }
+     *{
+     *  "id": "66201816324878",
+     *  "impresion_diagnostica": "<p>G1, 37.6 SDG X FUR, TPFA</p>",
+     *  "motivo_ingreso": "<p>G1, 37.6 SDG X FUR, TPFA</p>",
+     *  "estados_incidencias_id": 2,
+     *  "clues": "CSSSA005773",
+     *  "clues_actual": "CSSSA005773",
+     *  "tieneReferencia": 0,
+     *  "pacientes": [
+     *    {
+     *      "0": [],
+     *      "id": 1659,
+     *      "personas_id": "PÑLD879865SDCFRE02",
+     *      "created_at": "2018-06-06 21:37:51",
+     *      "updated_at": "2018-06-06 21:37:51",
+     *      "pivot": {
+     *        "incidencias_id": "66201816324878",
+     *        "pacientes_id": "1659"
+     *      },
+     *      "personas": {
+     *        "id": "PÑLD879865SDCFRE02",
+     *        "nombre": "LETICIA",
+     *        "paterno": "LOPEZ",
+     *        "materno": "CRUZ",
+     *        "domicilio": "SAN JUAN CANCUC",
+     *        "fecha_nacimiento": "1998-06-18",
+     *        "telefono": "9876543214",
+     *        "estados_embarazos_id": "2",
+     *        "derechohabientes_id": "1",
+     *        "municipios_id": "112",
+     *        "localidades_id": "25937",
+     *        "edad": 19,
+     *        "municipios": {
+     *          "id": 112,
+     *          "clave": "112",
+     *          "nombre": "SAN JUAN CANCUC",
+     *          "entidades_id": "7",
+     *          "jurisdicciones_id": "2"
+     *        },
+     *        "localidades": {
+     *          "id": 25937,
+     *          "clave": "0001",
+     *          "nombre": "San Juan Cancuc",
+     *          "numeroLatitud": "165330",
+     *          "numeroLongitud": "922215",
+     *          "numeroAltitud": "1413",
+     *          "claveCarta": "E15D52",
+     *          "entidades_id": "7",
+     *          "municipios_id": "112"
+     *        },
+     *        "derechohabientes": {
+     *          "id": 1,
+     *          "nombre": "Seguro popular",
+     *          "descripcion": null
+     *        },
+     *        "estados_embarazos": {
+     *          "id": 2,
+     *          "nombre": "Embarazo sin riesgo",
+     *          "descripcion": null
+     *        }
+     *      },
+     *      "acompaniantes": [
+     *        {
+     *          "id": 1657,
+     *          "personas_id": "ASDE876325SDFVFR02",
+     *          "parentescos_id": "1",
+     *          "esResponsable": "1",
+     *          "created_at": "2018-06-06 21:37:51",
+     *          "updated_at": "2018-06-06 21:37:51",
+     *          "pivot": {
+     *            "pacientes_id": "1659",
+     *            "acompaniantes_id": "1657"
+     *          },
+     *          "personas": {
+     *            "id": "ASDE876325SDFVFR02",
+     *            "nombre": "JOSE",
+     *            "paterno": "PEREZ",
+     *            "materno": "HERNANDEZ",
+     *            "domicilio": "SAN JUAN CANCUC",
+     *            "fecha_nacimiento": null,
+     *            "telefono": "9876543214",
+     *            "estados_embarazos_id": null,
+     *            "derechohabientes_id": null,
+     *            "municipios_id": null,
+     *            "localidades_id": "0",
+     *            "localidades": null,
+     *            "derechohabientes": null,
+     *            "estados_embarazos": null
+     *          }
+     *        }
+     *      ]
+     *    }
+     *  ],
+     *  "movimientos_incidencias": [
+     *    {
+     *      "id": 1579,
+     *      "incidencias_id": "66201816324878",
+     *      "medico_reporta_id": null,
+     *      "indicaciones": null,
+     *      "reporte_medico": null,
+     *      "estados_pacientes_id": "2",
+     *      "ubicaciones_pacientes_id": "6",
+     *      "triage_colores_id": "2",
+     *      "subcategorias_cie10_id": "7697",
+     *      "top_cie10_id": "7697",
+     *      "turnos_id": "2",
+     *      "created_at": "2018-06-06 21:37:51",
+     *      "updated_at": "2018-06-06 21:37:51",
+     *      "antiguedad": "57mins ",
+     *      "estados_pacientes": {
+     *        "id": 2,
+     *        "nombre": "Delicado",
+     *        "descripcion": "."
+     *      },
+     *      "ubicaciones_pacientes": {
+     *        "id": 6,
+     *        "nombre": "En urgencias",
+     *        "descripcion": null
+     *      },
+     *      "triage_colores": {
+     *        "id": 2,
+     *        "nombre": "Amarillo",
+     *        "descripcion": null,
+     *        "tiempo_minimo": "00:15:00",
+     *        "tiempo_maximo": "00:30:00"
+     *      },
+     *      "subcategorias_cie10": {
+     *        "id": 7697,
+     *        "categorias_cie10_id": "1546",
+     *        "codigo": "O628",
+     *        "nombre": "Otras anomalias dinamicas del trabajo de parto"
+     *      },
+     *      "turnos": {
+     *        "id": 2,
+     *        "nombre": "Vespertino",
+     *        "descripcion": ""
+     *      }
+     *    },
+     *    {
+     *      "id": "",
+     *      "nuevo": 1,
+     *      "esQuitar": true,
+     *      "turnos": {
+     *        "id": 3,
+     *        "nombre": "Nocturno A",
+     *        "descripcion": "Lunes, Miercoles y Viernes"
+     *      },
+     *      "turnos_id": "3",
+     *      "ubicaciones_pacientes": {
+     *        "id": 2,
+     *        "nombre": "En atención",
+     *        "descripcion": null
+     *      },
+     *      "ubicaciones_pacientes_id": "2",
+     *      "estados_pacientes": {
+     *        "id": 3,
+     *        "nombre": "Grave",
+     *        "descripcion": ".."
+     *      },
+     *      "estados_pacientes_id": "3",
+     *      "triage_colores": {
+     *        "id": 1,
+     *        "nombre": "Verde",
+     *        "descripcion": "Clasificación de paciente estable o una urgencia no calificada.",
+     *        "tiempo_minimo": "00:40:00",
+     *        "tiempo_maximo": "01:30:00"
+     *      },
+     *      "triage_colores_id": "1",
+     *      "medico_reporta_id": "Dr. Alejandro",
+     *      "subcategorias_cie10_id": 7354,
+     *      "top_cie10_id": "7354",
+     *      "subcategorias_cie10": null,
+     *      "indicaciones": "<p>Se le hizo un</p>\n",
+     *      "reporte_medico": "<p>Se encuentra estable</p>\n"
+     *    }
+     *  ],
+     *  "referencias": [],
+     *  "altas_incidencias": []
+     *}
      **
      */
     public function update($id){
@@ -834,10 +945,11 @@ class IncidenciaController extends Controller
         $data->motivo_ingreso = $datos['motivo_ingreso'];
         $data->impresion_diagnostica = $datos['impresion_diagnostica'];
         $data->estados_incidencias_id = $datos['estados_incidencias_id'];
-
+        $data->clues_actual = $datos['clues'];
 
         if ($data->save()){
             $datos = (object) $datos;
+
             //verificar si existe paciente, en caso de que exista proceder a guardarlo
             if(property_exists($datos, "pacientes")){
                 //limpiar el arreglo de posibles nullos
@@ -996,7 +1108,6 @@ class IncidenciaController extends Controller
                         }else
                             $movimientos_incidencias = new MovimientosIncidencias;
 
-
                         $movimientos_incidencias->incidencias_id                  = $data->id;
                         $movimientos_incidencias->medico_reporta_id               = $value->medico_reporta_id;
                         $movimientos_incidencias->indicaciones                    = $value->indicaciones;
@@ -1005,7 +1116,7 @@ class IncidenciaController extends Controller
                         $movimientos_incidencias->estados_pacientes_id            = $value->estados_pacientes_id;
                         $movimientos_incidencias->ubicaciones_pacientes_id        = $value->ubicaciones_pacientes_id;
                         $movimientos_incidencias->triage_colores_id               = $value->triage_colores_id;
-                        $movimientos_incidencias->subcategorias_cie10_id          = $value->subcategorias_cie10_id;
+                        $movimientos_incidencias->subcategorias_cie10_id          = ($value->top_cie10_id)?$value->top_cie10_id:$value->subcategorias_cie10_id;
                         $movimientos_incidencias->turnos_id                       = $value->turnos_id;
 
                         $movimientos_incidencias->save();
@@ -1145,8 +1256,13 @@ class IncidenciaController extends Controller
 
                             if($referencia->save()){
                                 //dd($nuevaReferencia);
-                                if ($nuevaReferencia) {
-                                    DB::insert("insert into incidencia_clue (incidencias_id, clues) VALUE ('$data->id', '$referencia->clues_destino')");
+                                if($referencia->esIngreso == 0){
+                                    if ($nuevaReferencia) {
+                                        DB::insert("insert into incidencia_clue (incidencias_id, clues) VALUE ('$data->id', '$referencia->clues_destino')");
+                                        $incidencias = Incidencias::where('id', $data->id)->first();
+                                        $incidencias->clues_actual   = $referencia->clues_destino;
+                                        $incidencias->save();
+                                    }
                                 }
 
                                 //verificar si existe multimedias, en caso de que exista proceder a guardarlo
@@ -1203,6 +1319,29 @@ class IncidenciaController extends Controller
                 }
             }
 
+            if(property_exists($datos, "foto_referencia_celular")){
+                $medios = array_filter($datos->foto_referencia_celular, function($v){return $v !== null;});
+
+                foreach ($medios as $key => $value) {
+                    //validar que el valor no sea null
+                    if($value != null){
+                        //comprobar si el value es un array, si es convertirlo a object mas facil para manejar.
+                        if(is_array($value))
+                            $value = (object) $value;
+                        
+                        if(property_exists($value, "id")) {
+                            $multimedia = new Multimedias;
+
+                            $multimedia->referencias_id         = $value->id;
+                            $multimedia->tipo                   = "imagen";
+                            $multimedia->url                    = $this->convertir_imagen($value->multimedias, 'referencias', $value->id);
+
+                            $multimedia->save();
+                        }
+                    }
+                }
+            }
+
             $obj =  JWTAuth::parseToken()->getPayload();
             $usuarioActual = SisUsuario::where("email", $obj->get('email'))->first();
 
@@ -1217,7 +1356,11 @@ class IncidenciaController extends Controller
             if(!$movimientos_incidencias == null){
 
                 $triage = TriageColores::select("nombre")->where("id", $datos->movimientos_incidencias[sizeof($datos->movimientos_incidencias)-1]["triage_colores_id"])->first();
-                $cie10 = SubCategoriasCie10::select("nombre")->where("id", $datos->movimientos_incidencias[sizeof($datos->movimientos_incidencias)-1]["subcategorias_cie10_id"])->first();
+                if($datos->movimientos_incidencias[sizeof($datos->movimientos_incidencias)-1]["subcategorias_cie10_id"] == ""){
+                    $cie10 = SubCategoriasCie10::select("nombre")->where("id", $datos->movimientos_incidencias[sizeof($datos->movimientos_incidencias)-1]["top_cie10_id"])->first();
+                }else{
+                    $cie10 = SubCategoriasCie10::select("nombre")->where("id", $datos->movimientos_incidencias[sizeof($datos->movimientos_incidencias)-1]["subcategorias_cie10_id"])->first();
+                }
 
                 if ($datos->movimientos_incidencias[sizeof($datos->movimientos_incidencias)-1]["id"] == ""){
                     if($datos->estados_incidencias_id == 1){

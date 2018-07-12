@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\V1\Transacciones;
 
-
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use Request;
@@ -12,25 +11,24 @@ use Carbon\Carbon;
 use App\Models\Transacciones\Incidencias;
 use App\Models\Transacciones\Responsables;
 
-
 /**
- * Controlador Incidencia
+ * Controlador PantallaInformativa
  *
  * @package    UGUS API
  * @subpackage Controlador
  * @author     Luis Alberto Valdez Lescieur <luisvl13@gmail.com>
  * @created    2017-07-25
  *
- * Controlador `Incidencia`: Controlador  para el manejo de incidencias
+ * Controlador `PantallaInformativa`: Controlador para la visualizacion de incidencias
  *
  */
 class PantallaInformativaController extends Controller
 {
     /**
-     * @api {get} /incidencias 1.Listar Directorio Apoyo
+     * @api {get} /pantalla-informativa 1.Listar Pantalla Informativa
      * @apiVersion 1.0.0
-     * @apiName GetIncidencia
-     * @apiGroup Transaccion/IncidenciaController
+     * @apiName GetPantallaInformativa
+     * @apiGroup Transaccion/PantallaInformativaController
      *
      * @apiDescription Muestra una lista de los recurso según los parametros a procesar en la petición
      *
@@ -67,7 +65,6 @@ class PantallaInformativaController extends Controller
      */
     public function index()
     {
-        $estadosIncidencias  = array();
         $cluesH = Request::header('clues');
         $datos = Request::all();
         $edoIncidencia = null;
@@ -79,7 +76,6 @@ class PantallaInformativaController extends Controller
         $now = Carbon::now();
         $fechaActual = $now->toDateTimeString();
         $fechaAnterior = $now->subHours(72)->toDateTimeString();
-        //dd($fechaAnterior);
         // Si existe el parametro pagina en la url devolver las filas según sea el caso
         // si no existe parametros en la url devolver todos las filas de la tabla correspondiente
         // esta opción es para devolver todos los datos cuando la tabla es de tipo catálogo

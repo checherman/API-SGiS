@@ -66,7 +66,10 @@ class DirectorioApoyoController extends Controller
      */
     public function index(){
         $datos = Request::all();
-
+        $idMunicipio = null;
+        if(isset($datos['municipio_id'])){
+            $idMunicipio = $datos['municipio_id'];
+        }
         // Si existe el paarametro pagina en la url devolver las filas según sea el caso
         // si no existe parametros en la url devolver todos las filas de la tabla correspondiente
         // esta opción es para devolver todos los datos cuando la tabla es de tipo catálogo
@@ -113,11 +116,16 @@ class DirectorioApoyoController extends Controller
                 $data = DirectorioApoyos::skip($pagina-1)->take($datos['limite'])->orderBy($order, $orden)->get();
                 $total = DirectorioApoyos::all();
             }
-
         }
         else{
-            $data = DirectorioApoyos::get();
-            $total = $data;
+            if ($idMunicipio == null){
+                $data = DirectorioApoyos::get();
+                $total = $data;
+            }else{
+                $data = DirectorioApoyos::where('municipios_id', $idMunicipio)->get();
+                $total = $data;
+            }
+
         }
 
         foreach ($data as $key => $value) {

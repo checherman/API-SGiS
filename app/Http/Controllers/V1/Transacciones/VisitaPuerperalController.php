@@ -25,23 +25,23 @@ use App\Models\Transacciones\Personas;
 use App\Models\Transacciones\Acompaniantes;
 
 /**
- * Controlador Incidencia
+ * Controlador VisitaPuerperal
  *
  * @package    UGUS API
  * @subpackage Controlador
  * @author     Luis Alberto Valdez Lescieur <luisvl13@gmail.com>
  * @created    2017-07-25
  *
- * Controlador `Incidencia`: Controlador  para el manejo de incidencias
+ * Controlador `Visita Puerperal`: Controlador  para el manejo de visitas puerperales
  *
  */
 class VisitaPuerperalController extends Controller
 {
     /**
-     * @api {get} /incidencias 1.Listar Directorio Apoyo
+     * @api {get} /visitas-puerperales 1.Listar Incidencias para o con Visitas Puerperales
      * @apiVersion 1.0.0
-     * @apiName GetIncidencia
-     * @apiGroup Transaccion/IncidenciaController
+     * @apiName GetVisitaPuerperal
+     * @apiGroup Transaccion/VisitaPuerperalController
      *
      * @apiDescription Muestra una lista de los recurso según los parametros a procesar en la petición
      *
@@ -78,10 +78,13 @@ class VisitaPuerperalController extends Controller
      */
     public function index()
     {
-        $estadosIncidencias  = array();
         $cluesH = Request::header('clues');
         $datos = Request::all();
         $edoIncidencia = null;
+
+        $now = Carbon::now();
+        $fechaActual = $now->toDateTimeString();
+        $fechaAnterior = $now->subDays(72)->toDateTimeString();
 
         if(isset($datos['edo_incidencia'])){
             $edoIncidencia = $datos['edo_incidencia'];
@@ -153,9 +156,7 @@ class VisitaPuerperalController extends Controller
                     ->with("pacientes.personas","pacientes.acompaniantes.personas")
                     ->with("altas_incidencias", "estados_incidencias");
 
-                $data = $data->join('altas_incidencias', 'altas_incidencias.incidencias_id', '=', 'incidencias.id')
-                    ->whereBetween('altas_incidencias.created_at', array(Carbon::now()->subDays(10)->toDateString(), Carbon::now()->toDateString()));
-
+                $data = $data->join('altas_incidencias', 'altas_incidencias.incidencias_id', '=', 'incidencias.id');
                 if(!$edoIncidencia == null){
                     $data = $data->join('incidencia_clue', 'incidencia_clue.incidencias_id', '=', 'incidencias.id')
                         ->where('incidencia_clue.clues',$cluesH)
@@ -220,129 +221,191 @@ class VisitaPuerperalController extends Controller
     }
 
     /**
-     * @api {post} /incidencias 2.Crea nueva Incidencia
+     * @api {put} /visitas-puerperales/:id 2.Crea una Visita Puerperal
      * @apiVersion 1.0.0
-     * @apiName PostIncidencia
-     * @apiGroup Transaccion/IncidenciaController
+     * @apiName PutVisitaPuerperal
+     * @apiGroup Transaccion/VisitaPuerperalController
      * @apiPermission Admin
      *
-     * @apiDescription Crea una nueva Incidencia.
+     * @apiDescription Crea una Visita Puerperal.
      *
-     * @apiParam {json} datos json con datos agregar.
+     * @apiParam {number} id de la Incidencia que se quiere editar.
+     * @apiParam {json} datos json con datos editar.
      * @apiParamExample {json} Request-Ejemplo:
-     *     {
-     *        "id": "1812201716028804",
-     *        "motivo_ingreso": "sdfsfsdf",
-     *        "impresion_diagnostica": "sdfsdfsdfsdfsdfsdf",
-     *        "clues": "CSSSA019954",
-     *        "estados_incidencias_id": 1,
-     *        "tieneReferencia": "",
-     *        "pacientes": [
-     *             {
-     *                "id": "",
-     *                "personas_id": "jsiaojdiknaskldna88980",
-     *                "personas_id_viejo": "",
-     *                "personas": {
-     *                   "id": "jsiaojdiknaskldna88980",
-     *                   "nombre": "pruebaaaa",
-     *                   "paterno": "pruebaaaa",
-     *                   "materno": "pruebaaaa",
-     *                   "domicilio": "adadsadsadsa",
-     *                   "fecha_nacimiento": "1990-02-15",
-     *                   "telefono": "965485232",
-     *                   "estados_embarazos_id": "2",
-     *                   "derechohabientes_id": "3",
-     *                   "municipios_id": "3",
-     *                   "localidades_id": "420"
-     *                },
-     *                "acompaniantes": {
-     *                   "id": "",
-     *                   "personas_id": "asdsadasd78",
-     *                   "parentescos_id": "10",
-     *                   "esResponsable": 1,
-     *                   "personas": {
-     *                      "id": "asdsadasd78",
-     *                      "nombre": "Luis",
-     *                      "paterno": "Valdez",
-     *                      "materno": "Lescieur",
-     *                      "domicilio": "Conocido",
-     *                      "telefono": "965485232"
-     *                },
-     *             }
-     *          ],
-     *          "movimientos_incidencias": [
-     *             {
-     *                "id": "",
-     *                "turnos_id": "3",
-     *                "ubicaciones_pacientes_id": "6",
-     *                "estados_pacientes_id": "1",
-     *                "triage_colores_id": "2",
-     *                "subcategorias_cie10_id": 7354,
-     *                "medico_reporta_id": null,
-     *                "indicaciones": null,
-     *                "reporte_medico": null,
-     *                "diagnostico_egreso": null,
-     *                "observacion_trabajo_social": null,
-     *                "metodos_planificacion_id": null
-     *             }
-     *         ],
-     *          "referencias": [
-     *             {
-     *                "id": "",
-     *                "medico_refiere_id": "",
-     *                "diagnostico": "",
-     *                "resumen_clinico": "",
-     *                "clues_origen": "",
-     *                "clues_destino": "CSSSA019954",
-     *                "multimedias": {
-     *                   "img": []
-     *                },
-     *                "esContrareferencia": 0
-     *             }
-     *         ]
-     *     }
-     *
-     * @apiSuccess {String} id         informacion de la nueva Incidencia.
-     *
+     *{
+     *  "id": "2652018544252",
+     *  "impresion_diagnostica": "<p>G4 , ABORTO INCOMPLETO&nbsp;</p>",
+     *  "motivo_ingreso": "<p>G4&nbsp; .ABORTO INCOMPLETO&nbsp;</p>",
+     *  "estados_incidencias_id": "5",
+     *  "clues": "CSSSA005773",
+     *  "tieneReferencia": "",
+     *  "pacientes": [
+     *    {
+     *      "0": [],
+     *      "id": 1574,
+     *      "personas_id": "GOPA790613MCSMRN08",
+     *      "created_at": "2018-05-26 10:53:18",
+     *      "updated_at": "2018-05-26 10:53:18",
+     *      "pivot": {
+     *        "incidencias_id": "2652018544252",
+     *        "pacientes_id": "1574"
+     *      },
+     *      "personas": {
+     *        "id": "GOPA790613MCSMRN08",
+     *        "nombre": "ANTONIA DEL CARMEN",
+     *        "paterno": "GOMEZ",
+     *        "materno": "PEREZ",
+     *        "domicilio": "2A CDA. DEL CBTIS  #5  COL. PLANADA HUITEPEC",
+     *        "fecha_nacimiento": "1979-06-13",
+     *        "telefono": "9676832558",
+     *        "estados_embarazos_id": "1",
+     *        "derechohabientes_id": "1",
+     *        "municipios_id": "78",
+     *        "localidades_id": "16862",
+     *        "edad": 38,
+     *        "municipios": {
+     *          "id": 78,
+     *          "clave": "078",
+     *          "nombre": "SAN CRISTÓBAL DE LAS CASAS",
+     *          "entidades_id": "7",
+     *          "jurisdicciones_id": "2"
+     *        },
+     *        "localidades": {
+     *          "id": 16862,
+     *          "clave": "0001",
+     *          "nombre": "San Cristóbal de las Casas",
+     *          "numeroLatitud": "164412",
+     *          "numeroLongitud": "923818",
+     *          "numeroAltitud": "2119",
+     *          "claveCarta": "E15D62",
+     *          "entidades_id": "7",
+     *          "municipios_id": "78"
+     *        },
+     *        "derechohabientes": {
+     *          "id": 1,
+     *          "nombre": "Seguro popular",
+     *          "descripcion": null
+     *        },
+     *        "estados_embarazos": {
+     *          "id": 1,
+     *          "nombre": "Embarazo con riesgo",
+     *          "descripcion": null
+     *        }
+     *      },
+     *      "acompaniantes": [
+     *        {
+     *          "id": 1572,
+     *          "personas_id": "PEGV740314HCSRMC01",
+     *          "parentescos_id": "1",
+     *          "esResponsable": "1",
+     *          "created_at": "2018-05-26 10:53:18",
+     *          "updated_at": "2018-05-26 10:53:18",
+     *          "pivot": {
+     *            "pacientes_id": "1574",
+     *            "acompaniantes_id": "1572"
+     *          },
+     *          "personas": {
+     *            "id": "PEGV740314HCSRMC01",
+     *            "nombre": "VICENTE",
+     *            "paterno": "PEREZ",
+     *            "materno": "GOMEZ",
+     *            "domicilio": "2A CDA. DEL CBTIS  #5  COL. PLANADA HUITEPEC",
+     *            "fecha_nacimiento": null,
+     *            "telefono": "9676832558",
+     *            "estados_embarazos_id": null,
+     *            "derechohabientes_id": null,
+     *            "municipios_id": null,
+     *            "localidades_id": "0",
+     *            "localidades": null,
+     *            "derechohabientes": null,
+     *            "estados_embarazos": null
+     *          }
+     *        }
+     *      ]
+     *    }
+     *  ],
+     *  "altas_incidencias": [
+     *    {
+     *      "0": [],
+     *      "id": 395,
+     *      "incidencias_id": "2652018544252",
+     *      "clues_contrarefiere": "CSSSA005773",
+     *      "clues_regresa": "CSSSA012994",
+     *      "medico_reporta_id": "DR. JOSE ACEVES",
+     *      "metodos_planificacion_id": "6",
+     *      "tipos_altas_id": "1",
+     *      "turnos_id": "2",
+     *      "resumen_clinico": "<p>PO LUI</p>",
+     *      "diagnostico_egreso": "<p>PO LUI</p>",
+     *      "observacion_trabajo_social": "<p>MEJORIA</p>",
+     *      "instrucciones_recomendaciones": "<p>MEJORIA&nbsp;</p>",
+     *      "created_at": "2018-05-30 20:24:45",
+     *      "updated_at": "2018-05-30 20:24:45",
+     *      "status": "Por visitar",
+     *      "visitas_puerperales": [
+     *        {
+     *          "id": "",
+     *          "nuevo": 1,
+     *          "esQuitar": true,
+     *          "fecha_visita": "2018-06-06T19:18:00.000Z",
+     *          "observaciones": "<p>gfdgdgffgdgdf</p>\n",
+     *          "seAtendio": 1,
+     *          "porque": ""
+     *        }
+     *      ],
+     *      "multimedias": [],
+     *      "estados_pacientes": null,
+     *      "metodos_planificacion": {
+     *        "id": 6,
+     *        "nombre": "No acepto metodo",
+     *        "descripcion": null
+     *      },
+     *      "turnos": {
+     *        "id": 2,
+     *        "nombre": "Vespertino",
+     *        "descripcion": ""
+     *      },
+     *      "tipos_altas": {
+     *        "id": 1,
+     *        "nombre": "Alta por mejoria",
+     *        "descripcion": ".."
+     *      }
+     *    }
+     *  ]
+     *}
+     **
      */
-    public function store()
-    {
-        $datos = Input::json()->all();
+    public function update($id){
+        $datos = Request::json()->all();
 
-        $success = false;
-        $errors_main = array();
+        $validacion = $this->ValidarParametros("", $id, $datos);
+        if($validacion != ""){
+            return Response::json(['error' => $validacion], HttpResponse::HTTP_CONFLICT);
+        }
+
         DB::beginTransaction();
-
-        try {
-
-            $validacion = $this->ValidarParametros("", NULL, $datos);
-            if($validacion != ""){
-                return Response::json(['error' => $validacion], HttpResponse::HTTP_CONFLICT);
-            }
-
-            $data = new Incidencias;
+        try{
+            $data = Incidencias::find($id);
 
             $this->AgregarDatos($datos, $data);
             $success = true;
-
-        } catch (\Exception $e){
+        }catch (\Exception $e){
             return Response::json($e->getMessage(), 500);
         }
-
         if ($success){
             DB::commit();
-            return Response::json(array("status" => 201,"messages" => "Creado","data" => $data), 201);
-        } else{
+            return Response::json(array("status" => 200, "messages" => "Operación realizada con exito", "data" => $data), 200);
+        }else {
             DB::rollback();
-            return Response::json(array("status" => 409,"messages" => "Conflicto"), 409);
+            return Response::json(array("status" => 304, "messages" => "No modificado"),304);
         }
     }
 
     /**
-     * @api {get} /incidencias/:id 3.Consulta datos de una Incidencia.
+     * @api {get} /visitas-puerperales/:id 3.Consulta datos de una Visita Puerperal.
      * @apiVersion 1.0.0
-     * @apiName ShowIncidencia
-     * @apiGroup Transaccion/IncidenciaController
+     * @apiName ShowVisitaPuerperal
+     * @apiGroup Transaccion/VisitaPuerperalController
      *
      * @apiDescription Muestra una lista de los recurso según los parametros a procesar en la petición
      *
@@ -409,127 +472,13 @@ class VisitaPuerperalController extends Controller
     }
 
     /**
-     * @api {put} /incidencias/:id 4.Actualiza Incidencia
+     * @api {destroy} /visitas-puerperales/:id 5.Elimina Visita Puerperal
      * @apiVersion 1.0.0
-     * @apiName PutIncidencia
-     * @apiGroup Transaccion/IncidenciaController
+     * @apiName DestroyVisitaPuerperal
+     * @apiGroup Transaccion/VisitaPuerperalController
      * @apiPermission Admin
      *
-     * @apiDescription Actualiza una Incidencia.
-     *
-     * @apiParam {number} id de la Incidencia que se quiere editar.
-     * @apiParam {json} datos json con datos editar.
-     * @apiParamExample {json} Request-Ejemplo:
-     *     {
-     *        "id": "1812201716028804",
-     *        "motivo_ingreso": "sdfsfsdf",
-     *        "impresion_diagnostica": "sdfsdfsdfsdfsdfsdf",
-     *        "clues": "CSSSA019954",
-     *        "estados_incidencias_id": 1,
-     *        "tieneReferencia": "",
-     *        "pacientes": [
-     *             {
-     *                "id": 549,
-     *                "personas_id": "jsiaojdiknaskldna88980",
-     *                "personas_id_viejo": "",
-     *                "personas": {
-     *                   "id": "jsiaojdiknaskldna88980",
-     *                   "nombre": "pruebaaaa",
-     *                   "paterno": "pruebaaaa",
-     *                   "materno": "pruebaaaa",
-     *                   "domicilio": "adadsadsadsa",
-     *                   "fecha_nacimiento": "1990-02-15",
-     *                   "telefono": "965485232",
-     *                   "estados_embarazos_id": "2",
-     *                   "derechohabientes_id": "3",
-     *                   "municipios_id": "3",
-     *                   "localidades_id": "420"
-     *                },
-     *                "acompaniantes": {
-     *                   "id": 578,
-     *                   "personas_id": "asdsadasd78",
-     *                   "parentescos_id": "10",
-     *                   "esResponsable": 1,
-     *                   "personas": {
-     *                      "id": "asdsadasd78",
-     *                      "nombre": "Luis",
-     *                      "paterno": "Valdez",
-     *                      "materno": "Lescieur",
-     *                      "domicilio": "Conocido",
-     *                      "telefono": "965485232"
-     *                },
-     *             }
-     *          ],
-     *          "movimientos_incidencias": [
-     *             {
-     *                "id": 412,
-     *                "incidencias_id": "1812201716028804",
-     *                "turnos_id": "3",
-     *                "ubicaciones_pacientes_id": "6",
-     *                "estados_pacientes_id": "1",
-     *                "triage_colores_id": "2",
-     *                "subcategorias_cie10_id": 7354,
-     *                "medico_reporta_id": null,
-     *                "indicaciones": null,
-     *                "reporte_medico": null,
-     *                "diagnostico_egreso": null,
-     *                "observacion_trabajo_social": null,
-     *                "metodos_planificacion_id": null,
-     *                "antiguedad": "4D 21hrs 55mins "
-     *             }
-     *         ],
-     *         "referencias": [
-     *             {
-     *                "id": "",
-     *                "medico_refiere_id": "medina",
-     *                "diagnostico": "asdfsadf",
-     *                "resumen_clinico": "rwerwe",
-     *                "clues_origen": "CSCRO000015",
-     *                "clues_destino": "CSSSA019954",
-     *                "multimedias": {
-     *                   "img": []
-     *                },
-     *                "esContrareferencia": 0
-     *             }
-     *         ],
-     *         "altas_incidencias": []
-     *     }
-     **
-     */
-    public function update($id){
-        $datos = Request::json()->all();
-
-        $validacion = $this->ValidarParametros("", $id, $datos);
-        if($validacion != ""){
-            return Response::json(['error' => $validacion], HttpResponse::HTTP_CONFLICT);
-        }
-
-        DB::beginTransaction();
-        try{
-            $data = Incidencias::find($id);
-
-            $this->AgregarDatos($datos, $data);
-            $success = true;
-        }catch (\Exception $e){
-            return Response::json($e->getMessage(), 500);
-        }
-        if ($success){
-            DB::commit();
-            return Response::json(array("status" => 200, "messages" => "Operación realizada con exito", "data" => $data), 200);
-        }else {
-            DB::rollback();
-            return Response::json(array("status" => 304, "messages" => "No modificado"),304);
-        }
-    }
-
-    /**
-     * @api {destroy} /incidencias/:id 5.Elimina Incidencia
-     * @apiVersion 1.0.0
-     * @apiName DestroyIncidencia
-     * @apiGroup Transaccion/IncidenciaController
-     * @apiPermission Admin
-     *
-     * @apiDescription Actualiza una Incidencia.
+     * @apiDescription Actualiza una Visita Puerperal.
      *
      * @apiParam {number} id de la Incidencia que se quiere editar.
      **
@@ -556,10 +505,10 @@ class VisitaPuerperalController extends Controller
     }
 
     /**
-     * @api /incidencias 6.ValidarParametros
+     * @api /visitas-puerperales 6.ValidarParametros
      * @apiVersion 1.0.0
      * @apiName IncidenciaValidarParametros
-     * @apiGroup Transaccion/IncidenciaController
+     * @apiGroup Transaccion/VisitaPuerperalController
      * @apiPermission Admin
      *
      * @apiDescription Metodo que valida los parametros.
@@ -711,10 +660,10 @@ class VisitaPuerperalController extends Controller
     }
 
     /**
-     * @api /incidencias 7.AgregarDatos
+     * @api /visitas-puerperales 7.AgregarDatos
      * @apiVersion 1.0.0
      * @apiName IncidenciaAgregarDatos
-     * @apiGroup Transaccion/IncidenciaController
+     * @apiGroup Transaccion/VisitaPuerperalController
      * @apiPermission Admin
      *
      * @apiDescription Metodo que agrega datos.

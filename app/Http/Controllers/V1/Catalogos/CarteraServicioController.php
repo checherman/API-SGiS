@@ -4,6 +4,8 @@ namespace App\Http\Controllers\V1\Catalogos;
 
 use App\Http\Controllers\Controller;
 
+use App\Models\Catalogos\Clues;
+use App\Models\Catalogos\NivelesCones;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Http\Response as HttpResponse;
 
@@ -69,6 +71,10 @@ class CarteraServicioController extends Controller
      */
     public function index(){
         $datos = Request::all();
+        $cluesH = Request::header('clues');
+
+        $nivelCONE = Clues::select("nivel_cone_id")->where('clues', $cluesH)->first();
+        $nivelesCones = $nivelCONE->nivel_cone_id;
 
         // Si existe el paarametro pagina en la url devolver las filas según sea el caso
         // si no existe parametros en la url devolver todos las filas de la tabla correspondiente
@@ -110,13 +116,19 @@ class CarteraServicioController extends Controller
                 $data = $data->skip($pagina-1)->take($datos['limite'])->get();
             }
             else{
-                $data = CarteraServicios::skip($pagina-1)->take($datos['limite'])->orderBy($order, $orden)->get();
-                $total = CarteraServicios::all();
+                $data = CarteraServicios::select('cartera_servicios.*')
+                    ->join('cartera_servicio_nivel_cone', 'cartera_servicio_nivel_cone.cartera_servicios_id', '=', 'cartera_servicios.id')
+                    ->where('cartera_servicio_nivel_cone.niveles_cones_id', $nivelesCones);
+
+                $total = $data->get();
+                $data = $data->skip($pagina-1)->take($datos['limite'])->orderBy($order, $orden)->get();
             }
 
         }
         else{
-            $data = CarteraServicios::get();
+            $data = CarteraServicios::select('cartera_servicios.*')
+                ->join('cartera_servicio_nivel_cone', 'cartera_servicio_nivel_cone.cartera_servicios_id', '=', 'cartera_servicios.id')
+                ->where('cartera_servicio_nivel_cone.niveles_cones_id', $nivelesCones)->get();
             $total = $data;
         }
 

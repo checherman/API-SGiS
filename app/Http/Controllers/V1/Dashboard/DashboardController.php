@@ -220,8 +220,12 @@ class DashboardController
 
         //$tiempoPromedioHospitalizacion = $data;
         //array_push($datos, ['tiempoPromedioHospitalizacion' => $tiempoPromedioHospitalizacion]);
+        if($totalAltas <= 0){
+            $procentajeExitoAtencion = 0.0;
+        }else{
+            $procentajeExitoAtencion = ($totalMejoria * 100) / $totalAltas;
+        }
 
-        $procentajeExitoAtencion = ($totalMejoria * 100) / $totalAltas;
         array_push($datos, ['procentajeExitoAtencion' => round($procentajeExitoAtencion,2)]);
 
         //Metas Obstetricas

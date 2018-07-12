@@ -69,7 +69,7 @@ class EstadoFuerzaController extends Controller
      */
     public function index(){
         $datos = Request::all();
-
+        $cluesH = Request::header('clues');
         // Si existe el paarametro pagina en la url devolver las filas según sea el caso
         // si no existe parametros en la url devolver todos las filas de la tabla correspondiente
         // esta opción es para devolver todos los datos cuando la tabla es de tipo catálogo
@@ -84,7 +84,7 @@ class EstadoFuerzaController extends Controller
                 $order = str_replace("-", "", $order);
             }
             else{
-                $order = "id"; $orden = "asc";
+                $order = "id"; $orden = "desc";
             }
 
             if($pagina == 0){
@@ -97,7 +97,9 @@ class EstadoFuerzaController extends Controller
             if(array_key_exists('buscar', $datos)){
                 $columna = $datos['columna'];
                 $valor   = $datos['valor'];
-                $data = EstadosFuerza::with('clues', 'respuesta_estados_fuerza', 'turnos', 'sis_usuarios')->orderBy($order,$orden);
+                $data = EstadosFuerza::with('clues', 'respuesta_estados_fuerza', 'turnos', 'sis_usuarios')
+                                     ->where('clues',$cluesH)
+                                     ->orderBy($order,$orden);
 
                 $search = trim($valor);
                 $keyword = $search;
@@ -110,14 +112,17 @@ class EstadoFuerzaController extends Controller
                 $data = $data->skip($pagina-1)->take($datos['limite'])->get();
             }
             else{
-                $data = EstadosFuerza::with('clues', 'respuesta_estados_fuerza', 'turnos', 'sis_usuarios')->skip($pagina-1)->take($datos['limite'])->orderBy($order, $orden)->get();
-                $total = EstadosFuerza::all();
+                $data = EstadosFuerza::with('clues', 'respuesta_estados_fuerza', 'turnos', 'sis_usuarios')
+                                     ->where('clues',$cluesH)
+                                     ->skip($pagina-1)->take($datos['limite'])->orderBy($order, $orden)->get();
+                $total = EstadosFuerza::where('clues',$cluesH);
             }
 
         }
         else{
-            $data = EstadosFuerza::with('clues', 'respuesta_estados_fuerza', 'turnos', 'sis_usuarios')->get();
-            $total = $data;
+            $data = EstadosFuerza::with('clues', 'respuesta_estados_fuerza', 'turnos', 'sis_usuarios')
+                                 ->where('clues',$cluesH)->get();
+            $total = $data::where('clues',$cluesH);
         }
 
         if(!$data){
@@ -178,9 +183,7 @@ class EstadoFuerzaController extends Controller
         $datos = Request::json()->all();
 
         DB::beginTransaction();
-
         try {
-
             $data = new EstadosFuerza;
             $success = $this->AgregarDatosRespuesta($datos, $data);
 
@@ -232,7 +235,6 @@ class EstadoFuerzaController extends Controller
         $nivelesCones = NivelesCones::find($nivelCONE->nivel_cone_id);
 
         if (!$nivelesCones) {
-
             return Response::json(['error' => "No se encuentra el recurso que esta buscando."], HttpResponse::HTTP_NOT_FOUND);
         }
 

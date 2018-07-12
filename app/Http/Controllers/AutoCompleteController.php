@@ -18,8 +18,6 @@ use Illuminate\Support\Facades\Input;
 use \Validator,\Hash, \Response;
 use DB;
 
-
-
 class AutoCompleteController extends ApiController
 {
     /**
@@ -185,7 +183,7 @@ class AutoCompleteController extends ApiController
 
         $data =  SisUsuario::with("SisUsuariosGrupos", "SisUsuariosContactos")->where(function($query) use ($parametros) {
             $query->where('nombre','LIKE',"%".$parametros['term']."%")
-                ->orWhere('username','LIKE',"%".$parametros['term']."%");
+                ->orWhere('email','LIKE',"%".$parametros['term']."%");
         });
 
         $data = $data->get();

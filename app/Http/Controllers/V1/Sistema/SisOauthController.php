@@ -179,7 +179,7 @@ class SisOauthController extends Controller {
 
             $variable = DB::table('clue_usuario')
                 ->leftJoin("clues","clues.clues","clue_usuario.clues")
-                ->select("clues.clues","clues.nombre","clues.numeroLongitud","clues.numeroLatitud")
+                ->select("clues.clues","clues.nombre","clues.numeroLongitud","clues.numeroLatitud","clues.municipios_id")
                 ->where('sis_usuarios_id', $usuario_logueado)->get();
 
             $server_info = [
@@ -569,9 +569,10 @@ class SisOauthController extends Controller {
 		$data->avatar 			 = property_exists($datos, "avatar") 			? $datos->avatar : '';
 		$data->foto 			 = property_exists($datos, "foto") 				? $datos->foto : '';
 		$data->spam 			 = property_exists($datos, "spam") 				? $datos->spam : '';
-		$data->paises_id 		 = property_exists($datos, "paises_id") 		? $datos->paises_id : '';
-		$data->estados_id 		 = property_exists($datos, "estados_id") 		? $datos->estados_id : '';
-		$data->municipios_id 	 = property_exists($datos, "municipios_id") 	? $datos->municipios_id : '';	
+        $data->localidades_id 	 = property_exists($datos, "localidades_id") 	? $datos->localidades_id 		: '';
+        $data->estados_id 		 = property_exists($datos, "estados_id") 		? $datos->estados_id 			: '';
+        $data->municipios_id 	 = property_exists($datos, "municipios_id") 	? $datos->municipios_id 		: '';
+        $data->cargos_id 	     = property_exists($datos, "cargos_id") 	    ? $datos->cargos_id 		    : '';
 
         if ($data->save()) {
         	if(property_exists($datos, "grupo")){

@@ -6,7 +6,8 @@ namespace App\Models\Catalogos;
 use App\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class DirectorioApoyos extends BaseModel
+class
+DirectorioApoyos extends BaseModel
 {
     protected $table = "directorio_apoyos";
     protected $fillable = ["id", "institucion", "direccion", "responsable", "telefono", "correo", "municipios_id", "localidades_id"];

@@ -55,6 +55,7 @@ class DirectorioController extends Controller{
         $datos = Request::all();
         $obj =  JWTAuth::parseToken()->getPayload();
         $usuario = SisUsuario::where("email", $obj->get('email'))->first();
+        $cluesH = Request::header('clues');
         // Si existe el paarametro pagina en la url devolver las filas según sea el caso
         // si no existe parametros en la url devolver todos las filas de la tabla correspondiente
         // esta opción es para devolver todos los datos cuando la tabla es de tipo catálogo
@@ -82,7 +83,9 @@ class DirectorioController extends Controller{
             if(array_key_exists("buscar", $datos)){
                 $columna = $datos["columna"];
                 $valor   = $datos["valor"];
-                $data = SisUSuario::where("cargos_id",">","0")->with("SisUsuariosClues","SisUsuariosContactos", "cargos")->orderBy($order, $orden);
+                $data = SisUSuario::where("cargos_id",">","0")
+                    ->with("SisUsuariosClues","SisUsuariosContactos", "cargos")
+                    ->orderBy($order, $orden);
 
                 $search = trim($valor);
                 $keyword = $search;
@@ -93,23 +96,33 @@ class DirectorioController extends Controller{
                 });
                 if(!$usuario->es_super)
                     $data = $data->whereIn("es_super", 0);
+
                 $total = $data->get();
                 $data = $data->skip($pagina-1)->take($datos["limite"])->get();
             }
             else{
-                $data = SisUSuario::where("cargos_id",">","0")->with("SisUsuariosClues","SisUsuariosContactos", "cargos")->skip($pagina-1)->take($datos["limite"])->orderBy($order, $orden);
+                $data = SisUSuario::select('sis_usuarios.*')
+                                  ->where("cargos_id",">","0")
+                                  ->with("SisUsuariosClues","SisUsuariosContactos", "cargos");
+
+                $data = $data->join('clue_usuario', 'clue_usuario.sis_usuarios_id', '=', 'sis_usuarios.id')
+                    ->where('clue_usuario.clues',$cluesH);
+
                 if(!$usuario->es_super)
                     $data = $data->whereIn("es_super", 0);
-                $data = $data->get();
-                $total =  SisUSuario::where("cargos_id",">","0")->with("SisUsuariosClues","SisUsuariosContactos", "cargos");
-                if(!$usuario->es_super)
-                    $total = $total->whereIn("es_super", 0);
-                $total = $total->get();
-            }
+                $total = $data->get();
 
+                $data = $data->skip($pagina-1)->take($datos["limite"])->orderBy($order, $orden)->get();
+            }
         }
         else{
-            $data = SisUSuario::where("cargos_id",">","0")->with("SisUsuariosClues","SisUsuariosContactos", "cargos");
+            $data = SisUSuario::select('sis_usuarios.*')
+                                ->where("cargos_id",">","0")
+                                ->with("SisUsuariosClues","SisUsuariosContactos", "cargos");
+
+            $data = $data->join('clue_usuario', 'clue_usuario.sis_usuarios_id', '=', 'sis_usuarios.id')
+                ->where('clue_usuario.clues',$cluesH);
+
             if(!$usuario->es_super)
                 $data = $data->whereIn("es_super", 0);
             $data = $data->get();
