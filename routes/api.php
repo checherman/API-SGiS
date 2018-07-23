@@ -133,7 +133,8 @@ Route::middleware('tokenPermiso')->prefix("v1")->group(function(){
     Route::resource('directorio',           'V1\Transacciones\DirectorioController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
     Route::resource('directorio-apoyos',    'V1\Transacciones\DirectorioApoyoController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
     Route::resource('incidencias',          'V1\Transacciones\IncidenciaController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
-    Route::resource('visitas-puerperales',    'V1\Transacciones\VisitaPuerperalController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
+    Route::resource('incidencias-transito', 'V1\Transacciones\IncidenciaTransitoController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
+    Route::resource('visitas-puerperales',  'V1\Transacciones\VisitaPuerperalController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
     Route::resource('censo-personas',       'V1\Transacciones\CensoPersonaController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
 
     Route::resource('estados-fuerza',       'V1\Transacciones\EstadoFuerzaController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);

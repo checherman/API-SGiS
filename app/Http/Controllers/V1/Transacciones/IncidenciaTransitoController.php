@@ -45,7 +45,7 @@ use App\Models\Transacciones\Referencias;
  * Controlador `Incidencia`: Controlador  para el manejo de incidencias
  *
  */
-class IncidenciaController extends Controller
+class IncidenciaTransitoController extends Controller
 {
     /**
      * @api {get} /incidencias 1.Listar Directorio Apoyo
@@ -225,7 +225,6 @@ class IncidenciaController extends Controller
         }
 
         $estadosIncidencias = array_map("unserialize", array_unique(array_map("serialize", $estadosIncidencias)));
-
         $data[count($data)] = array("estados_incidencias" => array_values($estadosIncidencias));
 
         if(!$data){
@@ -233,10 +232,7 @@ class IncidenciaController extends Controller
         }
         else{
             return Response::json(array("status" => 200,"messages" => "Operación realizada con exito","data" => $data,"total" => count($total)), 200);
-
         }
-
-
     }
 
     /**
@@ -803,8 +799,8 @@ class IncidenciaController extends Controller
 
         $rules = [
             //'id' => 'required|unique:incidencias,id,'.$id.',id,deleted_at,NULL',
-            //'motivo_ingreso' => 'required',
-            //'impresion_diagnostica' => 'required',
+            'motivo_ingreso' => 'required',
+            'impresion_diagnostica' => 'required',
         ];
 
         $v = Validator::make($request, $rules, $messages);
@@ -944,17 +940,18 @@ class IncidenciaController extends Controller
         $movimientos_incidencias = null;
         $altas_incidencias = null;
         $referencia = null;
-        $datos = (object) $datos;
 
         //Informacion de incidencia
-        $data->id = $datos->id;
-        $data->motivo_ingreso          = property_exists($datos, "motivo_ingreso")?$datos->motivo_ingreso:'';
-        $data->impresion_diagnostica   = property_exists($datos, "impresion_diagnostica")?$datos->impresion_diagnostica:'';
-        $data->estados_incidencias_id = $datos->estados_incidencias_id;
-        $data->clues_actual = $datos->clues;
-        $data->enTransito = $datos->enTransito;
+        $data->id = $datos['id'];
+        $data->motivo_ingreso = $datos['motivo_ingreso'];
+        $data->impresion_diagnostica = $datos['impresion_diagnostica'];
+        $data->estados_incidencias_id = $datos['estados_incidencias_id'];
+        $data->clues_actual = $datos['clues'];
+        $data->enTransito = $datos['en_transito'];
 
         if ($data->save()){
+            $datos = (object) $datos;
+
             //verificar si existe paciente, en caso de que exista proceder a guardarlo
             if(property_exists($datos, "pacientes")){
                 //limpiar el arreglo de posibles nullos
@@ -1109,20 +1106,21 @@ class IncidenciaController extends Controller
                                 $movimientos_incidencias = MovimientosIncidencias::where("id", $value->id)->where("incidencias_id", $data->id)->first();
                             }else
                                 $movimientos_incidencias = new MovimientosIncidencias;
+
                         }else
                             $movimientos_incidencias = new MovimientosIncidencias;
 
                         $movimientos_incidencias->incidencias_id                  = $data->id;
-                        $movimientos_incidencias->medico_reporta_id               = property_exists($value, "medico_reporta_id")?$value->medico_reporta_id:null;
-                        $movimientos_incidencias->indicaciones                    = property_exists($value, "indicaciones")?$value->indicaciones:null;
-                        $movimientos_incidencias->reporte_medico                  = property_exists($value, "reporte_medico")?$value->reporte_medico:null;
+                        $movimientos_incidencias->medico_reporta_id               = $value->medico_reporta_id;
+                        $movimientos_incidencias->indicaciones                    = $value->indicaciones;
+                        $movimientos_incidencias->reporte_medico                  = $value->reporte_medico;
 
                         $movimientos_incidencias->estados_pacientes_id            = $value->estados_pacientes_id;
                         $movimientos_incidencias->triage_colores_id               = $value->triage_colores_id;
                         $movimientos_incidencias->subcategorias_cie10_id          = ($value->top_cie10_id)?$value->top_cie10_id:$value->subcategorias_cie10_id;
 
-                        $movimientos_incidencias->ubicaciones_pacientes_id        = property_exists($value, "ubicaciones_pacientes_id")?$value->ubicaciones_pacientes_id:3;
-                        $movimientos_incidencias->turnos_id                       = property_exists($value, "turnos_id")?$value->turnos_id:null;
+                        $movimientos_incidencias->ubicaciones_pacientes_id        = $value->ubicaciones_pacientes_id;
+                        $movimientos_incidencias->turnos_id                       = $value->turnos_id;
 
                         $movimientos_incidencias->save();
                     }
