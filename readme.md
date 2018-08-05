@@ -104,7 +104,7 @@ Para usar el sistema completo con una interfaz web y no solo realizar las petici
 
 ### Licencia 
 ---
-Los detalles de licencia para este código fuente se encuentran en el archivo  [LICENSE.md](https://github.com/Luisvl13/API-SGiS/blob/master/LICENSE.MD)
+Los detalles de licencia para este código fuente se encuentran en el archivo  [LICENSE.md](https://github.com/Luisvl13/API-SGiS/blob/master/LICENSE.md)
 
 ## Limitación de responsabilidades
 

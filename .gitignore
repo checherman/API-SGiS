@@ -9,3 +9,4 @@ Homestead.json
 .idea/
 .gitignore
 .DS_Store
+package-lock.json
