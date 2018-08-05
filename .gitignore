@@ -8,3 +8,4 @@ Homestead.json
 /config/databases.php
 .idea/
 .gitignore
+.DS_Store

@@ -1,5 +1,4 @@
-
+*.*
 !public/
 !seeds/*.*
 !.gitignore
-log.sync
